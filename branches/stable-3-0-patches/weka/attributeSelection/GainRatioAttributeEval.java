@@ -33,7 +33,7 @@ import  weka.filters.*;
  * Treat missing values as a seperate value. <br>
  *
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.5.2.1 $
  */
 public class GainRatioAttributeEval
   extends AttributeEvaluator
@@ -300,7 +300,7 @@ public class GainRatioAttributeEval
       sumj[nj - 1] = 0.0;
 
       // do the both missing
-      if (counts[ni - 1][nj - 1] > 0.0) {
+      if (counts[ni - 1][nj - 1] > 0.0 && total_missing != sum) {
         for (i = 0; i < ni - 1; i++) {
           for (j = 0; j < nj - 1; j++) {
             temp = (counts_copy[i][j]/(sum - total_missing)) * 

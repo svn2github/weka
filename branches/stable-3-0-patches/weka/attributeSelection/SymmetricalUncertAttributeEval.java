@@ -299,7 +299,7 @@ public class SymmetricalUncertAttributeEval
       sumj[nj - 1] = 0.0;
 
       // do the both missing
-      if (counts[ni - 1][nj - 1] > 0.0) {
+      if (counts[ni - 1][nj - 1] > 0.0 && total_missing != sum) {
 	for (i = 0; i < ni - 1; i++) {
 	  for (j = 0; j < nj - 1; j++) {
 	    temp = (counts_copy[i][j]/(sum - total_missing)) * 

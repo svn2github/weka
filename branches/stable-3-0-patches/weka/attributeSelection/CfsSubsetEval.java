@@ -41,7 +41,7 @@ import  weka.filters.*;
  * Include locally predictive attributes. <p>
  *
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.5.2.1 $
  */
 public class CfsSubsetEval
   extends SubsetEvaluator
@@ -399,7 +399,9 @@ public class CfsSubsetEval
     }
 
     // distribute missing counts
-    if (!m_missingSeperate) {
+    if (!m_missingSeperate &&
+	(sumi[ni-1] < m_numInstances) && 
+	(sumj[nj-1] < m_numInstances)) {
       double[] i_copy = new double[sumi.length];
       double[] j_copy = new double[sumj.length];
       double[][] counts_copy = new double[sumi.length][sumj.length];
@@ -448,7 +450,7 @@ public class CfsSubsetEval
       sumj[nj - 1] = 0.0;
 
       // do the both missing
-      if (counts[ni - 1][nj - 1] > 0.0) {
+      if (counts[ni - 1][nj - 1] > 0.0 && total_missing != sum) {
 	for (i = 0; i < ni - 1; i++) {
 	  for (j = 0; j < nj - 1; j++) {
 	    temp = (counts_copy[i][j]/(sum - total_missing)) * 
