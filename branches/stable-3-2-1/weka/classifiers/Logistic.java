@@ -50,7 +50,7 @@ import weka.filters.*;
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Tony Voyle (tv6@cs.waikato.ac.nz)
- * @version $Revision: 1.12 $ 
+ * @version $Revision: 1.12.2.1 $ 
  */
 public class Logistic extends DistributionClassifier implements OptionHandler {
 
@@ -588,7 +588,6 @@ public class Logistic extends DistributionClassifier implements OptionHandler {
     m_Par = new double [nR + 1];    // Coefficients
     double LLp = 2e+10;             // Log-likelihood on previous iteration
     m_LL  = 1e+10;                  // Log-likelihood of current iteration
-    m_LLn = 0;                      // Log-likelihood of null hypothesis
 
     double [] deltas = new double [nR + 1];
     Matrix jacobian = new Matrix(nR + 1, nR + 1);
@@ -599,6 +598,8 @@ public class Logistic extends DistributionClassifier implements OptionHandler {
       m_Par[j] = 0;
     }
     
+    m_LLn = cLL(X, Y, m_Par);        // Log-likelihood of null hypothesis
+
     double x[] = new double[m_Par.length];
     for (int q=0; q < x.length;q++) x[q] = 0;
 
