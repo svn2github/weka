@@ -1,5 +1,5 @@
 #
-# $Revision: 1.4 $
+# $Revision: 1.4.2.1 $
 #
 
 .PHONY: all optimized debug clean install archive doc
@@ -51,7 +51,10 @@ doc :
 	weka.estimators \
 	weka.associations \
 	weka.clusterers \
-	weka.attributeSelection)
+	weka.attributeSelection; \
+	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
+	< doc/packages.html > packages_temp.html; \
+	mv packages_temp.html doc/packages.html)
 
 # Assumes any auxiliary classfiles are in the parent directory
 # One of these must be SimpleCLI.class
@@ -89,7 +92,10 @@ install : all
 	weka.estimators \
 	weka.associations \
 	weka.clusterers \
-	weka.attributeSelection
+	weka.attributeSelection;
+	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
+	< $$JAWSHOME/doc/packages.html > $$JAWSHOME/packages_temp.html; \
+	mv $$JAWSHOME/packages_temp.html $$JAWSHOME/doc/packages.html
 
 archive :
 	(cd ..; \
