@@ -22,7 +22,6 @@ import java.io.*;
 import java.util.*;
 import weka.core.*;
 
-
 /**
  * <i>K</i>-nearest neighbour classifier. For more information, see <p>
  * 
@@ -60,7 +59,7 @@ import weka.core.*;
  * @author Stuart Inglis (singlis@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.10.2.1 $
+ * @version $Revision: 1.10.2.2 $
  */
 public class IBk extends DistributionClassifier implements
   OptionHandler, UpdateableClassifier, WeightedInstancesHandler {
@@ -299,17 +298,12 @@ public class IBk extends DistributionClassifier implements
 
   /** True if debugging output should be printed */
   boolean m_Debug;
-
+  
   /* Define possible instance weighting methods */
   public static final int WEIGHT_NONE = 1;
   public static final int WEIGHT_INVERSE = 2;
   public static final int WEIGHT_SIMILARITY = 4;
-  public static final Tag [] TAGS_WEIGHTING = {
-    new Tag(WEIGHT_NONE, "No distance weighting"),
-    new Tag(WEIGHT_INVERSE, "Weight by 1/distance"),
-    new Tag(WEIGHT_SIMILARITY, "Weight by 1-distance")
-  };
-								   
+
   /**
    * IBk classifier. Simple instance-based learner that uses the class
    * of the nearest k training instances for the class of the test
@@ -408,13 +402,9 @@ public class IBk extends DistributionClassifier implements
    *
    * @return the distance weighting method used.
    */
-  public SelectedTag getDistanceWeighting() {
-
-    try {
-      return new SelectedTag(m_DistanceWeighting, TAGS_WEIGHTING);
-    } catch (Exception ex) {
-      return null;
-    }
+  public int getDistanceWeighting() {
+    
+    return m_DistanceWeighting;
   }
   
   /**
@@ -423,13 +413,14 @@ public class IBk extends DistributionClassifier implements
    *
    * @param newDistanceWeighting the distance weighting method to use
    */
-  public void setDistanceWeighting(SelectedTag newMethod) {
+  public void setDistanceWeighting(int newDistanceWeighting) {
     
-    if (newMethod.getTags() == TAGS_WEIGHTING) {
-      m_DistanceWeighting = newMethod.getSelectedTag().getID();
+    if ((newDistanceWeighting &
+	(WEIGHT_NONE | WEIGHT_INVERSE | WEIGHT_SIMILARITY)) != 0) {
+      m_DistanceWeighting = newDistanceWeighting;
     }
   }
-
+  
   /**
    * Gets whether the mean squared error is used rather than mean
    * absolute error when doing cross-validation.
@@ -542,8 +533,7 @@ public class IBk extends DistributionClassifier implements
       updateMinMax((Instance) enum.nextElement());
     }
 
-    // Invalidate any currently cross-validation selected k
-    m_kNNValid = false;
+    crossValidate();
   }
 
   /**
@@ -591,7 +581,7 @@ public class IBk extends DistributionClassifier implements
       }
     }
 
-    // Select k by cross validation
+    // Select k by cross validation (and determine Bayes model weights)
     if (!m_kNNValid && (m_CrossValidate) && (m_kNN > 1)) {
       crossValidate();
     }
@@ -686,11 +676,11 @@ public class IBk extends DistributionClassifier implements
       setWindowSize(0);
     }
     if (Utils.getFlag('D', options)) {
-      setDistanceWeighting(new SelectedTag(WEIGHT_INVERSE, TAGS_WEIGHTING));
+      setDistanceWeighting(WEIGHT_INVERSE);
     } else if (Utils.getFlag('F', options)) {
-      setDistanceWeighting(new SelectedTag(WEIGHT_SIMILARITY, TAGS_WEIGHTING));
+      setDistanceWeighting(WEIGHT_SIMILARITY);
     } else {
-      setDistanceWeighting(new SelectedTag(WEIGHT_NONE, TAGS_WEIGHTING));
+      setDistanceWeighting(WEIGHT_NONE);
     }
     setCrossValidate(Utils.getFlag('X', options));
     setMeanSquared(Utils.getFlag('S', options));
