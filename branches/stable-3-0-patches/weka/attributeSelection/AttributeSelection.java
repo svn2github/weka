@@ -75,7 +75,7 @@ import  weka.core.*;
  * ------------------------------------------------------------------------ <p>
  *
  * @author   Mark Hall (mhall@cs.waikato.ac.nz)
- * @version  $Revision: 1.6 $
+ * @version  $Revision: 1.6.2.1 $
  */
 public class AttributeSelection {
 
@@ -152,23 +152,19 @@ public class AttributeSelection {
     double[] subsetResults;
     double[][] attributeRanking = null;
 
-    if (ASEvaluator instanceof UnsupervisedSubsetEvaluator) {
-      subsetResults = new double[cvData.numAttributes()];
-    }
-    else {
-      subsetResults = new double[cvData.numAttributes() - 1];
-    }
+    subsetResults = new double[cvData.numAttributes()];
+
 
     if (!(ASEvaluator instanceof UnsupervisedSubsetEvaluator) && 
 	!(ASEvaluator instanceof UnsupervisedAttributeEvaluator)) {
       if (cvData.classAttribute().isNominal()) {
 	cvData.stratify(folds);
       }
-      rankResults = new double[4][cvData.numAttributes() - 1];
+      //      rankResults = new double[4][cvData.numAttributes() - 1];
     }
-    else {
-      rankResults = new double[4][cvData.numAttributes()];
-    }
+
+    rankResults = new double[4][cvData.numAttributes()];
+
 
     for (int i = 0; i < folds; i++) {
       // Perform attribute selection
@@ -185,7 +181,7 @@ public class AttributeSelection {
         attributeRanking = ((RankedOutputSearch)searchMethod).
 	  rankedAttributes();
 
-        // System.out.println(attributeRanking[0][1]);
+
         for (int j = 0; j < attributeRanking.length; j++) {
           // merit
           rankResults[0][(int)attributeRanking[j][0]] += 
@@ -223,7 +219,7 @@ public class AttributeSelection {
       CvString.append("average merit      average rank  attribute\n");
 
       // calcualte means and std devs
-      for (int i = 0; i < attributeRanking.length; i++) {
+      for (int i = 0; i < data.numAttributes(); i++) {
 	rankResults[0][i] /= folds; // mean merit
 	double var = rankResults[0][i]*rankResults[0][i]*folds;
 	var = (rankResults[2][i] - var);
@@ -253,7 +249,7 @@ public class AttributeSelection {
 
       // now sort them by mean merit
       int[] s = Utils.sort(rankResults[0]);
-      for (int i = s.length - 1; i >= 0; i--) {
+      for (int i = s.length - 1; i >= 1; i--) {
 	CvString.append(Utils.doubleToString(rankResults[0][s[i]], 6, 3) 
 			+ "+-" 
 			+ Utils.doubleToString(rankResults[2][s[i]], 6, 3) 
@@ -272,14 +268,17 @@ public class AttributeSelection {
       CvString.append("number of folds (%)  attribute\n");
 
       for (int i = 0; i < subsetResults.length; i++) {
-	CvString.append(Utils.doubleToString(subsetResults[i], 12, 0) 
-			+ "(" 
-			+ Utils.doubleToString((subsetResults[i]/folds*100.0)
-					       , 3, 0) 
-			+ " %)  " 
-			+ (i + 1) + " " 
-			+ cvData.attribute(i).name() 
-			+ "\n");
+	if ((ASEvaluator instanceof UnsupervisedSubsetEvaluator) ||
+	    (i != data.classIndex())) {
+	  CvString.append(Utils.doubleToString(subsetResults[i], 12, 0) 
+			  + "(" 
+			  + Utils.doubleToString((subsetResults[i]/folds*100.0)
+						 , 3, 0) 
+			  + " %)  " 
+			  + (i + 1) + " " 
+			  + cvData.attribute(i).name() 
+			  + "\n");
+	}
       }
     }
 
