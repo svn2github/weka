@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Yong Wang (yongwang@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
- * @version $Revision: 1.12.2.2 $
+ * @version $Revision: 1.12.2.3 $
  */
 public final class Utils {
 
@@ -839,52 +839,25 @@ public final class Utils {
   }
 
   /**
-   * Sorts a given array of doubles in ascending order and returns an 
-   * array of integers with the positions of the elements of the original 
-   * array in the sorted array. The sort is stable. (Equal elements remain
-   * in their original order.)
+   * Sorts a given array of doubles in ascending order and returns an
+   * array of integers with the positions of the elements of the
+   * original array in the sorted array. NOTE THESE CHANGES: the sort
+   * is no longer stable and it doesn't use safe floating-point
+   * comparisons anymore.
    *
    * @param array this array is not changed by the method!
    * @return an array of integers with the positions in the sorted
-   * array.
+   * array.  
    */
   public static int[] sort(double [] array) {
 
     int [] index = new int[array.length];
-    int [] newIndex = new int[array.length];
-    int [] helpIndex;
-    int numEqual;
     
     for (int i = 0; i < index.length; i++) {
       index[i] = i;
     }
     quickSort(array, index, 0, array.length - 1);
-
-    // Make sort stable
-    int i = 0;
-    while (i < index.length) {
-      numEqual = 1;
-      for (int j = i + 1; ((j < index.length)
-			   && Utils.eq(array[index[i]], array[index[j]]));
-	   j++) {
-	numEqual++;
-      }
-      if (numEqual > 1) {
-	helpIndex = new int[numEqual];
-	for (int j = 0; j < numEqual; j++) {
-	  helpIndex[j] = i + j;
-	}
-	quickSort(index, helpIndex, 0, numEqual - 1);
-	for (int j = 0; j < numEqual; j++) {
-	  newIndex[i + j] = index[helpIndex[j]];
-	}
-	i += numEqual;
-      } else {
-	newIndex[i] = index[i];
-	i++;
-      }
-    }
-    return newIndex;
+    return index;
   }
 
   /**
@@ -1018,8 +991,6 @@ public final class Utils {
     int lo = lo0;
     int hi = hi0;
     double mid;
-    double midPlus;
-    double midMinus;
     int help;
     
     if (hi0 > lo0) {
@@ -1027,21 +998,19 @@ public final class Utils {
       // Arbitrarily establishing partition element as the midpoint of
       // the array.
       mid = array[index[(lo0 + hi0) / 2]];
-      midPlus = mid + SMALL;
-      midMinus = mid - SMALL;
 
       // loop through the array until indices cross
       while (lo <= hi) {
 	
 	// find the first element that is greater than or equal to  
 	// the partition element starting from the left Index.
-	while ((array[index[lo]] < midMinus) && (lo < hi0)) {
+	while ((array[index[lo]] < mid) && (lo < hi0)) {
 	  ++lo;
 	}
 	
 	// find an element that is smaller than or equal to 
 	// the partition element starting from the right Index.
-	while ((array[index[hi]] > midPlus) && (hi > lo0)) {
+	while ((array[index[hi]] > mid) && (hi > lo0)) {
 	  --hi;
 	}
 	
