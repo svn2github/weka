@@ -6,7 +6,7 @@ SOURCES = Filter.java NullFilter.java AllFilter.java AddFilter.java \
 	MakeIndicatorFilter.java ReplaceMissingValuesFilter.java \
 	NumericTransformFilter.java FirstOrderFilter.java \
 	NominalToBinaryFilter.java SplitDatasetFilter.java \
-	AttributeSelectionFilter.java
+	AttributeSelectionFilter.java NormalizationFilter.java
 
 # New Filters Done:
 # CopyAttributesFilter.java      -- create a copy of selected attributes
