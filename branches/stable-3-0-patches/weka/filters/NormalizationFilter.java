@@ -29,7 +29,7 @@ import weka.core.*;
  * intervals.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz) 
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.1.2.1 $
  */
 public class NormalizationFilter extends Filter {
 
