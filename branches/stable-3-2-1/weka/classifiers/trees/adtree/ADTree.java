@@ -53,7 +53,7 @@ import java.util.*;
  * Save the instance data with the model <p>
  *
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.1.2.1 $
  */
 public class ADTree
   extends DistributionClassifier implements OptionHandler, Drawable,
@@ -1259,7 +1259,7 @@ public class ADTree
    */
   protected int getRandom(int max) {
     
-    return m_random.nextInt(max);
+    return m_random.nextInt() % max;
   }
 
   /**
