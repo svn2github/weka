@@ -1,5 +1,5 @@
 #
-# $Revision: 1.32 $
+# $Revision: 1.32.2.1 $
 #
 
 # Java Compiler to use
@@ -62,7 +62,7 @@ clean :
 doc :
 	(cd ..; \
 	(mkdir doc 2>&1 ) >/dev/null ; \
-	javadoc -J-mx100m -public -author -version -1.1 -d doc \
+	javadoc -J-mx100m -public -author -d doc \
 	weka.core \
 	weka.core.converters \
 	weka.classifiers \
@@ -85,8 +85,8 @@ doc :
 	weka.gui.treevisualizer \
 	weka.gui.streams ; \
 	touch doc/index.html; for page in `ls doc/*.html`; \
-	do cat $$page | sed "s/Index<\/A><\/PRE>/Index<\/a>  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
-	sed 's/help.html/..\/Tutorial.pdf/g' \
+	do cat $$page | sed "s/Index<\/a><\/pre>/Index<\/a>  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
+	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
 	< doc/packages.html > packages_temp.html; \
 	mv packages_temp.html doc/packages.html)
 
@@ -170,7 +170,7 @@ install : all
 	;\
 	rm remoteEngine.jar remote.policy DatabaseUtils.props ;\
 	(mkdir $(WEKAHOME)/doc 2>&1 ) >/dev/null ; \
-	javadoc -J-mx100m -public -author -version -1.1 -d $(WEKAHOME)/doc \
+	javadoc -J-mx100m -public -author -d $(WEKAHOME)/doc \
 	weka.core \
 	weka.core.converters \
 	weka.classifiers \
@@ -193,8 +193,8 @@ install : all
 	weka.gui.treevisualizer \
 	weka.gui.streams; \
 	for page in `ls $(WEKAHOME)/doc/*.html`; \
-	do cat $$page | sed "s/Index<\/A><\/PRE>/Index<\/a>  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
-	sed 's/help.html/..\/Tutorial.pdf/g' \
+	do cat $$page | sed "s/Index<\/a><\/pre>/Index<\/a>  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
+	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
 	< $(WEKAHOME)/doc/packages.html > $(WEKAHOME)/packages_temp.html; \
 	mv $(WEKAHOME)/packages_temp.html $(WEKAHOME)/doc/packages.html \
 	)
