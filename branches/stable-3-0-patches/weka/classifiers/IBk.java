@@ -59,7 +59,7 @@ import weka.core.*;
  * @author Stuart Inglis (singlis@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.10.2.3 $
+ * @version $Revision: 1.10.2.4 $
  */
 public class IBk extends DistributionClassifier implements
   OptionHandler, UpdateableClassifier, WeightedInstancesHandler {
@@ -532,10 +532,6 @@ public class IBk extends DistributionClassifier implements
     while (enum.hasMoreElements()) {
       updateMinMax((Instance) enum.nextElement());
     }
-
-    if (m_CrossValidate) {
-      crossValidate();
-    }
   }
 
   /**
@@ -728,6 +724,11 @@ public class IBk extends DistributionClassifier implements
     if (m_Train == null) {
       return "IBk: No model built yet.";
     }
+
+    if (!m_kNNValid & m_CrossValidate) {
+      crossValidate();
+    }
+
     String result = "IB1 instance-based classifier\n" +
       "using " + m_kNN;
 
