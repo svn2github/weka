@@ -17,7 +17,6 @@
 /*
  *    SMO.java
  *    Copyright (C) 1999 Eibe Frank
- *
  */
 
 package weka.classifiers;
@@ -42,10 +41,9 @@ import weka.filters.*;
  * Methods - Support Vector Learning, B. Schölkopf, C. Burges, and
  * A. Smola, eds., MIT Press. <p>
  *
- * S.S. Keerthi, S.K. Shevade, C. Bhattacharyya, K.R.K. Murthy (1999).
- * <i> Improvements to Platt's SMO Algorithm for SVM Classifier Design</i>.
- * Technical Report CD-99-14. Control Division, Dept of Mechanical and
- * Production Engineering, National University of Singapore. <p>
+ * S.S. Keerthi, S.K. Shevade, C. Bhattacharyya, K.R.K. Murthy (2001).
+ * <i> Improvements to Platt's SMO Algorithm for SVM Classifier
+ * Design.  Neural Computation, 13(3), pp 637-649, 2001. <p>
  *
  * Note: for improved speed normalization should be turned off when
  * operating on SparseInstances.<p>
@@ -80,7 +78,7 @@ import weka.filters.*;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Shane Legg (shane@intelligenesis.net) (sparse vector code)
  * @author Stuart Inglis (stuart@intelligenesis.net) (sparse vector code)
- * @version $Revision: 1.23 $ 
+ * @version $Revision: 1.23.2.1 $ 
  */
 public class SMO extends DistributionClassifier implements OptionHandler {
 
@@ -276,6 +274,9 @@ public class SMO extends DistributionClassifier implements OptionHandler {
 
   /** Only numeric attributes in the dataset? */
   private boolean m_onlyNumeric;
+
+  /** Precision constant for updating sets */
+  private static double m_Del = 1000 * Double.MIN_VALUE;
 
   /**
    * Method for building the classifier.
@@ -1034,7 +1035,7 @@ public class SMO extends DistributionClassifier implements OptionHandler {
       L = Math.max(0, alph1 + alph2 - m_C);
       H = Math.min(m_C, alph1 + alph2);
     }
-    if (L == H) {
+    if (L >= H) {       
       return false;
     }
 
@@ -1082,8 +1083,84 @@ public class SMO extends DistributionClassifier implements OptionHandler {
       return false;
     }
 
-    // Compute new value of a1
+    // To prevent precision problems
+    if (a2 > m_C - m_Del * m_C) {
+      a2 = m_C;
+    } else if (a2 <= m_Del * m_C) {
+      a2 = 0;
+    }
+
+    // Recompute a1
     a1 = alph1 + s * (alph2 - a2);
+
+    // To prevent precision problems
+    if (a1 > m_C - m_Del * m_C) {
+      a1 = m_C;
+    } else if (a1 <= m_Del * m_C) {
+      a1 = 0;
+    }
+
+    // Update sets
+    if (a1 > 0) {
+      m_supportVectors.insert(i1);
+    } else {
+      m_supportVectors.delete(i1);
+    }
+    if ((a1 > 0) && (a1 < m_C)) {
+      m_I0.insert(i1);
+    } else {
+      m_I0.delete(i1);
+    }
+    if ((y1 == 1) && (a1 == 0)) {
+      m_I1.insert(i1);
+    } else {
+      m_I1.delete(i1);
+    }
+    if ((y1 == -1) && (a1 == m_C)) {
+      m_I2.insert(i1);
+    } else {
+      m_I2.delete(i1);
+    }
+    if ((y1 == 1) && (a1 == m_C)) {
+      m_I3.insert(i1);
+    } else {
+      m_I3.delete(i1);
+    }
+    if ((y1 == -1) && (a1 == 0)) {
+      m_I4.insert(i1);
+    } else {
+      m_I4.delete(i1);
+    }
+    if (a2 > 0) {
+      m_supportVectors.insert(i2);
+    } else {
+      m_supportVectors.delete(i2);
+    }
+    if ((a2 > 0) && (a2 < m_C)) {
+      m_I0.insert(i2);
+    } else {
+      m_I0.delete(i2);
+    }
+    if ((y2 == 1) && (a2 == 0)) {
+      m_I1.insert(i2);
+    } else {
+      m_I1.delete(i2);
+    }
+    if ((y2 == -1) && (a2 == m_C)) {
+      m_I2.insert(i2);
+    } else {
+      m_I2.delete(i2);
+    }
+    if ((y2 == 1) && (a2 == m_C)) {
+      m_I3.insert(i2);
+    } else {
+      m_I3.delete(i2);
+    }
+    if ((y2 == -1) && (a2 == 0)) {
+      m_I4.insert(i2);
+    } else {
+      m_I4.delete(i2);
+    }
     
     // Update weight vector to reflect change a1 and a2, if linear SVM
     if (m_exponent == 1.0) {
@@ -1112,75 +1189,13 @@ public class SMO extends DistributionClassifier implements OptionHandler {
       }
     }
 
-    // Update sets
-    if (a1 > 0) {
-      m_supportVectors.insert(i1);
-    } else {
-      m_supportVectors.delete(i1);
-    }
-    if ((a1 > 0) && (a1 < m_C)) {
-      m_I0.insert(i1);
-    } else {
-      m_I0.delete(i1);
-    }
-    if ((y1 == 1) && (!(a1 > 0))) {
-      m_I1.insert(i1);
-    } else {
-      m_I1.delete(i1);
-    }
-    if ((y1 == -1) && (!(a1 < m_C))) {
-      m_I2.insert(i1);
-    } else {
-      m_I2.delete(i1);
-    }
-    if ((y1 == 1) && (!(a1 < m_C))) {
-      m_I3.insert(i1);
-    } else {
-      m_I3.delete(i1);
-    }
-    if ((y1 == -1) && (!(a1 > 0))) {
-      m_I4.insert(i1);
-    } else {
-      m_I4.delete(i1);
-    }
-    if (a2 > 0) {
-      m_supportVectors.insert(i2);
-    } else {
-      m_supportVectors.delete(i2);
-    }
-    if ((a2 > 0) && (a2 < m_C)) {
-      m_I0.insert(i2);
-    } else {
-      m_I0.delete(i2);
-    }
-    if ((y2 == 1) && (!(a2 > 0))) {
-      m_I1.insert(i2);
-    } else {
-      m_I1.delete(i2);
-    }
-    if ((y2 == -1) && (!(a2 < m_C))) {
-      m_I2.insert(i2);
-    } else {
-      m_I2.delete(i2);
-    }
-    if ((y2 == 1) && (!(a2 < m_C))) {
-      m_I3.insert(i2);
-    } else {
-      m_I3.delete(i2);
-    }
-    if ((y2 == -1) && (!(a2 > 0))) {
-      m_I4.insert(i2);
-    } else {
-      m_I4.delete(i2);
-    }
+    // Update error cache for i1 and i2
+    m_errors[i1] += y1 * (a1 - alph1) * k11 + y2 * (a2 - alph2) * k12;
+    m_errors[i2] += y1 * (a1 - alph1) * k12 + y2 * (a2 - alph2) * k22;
 
     // Update array with Lagrange multipliers
     m_alpha[i1] = a1;
     m_alpha[i2] = a2;
-
-    // Update error cache for i1 and i2
-    m_errors[i1] += y1 * (a1 - alph1) * k11 + y2 * (a2 - alph2) * k12;
-    m_errors[i2] += y1 * (a1 - alph1) * k12 + y2 * (a2 - alph2) * k22;
       
     // Update thresholds
     m_bLow = -Double.MAX_VALUE; m_bUp = Double.MAX_VALUE;
