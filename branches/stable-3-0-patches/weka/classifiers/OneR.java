@@ -35,7 +35,7 @@ import weka.core.*;
  * Specify the minimum number of objects in a bucket (default: 6). <p>
  * 
  * @author Ian H. Witten (ihw@cs.waikato.ac.nz)
- * @version $Revision: 1.8 $ 
+ * @version $Revision: 1.8.2.1 $ 
 */
 public class OneR extends Classifier implements OptionHandler {
 
@@ -104,8 +104,10 @@ public class OneR extends Classifier implements OptionHandler {
 	    text.append(m_attr.value(v));
 	  } else if (v < m_breakpoints.length) {
 	    text.append("< " + m_breakpoints[v]);
-	  } else {
+	  } else  if (v > 0) {
 	    text.append(">= " + m_breakpoints[v - 1]);
+	  } else {
+	    text.append("not ?");
 	  }
 	  text.append("\t-> " + m_class.value(m_classifications[v]) + "\n");
 	}
