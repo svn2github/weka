@@ -109,7 +109,7 @@ import weka.estimators.*;
  *
  * @author   Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author   Len Trigg (trigg@cs.waikato.ac.nz)
- * @version  $Revision: 1.9 $
+ * @version  $Revision: 1.9.2.1 $
   */
 public class Evaluation implements Summarizable {
 
@@ -1513,12 +1513,14 @@ public class Evaluation implements Summarizable {
 	text.append(Utils.
 		    doubleToString(rootMeanSquaredError(), 12, 4) 
 		    + "\n");
-	text.append("Relative absolute error            ");
-	text.append(Utils.doubleToString(relativeAbsoluteError(), 
-					 12, 4) + " %\n");
-	text.append("Root relative squared error        ");
-	text.append(Utils.doubleToString(rootRelativeSquaredError(), 
-					 12, 4) + " %\n");
+	if (!m_ClassIsNominal) {
+	  text.append("Relative absolute error            ");
+	  text.append(Utils.doubleToString(relativeAbsoluteError(), 
+					   12, 4) + " %\n");
+	  text.append("Root relative squared error        ");
+	  text.append(Utils.doubleToString(rootRelativeSquaredError(), 
+					   12, 4) + " %\n");
+	}
       }
       if (Utils.gr(unclassified(), 0)) {
 	text.append("UnClassified Instances             ");
@@ -1943,13 +1945,6 @@ public class Evaluation implements Summarizable {
     double costFactor = 1;
 
     if (!instance.classIsMissing()) {
-      m_WithClass += instance.weight();
-      if (m_CostMatrix != null) {
-	costFactor = 
-	  m_CostMatrix[actualClass][Utils.maxIndex(m_CostMatrix[actualClass])];
-      }
-      m_WithClassWithCost += costFactor * instance.weight();
-
       updateMargins(predictedDistribution, actualClass, instance.weight());
 
       // Determine the predicted class (doesn't detect multiple 
@@ -1963,11 +1958,16 @@ public class Evaluation implements Summarizable {
 	}
       }
 
+      m_WithClass += instance.weight();
+
       // Test if no class was predicted
       if (predictedClass < 0) {
+	if (m_CostMatrix != null) {
+	  costFactor = 
+	    m_CostMatrix[actualClass][Utils.maxIndex(m_CostMatrix[actualClass])];
+	}
 	m_Unclassified += instance.weight();
-	if (m_CostMatrix != null)
-	  m_UnclassifiedWithCost += costFactor * instance.weight();
+	m_UnclassifiedWithCost += costFactor * instance.weight();
 	return;
       }
 
@@ -1994,17 +1994,21 @@ public class Evaluation implements Summarizable {
 			  instance.weight());
 
       // Update other stats
-      m_ConfusionMatrix[actualClass][predictedClass] += 
-	instance.weight();
+      m_ConfusionMatrix[actualClass][predictedClass] += instance.weight();
       if (predictedClass != actualClass) {
+	if (m_CostMatrix != null) {	
+	  costFactor = m_CostMatrix[actualClass][predictedClass];
+	}
+	m_WithClassWithCost += costFactor * instance.weight();
 	m_Incorrect += instance.weight();
-	if (m_CostMatrix != null) {
-	  m_IncorrectWithCost += costFactor * instance.weight();
-	}
+	m_IncorrectWithCost += costFactor * instance.weight();
       } else {
-	if (m_CostMatrix != null) {
-	  m_CorrectWithCost += costFactor * instance.weight();
+	if (m_CostMatrix != null) {	
+	  costFactor = 
+	    m_CostMatrix[actualClass][Utils.maxIndex(m_CostMatrix[actualClass])];
 	}
+	m_WithClassWithCost += costFactor * instance.weight();
+	m_CorrectWithCost += costFactor * instance.weight();
 	m_Correct += instance.weight();
       }
     } else {
