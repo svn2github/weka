@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Yong Wang (yongwang@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
- * @version $Revision: 1.12.2.1 $
+ * @version $Revision: 1.12.2.2 $
  */
 public final class Utils {
 
@@ -374,7 +374,9 @@ public final class Utils {
   public static String quote(String string) {
 
     if ((string.indexOf('\n') != -1) ||
-	(string.indexOf('\r') != -1)) {
+	(string.indexOf('\r') != -1) ||
+	(string.indexOf('\'') != -1) ||
+	(string.indexOf('\"') != -1)) {
       string = ("'".concat(replaceNewLines(string))).concat("'");
     } else if ((string.indexOf(' ') != -1) ||
 	       (string.indexOf('\t') != -1) ||
@@ -387,7 +389,8 @@ public final class Utils {
   }
 
   /**
-   * Converts carriage returns and new lines in a string into \r and \n.
+   * Converts carriage returns and new lines in a string into \r and \n,
+   * and ' and " into \' and \".
    * @param string the string
    * @return the converted string
    */
@@ -429,7 +432,41 @@ public final class Utils {
     }
     newStringBuffer.append(string);
     string = newStringBuffer.toString();
-   
+  
+    // Replace with \'
+    newStringBuffer = new StringBuffer();
+    while ((index = string.indexOf('\'')) != -1) {
+      if (index > 0) {
+	newStringBuffer.append(string.substring(0, index));
+      }
+      newStringBuffer.append('\\');
+      newStringBuffer.append('\'');
+      if ((index + 1) < string.length()) {
+	string = string.substring(index + 1);
+      } else {
+	string = "";
+      }
+    }
+    newStringBuffer.append(string);
+    string = newStringBuffer.toString();
+
+    // Replace with \"
+    newStringBuffer = new StringBuffer();
+    while ((index = string.indexOf('\"')) != -1) {
+      if (index > 0) {
+	newStringBuffer.append(string.substring(0, index));
+      }
+      newStringBuffer.append('\\');
+      newStringBuffer.append('\"');
+      if ((index + 1) < string.length()){
+	string = string.substring(index + 1);
+      } else {
+	string = "";
+      }
+    }
+    newStringBuffer.append(string);
+    string = newStringBuffer.toString();
+  
     return string;
   }
 
