@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Yong Wang (yongwang@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
- * @version $Revision: 1.12.2.3 $
+ * @version $Revision: 1.12.2.4 $
  */
 public final class Utils {
 
@@ -858,6 +858,51 @@ public final class Utils {
     }
     quickSort(array, index, 0, array.length - 1);
     return index;
+  }
+
+  /**
+   * Sorts a given array of doubles in ascending order and returns an 
+   * array of integers with the positions of the elements of the original 
+   * array in the sorted array. The sort is stable (Equal elements remain
+   * in their original order.)
+   * @param array this array is not changed by the method!
+   * @return an array of integers with the positions in the sorted
+   * array.
+   */
+  public static int[] stableSort(double [] array){
+
+    int [] index = new int[array.length];
+    int [] newIndex = new int[array.length];
+    int [] helpIndex;
+    int numEqual;
+    
+    for (int i = 0; i < index.length; i++)
+      index[i] = i;
+    quickSort(array,index,0,array.length-1);
+
+    // Make sort stable
+
+    int i = 0;
+    while (i < index.length) {
+      numEqual = 1;
+      for (int j = i+1; ((j < index.length) && Utils.eq(array[index[i]],
+							array[index[j]])); j++)
+	numEqual++;
+      if (numEqual > 1) {
+	helpIndex = new int[numEqual];
+	for (int j = 0; j < numEqual; j++)
+	  helpIndex[j] = i+j;
+	quickSort(index, helpIndex, 0, numEqual-1);
+	for (int j = 0; j < numEqual; j++) 
+	  newIndex[i+j] = index[helpIndex[j]];
+	i += numEqual;
+      } else {
+	newIndex[i] = index[i];
+	i++;
+      }
+    }
+
+    return newIndex;
   }
 
   /**
