@@ -29,7 +29,7 @@ import weka.core.*;
  * Class for selecting a C4.5-like binary (!) split for a given dataset.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.5.2.1 $
  */
 public class BinC45ModelSelection extends ModelSelection{
 
@@ -47,8 +47,8 @@ public class BinC45ModelSelection extends ModelSelection{
    * @param allData FULL training dataset (necessary for
    * selection of split points).
    */
-  public BinC45ModelSelection(int m_minNoObj,Instances allData){
-    m_minNoObj = m_minNoObj;
+  public BinC45ModelSelection(int minNoObj,Instances allData){
+    m_minNoObj = minNoObj;
     m_allData = allData;
   }
 
