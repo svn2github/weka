@@ -1,6 +1,8 @@
 #
-# $Revision: 1.4.2.4 $
+# $Revision: 1.4.2.5 $
 #
+
+WEKAHOME = .
 
 .PHONY: all optimized debug clean install archive doc
 
@@ -63,7 +65,7 @@ doc :
 install : all
 	(cd ..; \
 	echo "Main-Class: SimpleCLI" > manifest.tmp ;\
-	jar cvfm $$JAWSHOME/weka.jar manifest.tmp \
+	jar cvfm $(WEKAHOME)/weka.jar manifest.tmp \
 	*.class \
 	weka/core/*.class \
 	weka/classifiers/*.class \
@@ -74,7 +76,7 @@ install : all
 	weka/associations/*.class \
 	weka/clusterers/*.class \
 	weka/attributeSelection/*.class ; \
-	jar cvf $$JAWSHOME/weka-src.jar \
+	jar cvf $(WEKAHOME)/weka-src.jar \
         weka/core/*.java \
         weka/classifiers/*.java \
         weka/classifiers/j48/*.java \
@@ -85,7 +87,7 @@ install : all
 	weka/clusterers/*.java \
 	weka/attributeSelection/*.java ;\
 	rm manifest.tmp )
-	javadoc -public -author -version -d $$JAWSHOME/doc \
+	javadoc -public -author -version -d $(WEKAHOME)/doc \
 	weka.core \
 	weka.classifiers \
 	weka.classifiers.j48 \
@@ -95,11 +97,11 @@ install : all
 	weka.associations \
 	weka.clusterers \
 	weka.attributeSelection; \
-	for page in `ls $$JAWSHOME/doc/*.html`; \
+	for page in `ls $(WEKAHOME)/doc/*.html`; \
 	do cat $$page | sed "s/Index<\/a><\/pre>/Index<\/a>  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
 	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
-	< $$JAWSHOME/doc/packages.html > $$JAWSHOME/packages_temp.html; \
-	mv $$JAWSHOME/packages_temp.html $$JAWSHOME/doc/packages.html
+	< $(WEKAHOME)/doc/packages.html > $(WEKAHOME)/packages_temp.html; \
+	mv $(WEKAHOME)/packages_temp.html $(WEKAHOME)/doc/packages.html
 
 archive :
 	(cd ..; \
