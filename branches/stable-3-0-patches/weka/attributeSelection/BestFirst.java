@@ -35,7 +35,7 @@ import  weka.core.*;
  * (default = 5). <p>
  *
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.6.2.1 $
  */
 public class BestFirst
   extends ASSearch
@@ -428,6 +428,7 @@ public class BestFirst
   public int[] search (int[] startSet, ASEvaluation ASEval, Instances data)
     throws Exception
   {
+    m_totalEvals = 0;
     if (!(ASEval instanceof SubsetEvaluator)) {
       throw  new Exception(ASEval.getClass().getName() 
 			   + " is not a " 
