@@ -55,7 +55,7 @@ import weka.core.*;
  * If set the itemsets found are also output (default = no). <p>
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.3.2.1 $ */
+ * @version $Revision: 1.3.2.2 $ */
 public class Apriori implements OptionHandler {
   
   /** The minimum support. */
@@ -163,7 +163,7 @@ public class Apriori implements OptionHandler {
       supports = new double[m_allTheRules[2].size()];
       for (int i = 0; i < m_allTheRules[2].size(); i++) 
 	supports[i] = (double)((ItemSet)m_allTheRules[1].elementAt(i)).support();
-      indices = Utils.sort(supports);
+      indices = Utils.stableSort(supports);
       for (int i = 0; i < m_allTheRules[2].size(); i++) {
 	sortedRuleSet[0].addElement(m_allTheRules[0].elementAt(indices[i]));
 	sortedRuleSet[1].addElement(m_allTheRules[1].elementAt(indices[i]));
@@ -177,7 +177,7 @@ public class Apriori implements OptionHandler {
       confidences = new double[sortedRuleSet[2].size()];
       for (int i = 0; i < sortedRuleSet[2].size(); i++) 
 	confidences[i] = ((Double)sortedRuleSet[2].elementAt(i)).doubleValue();
-      indices = Utils.sort(confidences);
+      indices = Utils.stableSort(confidences);
       for (int i = sortedRuleSet[0].size() - 1; 
 	   (i >= (sortedRuleSet[0].size() - m_numRules)) && (i >= 0); i--) {
 	m_allTheRules[0].addElement(sortedRuleSet[0].elementAt(indices[i]));
