@@ -1,5 +1,5 @@
 #
-# $Revision: 1.4.2.1 $
+# $Revision: 1.4.2.2 $
 #
 
 .PHONY: all optimized debug clean install archive doc
@@ -52,6 +52,8 @@ doc :
 	weka.associations \
 	weka.clusterers \
 	weka.attributeSelection; \
+	for page in `ls doc/*.html`; \
+	do cat $$page | sed "s/<\/pre>/  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
 	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
 	< doc/packages.html > packages_temp.html; \
 	mv packages_temp.html doc/packages.html)
@@ -93,6 +95,8 @@ install : all
 	weka.associations \
 	weka.clusterers \
 	weka.attributeSelection;
+	for page in `ls $$JAWSHOME/doc/*.html`; \
+	do cat $$page | sed "s/<\/pre>/  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
 	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
 	< $$JAWSHOME/doc/packages.html > $$JAWSHOME/packages_temp.html; \
 	mv $$JAWSHOME/packages_temp.html $$JAWSHOME/doc/packages.html
