@@ -28,7 +28,7 @@ import weka.core.*;
  * recursively to split the data.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public abstract class ClassifierSplitModel implements Cloneable, Serializable {
 
@@ -180,9 +180,9 @@ public abstract class ClassifierSplitModel implements Cloneable, Serializable {
   /**
    * Sets distribution associated with model.
    */
-  public final void setDistribution(Distribution distribution) {
+  public void resetDistribution(Instances data) throws Exception {
 
-    m_distribution = distribution;
+    m_distribution = new Distribution(data, this);
   }
 
   /**

@@ -25,7 +25,7 @@ import weka.core.*;
  * Class implementing a binary C4.5-like split on an attribute.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 
 public class BinC45Split extends ClassifierSplitModel{
@@ -356,6 +356,22 @@ public class BinC45Split extends ClassifierSplitModel{
       }
       m_splitPoint = newSplitPoint;
     }
+  }
+  
+  /**
+   * Sets distribution associated with model.
+   */
+  public void resetDistribution(Instances data) throws Exception {
+
+    Instances insts = new Instances(data, data.numInstances());
+    for (int i = 0; i < data.numInstances(); i++) {
+      if (whichSubset(data.instance(i)) > -1) {
+	insts.add(data.instance(i));
+      }
+    }
+    Distribution newD = new Distribution(insts, this);
+    newD.addInstWithUnknown(data, m_attIndex);
+    m_distribution = newD;
   }
 
   /**

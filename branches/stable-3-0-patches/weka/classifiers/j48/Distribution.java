@@ -26,7 +26,7 @@ import weka.core.*;
  * Class for handling a distribution of class values.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.3.2.1 $
  */
 public class Distribution implements Cloneable, Serializable {
 
@@ -349,10 +349,11 @@ public class Distribution implements Cloneable, Serializable {
 
     classIndex = (int)instance.classValue();
     for (i=0;i<m_perBag.length;i++) {
-      m_perClassPerBag[i][classIndex] = m_perClassPerBag[i][classIndex]+weights[i];
-      m_perBag[i] = m_perBag[i]+weights[i];
-      m_perClass[classIndex] = m_perClass[classIndex]+weights[i];
-      totaL = totaL+weights[i];
+      double weight = instance.weight() * weights[i];
+      m_perClassPerBag[i][classIndex] = m_perClassPerBag[i][classIndex] + weight;
+      m_perBag[i] = m_perBag[i] + weight;
+      m_perClass[classIndex] = m_perClass[classIndex] + weight;
+      totaL = totaL + weight;
     }
   }
 

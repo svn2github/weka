@@ -25,7 +25,7 @@ import weka.core.*;
  * be pruned using C4.5 procedures.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.3.2.1 $
  */
 
 public class C45PruneableClassifierTree extends ClassifierTree{
@@ -216,8 +216,10 @@ public class C45PruneableClassifierTree extends ClassifierTree{
     if (m_isLeaf)
       return getEstimatedErrorsForDistribution(new Distribution(data));
     else{
-      localInstances = 
-	(Instances[])localModel().split(data);
+      Distribution savedDist = localModel().m_distribution;
+      localModel().resetDistribution(data);
+      localInstances = (Instances[])localModel().split(data);
+      localModel().m_distribution = savedDist;
       for (i=0;i<m_sons.length;i++)
 	errors = errors+
 	  son(i).getEstimatedErrorsForBranch(localInstances[i]);
@@ -273,15 +275,13 @@ public class C45PruneableClassifierTree extends ClassifierTree{
   private void newDistribution(Instances data) throws Exception {
 
     Instances [] localInstances;
-    int i;
 
-    localModel().setDistribution(new Distribution((Instances)data,
-						  localModel()));
+    localModel().resetDistribution(data);
     m_train = data;
     if (!m_isLeaf){
       localInstances = 
 	(Instances [])localModel().split(data);
-      for (i=0;i<m_sons.length;i++)
+      for (int i = 0; i < m_sons.length; i++)
 	son(i).newDistribution(localInstances[i]);
     }
   }

@@ -25,7 +25,7 @@ import weka.core.*;
  * Class implementing a C4.5-type split on an attribute.
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public class C45Split extends ClassifierSplitModel{
 
@@ -374,6 +374,22 @@ public class C45Split extends ClassifierSplitModel{
     }
 
     return newMinsAndMaxs;
+  }
+  
+  /**
+   * Sets distribution associated with model.
+   */
+  public void resetDistribution(Instances data) throws Exception {
+    
+    Instances insts = new Instances(data, data.numInstances());
+    for (int i = 0; i < data.numInstances(); i++) {
+      if (whichSubset(data.instance(i)) > -1) {
+	insts.add(data.instance(i));
+      }
+    }
+    Distribution newD = new Distribution(insts, this);
+    newD.addInstWithUnknown(data, m_attIndex);
+    m_distribution = newD;
   }
 
   /**
