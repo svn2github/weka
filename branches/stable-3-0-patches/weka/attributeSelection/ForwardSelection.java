@@ -26,7 +26,7 @@ import  weka.core.*;
  * Class for performing a forward selection hill climbing search. <p>
  *
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.1.2.1 $
  */
 public class ForwardSelection extends RankedOutputSearch {
 
@@ -219,7 +219,7 @@ public class ForwardSelection extends RankedOutputSearch {
    * "passed by" on the way to the far side of the search space.
    *
    * @return an array of attribute indexes and associated merit values
-   * @exception if something goes wrong.
+   * @exception Exception if something goes wrong.
    */
   public double [][] rankedAttributes() throws Exception {
     
