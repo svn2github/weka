@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Yong Wang (yongwang@cs.waikato.ac.nz)
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
- * @version $Revision: 1.12.2.4 $
+ * @version $Revision: 1.12.2.5 $
  */
 public final class Utils {
 
@@ -876,8 +876,13 @@ public final class Utils {
     int [] helpIndex;
     int numEqual;
     
-    for (int i = 0; i < index.length; i++)
+    array = (double [])array.clone();
+    for (int i = 0; i < index.length; i++) {
       index[i] = i;
+      if (Double.isNaN(array[i])) {
+        array[i] = Double.MAX_VALUE;
+      }
+    }
     quickSort(array,index,0,array.length-1);
 
     // Make sort stable
