@@ -28,7 +28,7 @@ import weka.core.Utils;
  * A class to store simple statistics
  *
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.7.2.1 $
  */
 public class Stats {
   
@@ -90,10 +90,19 @@ public class Stats {
    * @param value the observed value
    */
   public void subtract(double value) {
+    subtract(value, 1);
+  }
 
-    sum -= value;
-    sumSq -= value * value;
-    count --;
+  /**
+   * Subtracts a value that has been seen n times from the observed values
+   *
+   * @param value the observed value
+   * @param n the number of times to subtract value
+   */
+  public void subtract(double value, double n) {
+    sum -= value * n;
+    sumSq -= value * value * n;
+    count -= n;
   }
 
   /**
