@@ -1,5 +1,5 @@
 #
-# $Revision: 1.4.2.2 $
+# $Revision: 1.4.2.3 $
 #
 
 .PHONY: all optimized debug clean install archive doc
@@ -94,7 +94,7 @@ install : all
 	weka.estimators \
 	weka.associations \
 	weka.clusterers \
-	weka.attributeSelection;
+	weka.attributeSelection; \
 	for page in `ls $$JAWSHOME/doc/*.html`; \
 	do cat $$page | sed "s/<\/pre>/  <a href=\"http:\/\/www.cs.waikato.ac.nz\/ml\/weka\/index.html\">WEKA\'s home<\/a><\/pre>/g" > $$page.temp; mv $$page.temp $$page; done;\
 	sed 's/API_users_guide.html/..\/Tutorial.pdf/g' \
