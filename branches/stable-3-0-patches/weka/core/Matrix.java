@@ -27,7 +27,7 @@ import java.io.*;
  * @author Yong Wang (yongwang@cs.waikato.ac.nz)
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Len Trigg (eibe@cs.waikato.ac.nz)
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public final class Matrix {
 
@@ -233,10 +233,11 @@ public final class Matrix {
     Matrix weightedThis = new Matrix(numRows(), numColumns());
     Matrix weightedDep = new Matrix(numRows(), 1);
     for (int i = 0; i < w.length; i++) {
+      double weight = Math.sqrt(w[i]);
       for (int j = 0; j < numColumns(); j++) {
-	weightedThis.setElement(i, j, getElement(i, j) * w[i]);
+	weightedThis.setElement(i, j, getElement(i, j) * weight);
       }
-      weightedDep.setElement(i, 0, y.getElement(i, 0) * w[i]);
+      weightedDep.setElement(i, 0, y.getElement(i, 0) * weight);
     }
     return weightedThis.regression(weightedDep);
   }
