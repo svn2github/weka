@@ -69,7 +69,7 @@ public class Filter
   private static int FILTERING_TEST = 2;
   private int m_state = IDLE;
 
-  protected Thread m_filterThread = null;
+  protected transient Thread m_filterThread = null;
 
   private transient Instances m_trainingSet;
   private transient Instances m_testingSet;
@@ -547,6 +547,7 @@ public class Filter
 		    }
 		  }
 		  block(false);
+	          m_filterThread = null;
 		}
 	      }
 	    };
@@ -629,6 +630,7 @@ public class Filter
 		  }
 		}
 		block(false);
+	        m_filterThread = null;
 	      }
 	    }
 	  };
