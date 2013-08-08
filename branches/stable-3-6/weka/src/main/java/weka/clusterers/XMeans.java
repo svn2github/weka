@@ -229,13 +229,13 @@ public class XMeans
   protected File m_DebugVectorsFile = new File(System.getProperty("user.dir"));
 
   /** input file for the cluster centers. */
-  protected Reader m_CenterInput = null;
+  protected transient Reader m_CenterInput = null;
     
   /** file name of the output file for the cluster centers. */
   protected File m_OutputCenterFile = new File(System.getProperty("user.dir"));
   
   /** output file for the cluster centers. */
-  protected PrintWriter m_CenterOutput = null;
+  protected transient PrintWriter m_CenterOutput = null;
     
   /**
    * temporary variable holding cluster assignments while iterating.
@@ -641,6 +641,12 @@ public class XMeans
       }
       m_NumClusters = newNumClusters;
     }
+    
+    if (m_ClusterCenters.numInstances() > 0 && m_CenterOutput != null) {
+      m_CenterOutput.println(m_ClusterCenters.toString());
+      m_CenterOutput.close();
+      m_CenterOutput = null;
+    }    
   }
 
   /**
