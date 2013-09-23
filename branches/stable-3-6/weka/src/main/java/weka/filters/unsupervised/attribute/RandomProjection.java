@@ -765,7 +765,7 @@ public class RandomProjection
       }
       if(currentFormat.classIndex()!=-1)  {  //if classindex is set
 	  //attributes.removeElementAt(attributes.size()-1);
-	  attributes.addElement(currentFormat.attribute(currentFormat.classIndex()));
+	  attributes.addElement(currentFormat.attribute(currentFormat.classIndex()).copy());
 	  newClassIndex = attributes.size()-1;
       }
 
