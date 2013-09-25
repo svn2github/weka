@@ -177,6 +177,15 @@ public class MIPolyKernel
   }
   
   /**
+   * Frees the cache used by the kernel.
+   */
+  public void clean() {
+    m_storage = null;
+    m_keys = null;
+    m_kernelMatrix = null;
+  }
+  
+  /**
    * Returns the revision string.
    * 
    * @return		the revision
