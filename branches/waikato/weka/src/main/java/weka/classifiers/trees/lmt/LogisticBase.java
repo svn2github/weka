@@ -15,13 +15,12 @@
 
 /*
  *    LogisticBase.java
- *    Copyright (C) 2003 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2003-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers.trees.lmt;
 
-import weka.classifiers.Classifier;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SimpleLinearRegression;
@@ -565,6 +564,7 @@ public class LogisticBase
 	    for (int i = 0; i < m_maxIterations; i++) {
 		classifiers[j][i] = new SimpleLinearRegression();
 		classifiers[j][i].setSuppressErrorMessage(true);
+                classifiers[j][i].setDoNotCheckCapabilities(true);
 	    }
 	}
 	return classifiers;

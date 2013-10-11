@@ -15,17 +15,20 @@
 
 /*
  *    AbstractClassifier.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers;
 
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import weka.core.Attribute;
 import weka.core.Capabilities;
 import weka.core.CapabilitiesHandler;
 import weka.core.Instance;
-import weka.core.Instances;
 import weka.core.Option;
 import weka.core.OptionHandler;
 import weka.core.RevisionHandler;
@@ -33,11 +36,7 @@ import weka.core.RevisionUtils;
 import weka.core.SerializedObject;
 import weka.core.Utils;
 
-import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.Vector;
-
-/** 
+/**
  * Abstract classifier. All schemes for numeric or nominal prediction in
  * Weka extend this class. Note that a classifier MUST either implement
  * distributionForInstance() or classifyInstance().
@@ -46,15 +45,18 @@ import java.util.Vector;
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
  * @version $Revision$
  */
-public abstract class AbstractClassifier 
-  implements Classifier, Cloneable, Serializable, OptionHandler, 
+public abstract class AbstractClassifier
+  implements Classifier, Cloneable, Serializable, OptionHandler,
              CapabilitiesHandler, RevisionHandler {
- 
+
   /** for serialization */
   private static final long serialVersionUID = 6502780192411755341L;
-  
+
   /** Whether the classifier is run in debug mode. */
   protected boolean m_Debug = false;
+
+  /** Whether capbabilities should not be checked before classifier is built. */
+  protected boolean m_DoNotCheckCapabilities = false;
 
   /**
    * Classifies the given test instance. The instance has to belong to a
@@ -62,7 +64,7 @@ public abstract class AbstractClassifier
    * implement either this or distributionForInstance().
    *
    * @param instance the instance to be classified
-   * @return the predicted most likely class for the instance or 
+   * @return the predicted most likely class for the instance or
    * Utils.missingValue() if no prediction is made
    * @exception Exception if an error occurred during the prediction
    */
@@ -76,17 +78,17 @@ public abstract class AbstractClassifier
     case Attribute.NOMINAL:
       double max = 0;
       int maxIndex = 0;
-      
+
       for (int i = 0; i < dist.length; i++) {
-	if (dist[i] > max) {
-	  maxIndex = i;
-	  max = dist[i];
-	}
+        if (dist[i] > max) {
+          maxIndex = i;
+          max = dist[i];
+        }
       }
       if (max > 0) {
-	return maxIndex;
+        return maxIndex;
       } else {
-	return Utils.missingValue();
+        return Utils.missingValue();
       }
     case Attribute.NUMERIC:
       return dist[0];
@@ -104,32 +106,32 @@ public abstract class AbstractClassifier
    * either this or classifyInstance().
    *
    * @param instance the instance to be classified
-   * @return an array containing the estimated membership 
-   * probabilities of the test instance in each class 
+   * @return an array containing the estimated membership
+   * probabilities of the test instance in each class
    * or the numeric prediction
-   * @exception Exception if distribution could not be 
+   * @exception Exception if distribution could not be
    * computed successfully
    */
   public double[] distributionForInstance(Instance instance) throws Exception {
 
     double[] dist = new double[instance.numClasses()];
     switch (instance.classAttribute().type()) {
-    case Attribute.NOMINAL:
-      double classification = classifyInstance(instance);
-      if (Utils.isMissingValue(classification)) {
-	return dist;
-      } else {
-	dist[(int)classification] = 1.0;
-      }
-      return dist;
-    case Attribute.NUMERIC:
-      dist[0] = classifyInstance(instance);
-      return dist;
-    default:
-      return dist;
+      case Attribute.NOMINAL:
+        double classification = classifyInstance(instance);
+        if (Utils.isMissingValue(classification)) {
+          return dist;
+        } else {
+          dist[(int)classification] = 1.0;
+        }
+        return dist;
+      case Attribute.NUMERIC:
+        dist[0] = classifyInstance(instance);
+        return dist;
+      default:
+        return dist;
     }
-  }    
-  
+  }
+
   /**
    * Creates a new instance of a classifier given it's class name and
    * (optional) arguments to pass to it's setOptions method. If the
@@ -144,7 +146,7 @@ public abstract class AbstractClassifier
    * supplied are not acceptable to the classifier
    */
   public static Classifier forName(String classifierName,
-				   String [] options) throws Exception {
+      String [] options) throws Exception {
 
     return ((AbstractClassifier)Utils.forName(Classifier.class,
                                               classifierName,
@@ -165,14 +167,13 @@ public abstract class AbstractClassifier
 
   /**
    * Creates a given number of deep copies of the given classifier using serialization.
-   * 
+   *
    * @param model the classifier to copy
    * @param num the number of classifier copies to create.
    * @return an array of classifiers.
    * @exception Exception if an error occurs
    */
-  public static Classifier [] makeCopies(Classifier model,
-					 int num) throws Exception {
+  public static Classifier [] makeCopies(Classifier model, int num) throws Exception {
 
     if (model == null) {
       throw new Exception("No model classifier set");
@@ -192,12 +193,17 @@ public abstract class AbstractClassifier
    */
   public Enumeration listOptions() {
 
-    Vector newVector = new Vector(1);
+    Vector newVector = new Vector(2);
 
     newVector.addElement(new Option(
-	      "\tIf set, classifier is run in debug mode and\n"
-	      + "\tmay output additional info to the console",
-	      "D", 0, "-D"));
+          "\tIf set, classifier is run in debug mode and\n"
+          + "\tmay output additional info to the console",
+          "D", 0, "-D"));
+    newVector.addElement(new Option(
+          "\tIf set, classifier capabilities are not checked before classifier is built\n"
+          + "\t(use with caution).",
+          "-do-not-check-capabilities", 0, "-do-not-check-capabilities"));
+
     return newVector.elements();
   }
 
@@ -205,8 +211,12 @@ public abstract class AbstractClassifier
    * Parses a given list of options. Valid options are:<p>
    *
    * -D  <br>
-   * If set, classifier is run in debug mode and 
+   * If set, classifier is run in debug mode and
    * may output additional info to the console.<p>
+   *
+   * -do-not-check-capabilities  <br>
+   * If set, classifier capabilities are not checked before classifier is built
+   * (use with caution).<p>
    *
    * @param options the list of options as an array of strings
    * @exception Exception if an option is not supported
@@ -214,6 +224,7 @@ public abstract class AbstractClassifier
   public void setOptions(String[] options) throws Exception {
 
     setDebug(Utils.getFlag('D', options));
+    setDoNotCheckCapabilities(Utils.getFlag("do-not-check-capabilities", options));
   }
 
   /**
@@ -223,12 +234,17 @@ public abstract class AbstractClassifier
    */
   public String [] getOptions() {
 
-    String [] options;
+    String [] options = new String [2];
+    int current = 0;
+
     if (getDebug()) {
-      options = new String[1];
-      options[0] = "-D";
-    } else {
-      options = new String[0];
+      options[current++] = "-D";
+    } 
+    if (getDoNotCheckCapabilities()) {
+      options[current++] = "-do-not-check-capabilities";
+    }
+    while (current < options.length) {
+      options[current++] = "";
     }
     return options;
   }
@@ -252,7 +268,7 @@ public abstract class AbstractClassifier
 
     return m_Debug;
   }
-  
+
   /**
    * Returns the tip text for this property
    * @return tip text for this property suitable for
@@ -263,7 +279,37 @@ public abstract class AbstractClassifier
       "the console.";
   }
 
-  /** 
+  /**
+   * Set whether not to check capabilities.
+   *
+   * @param doNotCheckCapabilities true if capabilities are not to be checked.
+   */
+  public void setDoNotCheckCapabilities(boolean doNotCheckCapabilities) {
+
+    m_DoNotCheckCapabilities = doNotCheckCapabilities;
+  }
+
+  /**
+   * Get whether capabilities checking is turned off.
+   *
+   * @return true if capabilities checking is turned off.
+   */
+  public boolean getDoNotCheckCapabilities() {
+  
+    return m_DoNotCheckCapabilities;
+  }
+
+  /**
+   * Returns the tip text for this property
+   * @return tip text for this property suitable for
+   * displaying in the explorer/experimenter gui
+   */
+  public String doNotCheckCapabilitiesTipText() {
+    return "If set, classifier capabilities are not checked before classifier is built"
+      + " (Use with caution to reduce runtime).";
+  }
+
+  /**
    * Returns the Capabilities of this classifier. Maximally permissive
    * capabilities are allowed by default. Derived classifiers should
    * override this method and first disable all capabilities and then
@@ -275,35 +321,39 @@ public abstract class AbstractClassifier
   public Capabilities getCapabilities() {
     Capabilities result = new Capabilities(this);
     result.enableAll();
-    
+
+    // Do we want to effectively turn off the testWithFail
+    // method in Capabilities to save runtime in buildClassifier()?
+    result.setTestWithFailAlwaysSucceeds(getDoNotCheckCapabilities());
+
     return result;
   }
-  
+
   /**
    * Returns the revision string.
-   * 
+   *
    * @return            the revision
    */
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
-  
+
   /**
    * runs the classifier instance with the given options.
-   * 
+   *
    * @param classifier		the classifier to run
    * @param options	the commandline options
    */
   public static void runClassifier(Classifier classifier, String[] options) {
     try {
       System.out.println(Evaluation.evaluateModel(classifier, options));
-    } 
+    }
     catch (Exception e) {
       if (    ((e.getMessage() != null) && (e.getMessage().indexOf("General options") == -1))
-	   || (e.getMessage() == null) )
-	e.printStackTrace();
+          || (e.getMessage() == null) )
+        e.printStackTrace();
       else
-	System.err.println(e.getMessage());
+        System.err.println(e.getMessage());
     }
   }
 }
