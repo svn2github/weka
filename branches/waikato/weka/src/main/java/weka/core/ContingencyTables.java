@@ -31,7 +31,7 @@ public class ContingencyTables
   implements RevisionHandler {
 
   /** The natural logarithm of 2 */
-  private static final double log2 = Math.log(2);
+  public static final double log2 = Math.log(2);
 
   /** Cache of integer logs */
   private static final double MAX_INT_FOR_CACHE_PLUS_ONE = 10000;
@@ -541,7 +541,7 @@ public class ContingencyTables
   /**
    * Help method for computing entropy.
    */
-  private static double lnFunc(double num){
+  public static double lnFunc(double num){
     
     if (num <= 0) {
       return 0;
