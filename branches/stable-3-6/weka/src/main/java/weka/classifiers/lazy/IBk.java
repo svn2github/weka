@@ -385,8 +385,9 @@ public class IBk
    */
   public String crossValidateTipText() {
 
-    return "Whether hold-one-out cross-validation will be used " +
-      "to select the best k value.";
+    return "Whether hold-one-out cross-validation will be used to " +
+      "select the best k value between 1 and the value specified as " +
+      "the KNN parameter.";
   }
   
   /**
