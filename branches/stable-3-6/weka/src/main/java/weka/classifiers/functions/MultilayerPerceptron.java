@@ -2106,6 +2106,9 @@ public class MultilayerPerceptron
       m_currentInstance = i;
     }
     
+    // Make a copy of the instance so that it isn't modified
+    m_currentInstance = (Instance)m_currentInstance.copy();
+    
     if (m_normalizeAttributes) {
       for (int noa = 0; noa < m_instances.numAttributes(); noa++) {
 	if (noa != m_instances.classIndex()) {
