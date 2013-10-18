@@ -46,15 +46,13 @@ import weka.core.RevisionUtils;
 import weka.core.Utils;
 
 /**
- <!-- globalinfo-start --> 
- * Reads a source that is in comma separated or tab
+ * <!-- globalinfo-start --> Reads a source that is in comma separated or tab
  * separated format. Assumes that the first row in the file determines the
  * number of and names of the attributes.
  * <p/>
- <!-- globalinfo-end -->
+ * <!-- globalinfo-end -->
  * 
- <!-- options-start --> 
- * Valid options are:
+ * <!-- options-start --> Valid options are:
  * <p/>
  * 
  * <pre>
@@ -99,14 +97,14 @@ import weka.core.Utils;
  *  Specify as a comma separated list (e.g. ",' (default: '"')
  * </pre>
  * 
- <!-- options-end -->
+ * <!-- options-end -->
  * 
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
  * @version $Revision$
  * @see Loader
  */
 public class CSVLoader extends AbstractFileLoader implements BatchConverter,
-    OptionHandler {
+  OptionHandler {
 
   /** for serialization. */
   static final long serialVersionUID = 5607529739745491340L;
@@ -167,6 +165,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return the file extension
    */
+  @Override
   public String getFileExtension() {
     return FILE_EXTENSION;
   }
@@ -176,6 +175,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return a short file description
    */
+  @Override
   public String getFileDescription() {
     return "CSV data files";
   }
@@ -185,6 +185,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return the file extensions
    */
+  @Override
   public String[] getFileExtensions() {
     return new String[] { getFileExtension() };
   }
@@ -197,8 +198,8 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    */
   public String globalInfo() {
     return "Reads a source that is in comma separated or tab separated format. "
-        + "Assumes that the first row in the file determines the number of "
-        + "and names of the attributes.";
+      + "Assumes that the first row in the file determines the number of "
+      + "and names of the attributes.";
   }
 
   /**
@@ -206,39 +207,41 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return an enumeration of all the available options.
    */
+  @Override
   public Enumeration listOptions() {
     Vector result = new Vector();
 
     result.addElement(new Option(
-        "\tThe range of attributes to force type to be NOMINAL.\n"
-            + "\t'first' and 'last' are accepted as well.\n"
-            + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
-            + "\t(default: -none-)", "N", 1, "-N <range>"));
+      "\tThe range of attributes to force type to be NOMINAL.\n"
+        + "\t'first' and 'last' are accepted as well.\n"
+        + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
+        + "\t(default: -none-)", "N", 1, "-N <range>"));
 
     result.addElement(new Option(
-        "\tThe range of attribute to force type to be STRING.\n"
-            + "\t'first' and 'last' are accepted as well.\n"
-            + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
-            + "\t(default: -none-)", "S", 1, "-S <range>"));
+      "\tThe range of attribute to force type to be STRING.\n"
+        + "\t'first' and 'last' are accepted as well.\n"
+        + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
+        + "\t(default: -none-)", "S", 1, "-S <range>"));
 
     result.add(new Option(
-        "\tThe range of attribute to force type to be DATE.\n"
-            + "\t'first' and 'last' are accepted as well.\n"
-            + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
-            + "\t(default: -none-)", "D", 1, "-D <range>"));
+      "\tThe range of attribute to force type to be DATE.\n"
+        + "\t'first' and 'last' are accepted as well.\n"
+        + "\tExamples: \"first-last\", \"1,4,5-27,50-last\"\n"
+        + "\t(default: -none-)", "D", 1, "-D <range>"));
 
     result.add(new Option(
-        "\tThe date formatting string to use to parse date values.\n"
-            + "\t(default: \"yyyy-MM-dd'T'HH:mm:ss\")", "format", 1,
-        "-format <date format>"));
+      "\tThe date formatting string to use to parse date values.\n"
+        + "\t(default: \"yyyy-MM-dd'T'HH:mm:ss\")", "format", 1,
+      "-format <date format>"));
 
     result.addElement(new Option("\tThe string representing a missing value.\n"
-        + "\t(default: ?)", "M", 1, "-M <str>"));
+      + "\t(default: ?)", "M", 1, "-M <str>"));
 
-    result.addElement(new Option(
+    result
+      .addElement(new Option(
         "\tThe enclosure character(s) to use for strings.\n"
-            + "\tSpecify as a comma separated list (e.g. \",'"
-            + " (default: \",')", "E", 1, "-E <enclosures>"));
+          + "\tSpecify as a comma separated list (e.g. \",'"
+          + " (default: \",')", "E", 1, "-E <enclosures>"));
 
     return result.elements();
   }
@@ -247,8 +250,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * Parses a given list of options.
    * <p/>
    * 
-   <!-- options-start --> 
-   * Valid options are:
+   * <!-- options-start --> Valid options are:
    * <p/>
    * 
    * <pre>
@@ -293,11 +295,12 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    *  Specify as a comma separated list (e.g. ",' (default: '"')
    * </pre>
    * 
-   <!-- options-end -->
+   * <!-- options-end -->
    * 
    * @param options the list of options as an array of strings
    * @throws Exception if an option is not supported
    */
+  @Override
   public void setOptions(String[] options) throws Exception {
     String tmpStr;
 
@@ -338,6 +341,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return an array of strings suitable for passing to setOptions
    */
+  @Override
   public String[] getOptions() {
     Vector<String> result;
 
@@ -395,7 +399,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    */
   public String nominalAttributesTipText() {
     return "The range of attributes to force to be of type NOMINAL, example "
-        + "ranges: 'first-last', '1,4,7-14,50-last'.";
+      + "ranges: 'first-last', '1,4,7-14,50-last'.";
   }
 
   /**
@@ -424,7 +428,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    */
   public String stringAttributesTipText() {
     return "The range of attributes to force to be of type STRING, example "
-        + "ranges: 'first-last', '1,4,7-14,50-last'.";
+      + "ranges: 'first-last', '1,4,7-14,50-last'.";
   }
 
   /**
@@ -453,7 +457,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    */
   public String dateAttributesTipText() {
     return "The range of attributes to force to type STRING, example "
-        + "ranges: 'first-last', '1,4,7-14, 50-last'.";
+      + "ranges: 'first-last', '1,4,7-14, 50-last'.";
   }
 
   /**
@@ -683,11 +687,11 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     String relationName;
     if (m_sourceFile != null)
       relationName = (m_sourceFile.getName())
-          .replaceAll("\\.[cC][sS][vV]$", "");
+        .replaceAll("\\.[cC][sS][vV]$", "");
     else
       relationName = "stream";
     Instances dataSet = new Instances(relationName, atts,
-        m_cumulativeInstances.size());
+      m_cumulativeInstances.size());
 
     for (int i = 0; i < m_cumulativeInstances.size(); i++) {
       current = ((FastVector) m_cumulativeInstances.elementAt(i));
@@ -707,7 +711,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
               vals[j] = index;
             } else {
               throw new IllegalStateException(
-                  "Wrong attribute type at position " + (i + 1) + "!!!");
+                "Wrong attribute type at position " + (i + 1) + "!!!");
             }
           }
         } else if (dataSet.attribute(j).isNominal()) {
@@ -781,7 +785,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     boolean wasSep;
 
     while (tokenizer.ttype != StreamTokenizer.TT_EOL
-        && tokenizer.ttype != StreamTokenizer.TT_EOF) {
+      && tokenizer.ttype != StreamTokenizer.TT_EOF) {
 
       // Get next token
       if (!first) {
@@ -789,12 +793,13 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
       }
 
       if (tokenizer.ttype == ',' || tokenizer.ttype == '\t'
-          || tokenizer.ttype == StreamTokenizer.TT_EOL) {
+        || tokenizer.ttype == StreamTokenizer.TT_EOL) {
         current.addElement(m_MissingValue);
         wasSep = true;
       } else {
         wasSep = false;
-        if (tokenizer.sval.equals(m_MissingValue)) {
+        if (tokenizer.sval.equals(m_MissingValue)
+          || tokenizer.sval.trim().length() == 0) {
           current.addElement(new String(m_MissingValue));
         } else {
           // try to parse as a number
@@ -817,8 +822,8 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     // check number of values read
     if (current.size() != m_structure.numAttributes()) {
       ConverterUtils.errms(tokenizer,
-          "wrong number of values. Read " + current.size() + ", expected "
-              + m_structure.numAttributes());
+        "wrong number of values. Read " + current.size() + ", expected "
+          + m_structure.numAttributes());
     }
 
     // check for structure update
@@ -868,7 +873,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     for (int i = 0; i < current.size(); i++) {
       Object ob = current.elementAt(i);
       if ((ob instanceof String) || (m_NominalAttributes.isInRange(i))
-          || (m_StringAttributes.isInRange(i)) || m_dateAttributes.isInRange(i)) {
+        || (m_StringAttributes.isInRange(i)) || m_dateAttributes.isInRange(i)) {
         if (ob.toString().compareTo(m_MissingValue) == 0) {
           // do nothing
         } else {
@@ -899,14 +904,14 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
               if (tempHash.size() == 0) {
                 for (int j = 0; j < m_cumulativeInstances.size(); j++) {
                   FastVector tempUpdate = ((FastVector) m_cumulativeInstances
-                      .elementAt(j));
+                    .elementAt(j));
                   Object tempO = tempUpdate.elementAt(i);
                   if (tempO instanceof String) {
                     // must have been a missing value
                   } else {
                     if (!tempHash.containsKey(tempO)) {
                       tempHash.put(new Double(((Double) tempO).doubleValue()),
-                          new Integer(tempHash.size()));
+                        new Integer(tempHash.size()));
                     }
                   }
                 }
@@ -922,7 +927,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
           if (!tempHash.containsKey(ob)) {
             int newIndex = tempHash.size();
             tempHash.put(new Double(((Double) ob).doubleValue()), new Integer(
-                newIndex));
+              newIndex));
           }
         }
       } else {
@@ -968,7 +973,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     String relationName;
     if (m_sourceFile != null)
       relationName = (m_sourceFile.getName())
-          .replaceAll("\\.[cC][sS][vV]$", "");
+        .replaceAll("\\.[cC][sS][vV]$", "");
     else
       relationName = "stream";
     m_structure = new Instances(relationName, attribNames, 0);
@@ -991,7 +996,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
     for (String e : parts) {
       if (e.length() > 1 || e.length() == 0) {
         throw new IllegalArgumentException(
-            "Enclosures can only be single characters");
+          "Enclosures can only be single characters");
       }
       tokenizer.quoteChar(e.charAt(0));
     }
@@ -1022,6 +1027,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * 
    * @return the revision
    */
+  @Override
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
