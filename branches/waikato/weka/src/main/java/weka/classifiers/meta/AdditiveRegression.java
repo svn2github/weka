@@ -15,33 +15,33 @@
 
 /*
  *    AdditiveRegression.java
- *    Copyright (C) 2000 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2000-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers.meta;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import weka.classifiers.Classifier;
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.IteratedSingleClassifierEnhancer;
 import weka.classifiers.rules.ZeroR;
 import weka.core.AdditionalMeasureProducer;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.OptionHandler;
 import weka.core.RevisionUtils;
 import weka.core.TechnicalInformation;
+import weka.core.TechnicalInformation.Field;
+import weka.core.TechnicalInformation.Type;
 import weka.core.TechnicalInformationHandler;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
-import weka.core.Capabilities.Capability;
-import weka.core.TechnicalInformation.Field;
-import weka.core.TechnicalInformation.Type;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 /**
  <!-- globalinfo-start -->
@@ -193,19 +193,17 @@ public class AdditiveRegression
    *
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
 
-    Vector newVector = new Vector(4);
+    Vector<Option> newVector = new Vector<Option>(1);
 
     newVector.addElement(new Option(
 	      "\tSpecify shrinkage rate. "
 	      +"(default = 1.0, ie. no shrinkage)\n", 
 	      "S", 1, "-S"));
 
-    Enumeration enu = super.listOptions();
-    while (enu.hasMoreElements()) {
-      newVector.addElement(enu.nextElement());
-    }
+    newVector.addAll(Collections.list(super.listOptions()));
+    
     return newVector.elements();
   }
 
@@ -253,6 +251,8 @@ public class AdditiveRegression
     }
 
     super.setOptions(options);
+    
+    Utils.checkForRemainingOptions(options);
   }
 
   /**
@@ -262,20 +262,13 @@ public class AdditiveRegression
    */
   public String [] getOptions() {
     
-    String [] superOptions = super.getOptions();
-    String [] options = new String [superOptions.length + 2];
-    int current = 0;
+    Vector<String> options = new Vector<String>();
 
-    options[current++] = "-S"; options[current++] = "" + getShrinkage();
+    options.add("-S"); options.add("" + getShrinkage());
 
-    System.arraycopy(superOptions, 0, options, current, 
-		     superOptions.length);
-
-    current += superOptions.length;
-    while (current < options.length) {
-      options[current++] = "";
-    }
-    return options;
+    Collections.addAll(options, super.getOptions());
+    
+    return options.toArray(new String[0]);
   }
 
   /**
@@ -446,8 +439,8 @@ public class AdditiveRegression
    * Returns an enumeration of the additional measure names
    * @return an enumeration of the measure names
    */
-  public Enumeration enumerateMeasures() {
-    Vector newVector = new Vector(1);
+  public Enumeration<String> enumerateMeasures() {
+    Vector<String> newVector = new Vector<String>(1);
     newVector.addElement("measureNumIterations");
     return newVector.elements();
   }

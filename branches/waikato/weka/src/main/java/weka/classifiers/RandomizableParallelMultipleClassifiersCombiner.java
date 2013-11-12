@@ -15,32 +15,34 @@
 
 /*
  *    RandomizableParallelMultipleClassifiersCombiner.java
- *    Copyright (C) 2009 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2009-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
 import weka.core.Option;
+import weka.core.Randomizable;
 import weka.core.Utils;
 
 /**
- * Abstract utility class for handling settings common to 
+ * Abstract utility class for handling settings common to
  * meta classifiers that build an ensemble in parallel using multiple
  * classifiers based on a given random number seed.
- * 
+ *
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
  */
 public abstract class RandomizableParallelMultipleClassifiersCombiner extends
-    ParallelMultipleClassifiersCombiner {
-  
+    ParallelMultipleClassifiersCombiner implements Randomizable {
+
   /** For serialization */
   private static final long serialVersionUID = 8274061943448676943L;
-  
+
   /** The random number seed. */
   protected int m_Seed = 1;
 
@@ -49,21 +51,20 @@ public abstract class RandomizableParallelMultipleClassifiersCombiner extends
    *
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
 
-    Vector newVector = new Vector(2);
+    Vector<Option> newVector = new Vector<Option>(1);
 
     newVector.addElement(new Option(
-              "\tRandom number seed.\n"
-              + "\t(default 1)",
-              "S", 1, "-S <num>"));
+          "\tRandom number seed.\n"
+          + "\t(default 1)",
+          "S", 1, "-S <num>"));
 
-    Enumeration enu = super.listOptions();
-    while (enu.hasMoreElements()) {
-      newVector.addElement(enu.nextElement());
-    }
+    newVector.addAll(Collections.list(super.listOptions()));
+    
     return newVector.elements();
   }
+ 
 
   /**
    * Parses a given list of options. Valid options are:<p>
@@ -80,7 +81,7 @@ public abstract class RandomizableParallelMultipleClassifiersCombiner extends
    * @exception Exception if an option is not supported
    */
   public void setOptions(String[] options) throws Exception {
-    
+
     String seed = Utils.getOption('S', options);
     if (seed.length() != 0) {
       setSeed(Integer.parseInt(seed));
@@ -98,19 +99,16 @@ public abstract class RandomizableParallelMultipleClassifiersCombiner extends
    */
   public String [] getOptions() {
 
-    String [] superOptions = super.getOptions();
-    String [] options = new String [superOptions.length + 2];
+    Vector<String> options = new Vector<String>();
+    
+    options.add("-S");
+    options.add("" + getSeed());
 
-    int current = 0;
-    options[current++] = "-S"; 
-    options[current++] = "" + getSeed();
-
-    System.arraycopy(superOptions, 0, options, current, 
-                     superOptions.length);
-
-    return options;
+    Collections.addAll(options, super.getOptions());
+    
+    return options.toArray(new String[0]);
   }
-  
+
   /**
    * Returns the tip text for this property
    * @return tip text for this property suitable for
@@ -123,7 +121,7 @@ public abstract class RandomizableParallelMultipleClassifiersCombiner extends
   /**
    * Set the seed for random number generation.
    *
-   * @param seed the seed 
+   * @param seed the seed
    */
   public void setSeed(int seed) {
 
@@ -136,7 +134,7 @@ public abstract class RandomizableParallelMultipleClassifiersCombiner extends
    * @return the seed for the random number generation
    */
   public int getSeed() {
-    
+
     return m_Seed;
   }
 }

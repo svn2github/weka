@@ -15,18 +15,18 @@
 
 /*
  * PerformanceStats.java
- * Copyright (C) 2007 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2007-2012 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.core.neighboursearch;
 
-import weka.core.AdditionalMeasureProducer;
-import weka.core.RevisionHandler;
-import weka.core.RevisionUtils;
-
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import weka.core.AdditionalMeasureProducer;
+import weka.core.RevisionHandler;
+import weka.core.RevisionUtils;
 
 /**
  * The class that measures the performance of a nearest
@@ -261,7 +261,7 @@ public class PerformanceStats
    * 
    * @return An enumeration of the measure names.
    */
-  public Enumeration enumerateMeasures() {
+  public Enumeration<String> enumerateMeasures() {
     Vector<String> newVector = new Vector<String>();
     
     newVector.addElement("measureTotal_points_visited");

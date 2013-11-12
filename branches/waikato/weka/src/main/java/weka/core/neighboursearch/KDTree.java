@@ -15,30 +15,30 @@
 
 /*
  *    KDTree.java
- *    Copyright (C) 2000-2007 University of Waikato
+ *    Copyright (C) 2000-2012 University of Waikato
  *    
  */
 
 package weka.core.neighboursearch;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import weka.core.DistanceFunction;
 import weka.core.EuclideanDistance;
 import weka.core.Instance;
-import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.RevisionUtils;
 import weka.core.TechnicalInformation;
-import weka.core.TechnicalInformationHandler;
-import weka.core.Utils;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
+import weka.core.TechnicalInformationHandler;
+import weka.core.Utils;
 import weka.core.neighboursearch.kdtrees.KDTreeNode;
 import weka.core.neighboursearch.kdtrees.KDTreeNodeSplitter;
 import weka.core.neighboursearch.kdtrees.SlidingMidPointOfWidestSide;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 /**
  <!-- globalinfo-start -->
@@ -711,15 +711,13 @@ public class KDTree
    * 
    * @return 		an enumeration of the measure names
    */
-  public Enumeration enumerateMeasures() {
+  public Enumeration<String> enumerateMeasures() {
     Vector<String> newVector = new Vector<String>();
     newVector.addElement("measureTreeSize");
     newVector.addElement("measureNumLeaves");
     newVector.addElement("measureMaxDepth");
     if (m_Stats != null) {
-      for (Enumeration e = m_Stats.enumerateMeasures(); e.hasMoreElements();) {
-        newVector.addElement((String)e.nextElement());
-      }
+      newVector.addAll(Collections.list(m_Stats.enumerateMeasures()));
     }
     return newVector.elements();
   }
@@ -983,8 +981,7 @@ public class KDTree
   public void assignSubToCenters(KDTreeNode node, Instances centers,
       int[] centList, int[] assignments) throws Exception {
     // todo: undecided situations
-    int numCent = centList.length;
-
+    
     // WARNING: assignments is "input/output-parameter"
     // should not be null and the following should not happen
     if (assignments == null) {
@@ -1202,7 +1199,7 @@ public class KDTree
    * 
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
     Vector<Option> newVector = new Vector<Option>();
     
     newVector.add(new Option(
@@ -1224,6 +1221,8 @@ public class KDTree
 	"\tNormalizing will be done\n"
         + "\t(Select dimension for split, with normalising to universe).",
         "N", 0, "-N"));
+    
+    newVector.addAll(Collections.list(super.listOptions()));
     
     return newVector.elements();
   }
@@ -1287,6 +1286,8 @@ public class KDTree
       setMaxInstInLeaf(40);
 
     setNormalizeNodeWidth(Utils.getFlag('N', options));
+    
+    Utils.checkForRemainingOptions(options);
   }
 
   /**

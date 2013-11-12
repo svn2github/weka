@@ -15,10 +15,14 @@
 
 /*
  * CheckSource.java
- * Copyright (C) 2007 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2007-2012 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.classifiers;
+
+import java.io.File;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import weka.core.Instances;
 import weka.core.Option;
@@ -28,10 +32,6 @@ import weka.core.RevisionUtils;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
 
-import java.io.File;
-import java.util.Enumeration;
-import java.util.Vector;
-
 /**
  * A simple class for checking the source generated from Classifiers
  * implementing the <code>weka.classifiers.Sourcable</code> interface.
@@ -39,25 +39,25 @@ import java.util.Vector;
  * and the dataset the source was generated with as parameters and tests
  * the output of the built classifier against the output of the generated
  * source. Use option '-h' to display all available commandline options.
- * 
+ *
  <!-- options-start -->
  * Valid options are: <p/>
- * 
+ *
  * <pre> -W &lt;classname and options&gt;
  *  The classifier (incl. options) that was used to generate
  *  the source code.</pre>
- * 
+ *
  * <pre> -S &lt;classname&gt;
  *  The classname of the generated source code.</pre>
- * 
+ *
  * <pre> -t &lt;file&gt;
  *  The training set with which the source code was generated.</pre>
- * 
+ *
  * <pre> -c &lt;index&gt;
  *  The class index of the training set. 'first' and 'last' are
  *  valid indices.
  *  (default: last)</pre>
- * 
+ *
  <!-- options-end -->
  *
  * Options after -- are passed to the designated classifier (specified with -W).
@@ -71,43 +71,43 @@ public class CheckSource
 
   /** the classifier used for generating the source code */
   protected Classifier m_Classifier = null;
-  
+
   /** the generated source code */
   protected Classifier m_SourceCode = null;
-  
+
   /** the dataset to use for testing */
   protected File m_Dataset = null;
-  
+
   /** the class index */
   protected int m_ClassIndex = -1;
-  
+
   /**
    * Returns an enumeration describing the available options.
    *
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
-    Vector result = new Vector();
-    
+  public Enumeration<Option> listOptions() {
+    Vector<Option> result = new Vector<Option>();
+
     result.addElement(new Option(
         "\tThe classifier (incl. options) that was used to generate\n"
         + "\tthe source code.",
         "W", 1, "-W <classname and options>"));
-    
+
     result.addElement(new Option(
         "\tThe classname of the generated source code.",
         "S", 1, "-S <classname>"));
-    
+
     result.addElement(new Option(
         "\tThe training set with which the source code was generated.",
         "t", 1, "-t <file>"));
-    
+
     result.addElement(new Option(
         "\tThe class index of the training set. 'first' and 'last' are\n"
         + "\tvalid indices.\n"
         + "\t(default: last)",
         "c", 1, "-c <index>"));
-    
+
     return result.elements();
   }
 
@@ -116,25 +116,25 @@ public class CheckSource
    *
    <!-- options-start -->
    * Valid options are: <p/>
-   * 
+   *
    * <pre> -W &lt;classname and options&gt;
    *  The classifier (incl. options) that was used to generate
    *  the source code.</pre>
-   * 
+   *
    * <pre> -S &lt;classname&gt;
    *  The classname of the generated source code.</pre>
-   * 
+   *
    * <pre> -t &lt;file&gt;
    *  The training set with which the source code was generated.</pre>
-   * 
+   *
    * <pre> -c &lt;index&gt;
    *  The class index of the training set. 'first' and 'last' are
    *  valid indices.
    *  (default: last)</pre>
-   * 
+   *
    <!-- options-end -->
    *
-   * Options after -- are passed to the designated classifier (specified with 
+   * Options after -- are passed to the designated classifier (specified with
    * -W).
    *
    * @param options the list of options as an array of strings
@@ -157,7 +157,7 @@ public class CheckSource
     else {
       throw new Exception("No classifier (classname + options) provided!");
     }
-    
+
     tmpStr = Utils.getOption('S', options);
     if (tmpStr.length() > 0) {
       spec = Utils.splitOptions(tmpStr);
@@ -170,7 +170,7 @@ public class CheckSource
     else {
       throw new Exception("No source code (classname) provided!");
     }
-    
+
     tmpStr = Utils.getOption('t', options);
     if (tmpStr.length() != 0)
       setDataset(new File(tmpStr));
@@ -183,7 +183,7 @@ public class CheckSource
         setClassIndex(0);
       else if (tmpStr.equals("last"))
         setClassIndex(-1);
-      else 
+      else
         setClassIndex(Integer.parseInt(tmpStr) - 1);
     }
     else {
@@ -198,12 +198,12 @@ public class CheckSource
    */
   public String[] getOptions() {
     Vector<String>      result;
-    
+
     result  = new Vector<String>();
 
     if (getClassifier() != null) {
       result.add("-W");
-      result.add(getClassifier().getClass().getName() + " " 
+      result.add(getClassifier().getClass().getName() + " "
           + Utils.joinOptions(((OptionHandler) getClassifier()).getOptions()));
     }
 
@@ -222,51 +222,51 @@ public class CheckSource
       result.add("last");
     else if (getClassIndex() == 0)
       result.add("first");
-    else 
+    else
       result.add("" + (getClassIndex() + 1));
-    
+
     return result.toArray(new String[result.size()]);
   }
 
   /**
    * Sets the classifier to use for the comparison.
-   * 
+   *
    * @param value       the classifier to use
    */
   public void setClassifier(Classifier value) {
     m_Classifier = value;
   }
-  
+
   /**
    * Gets the classifier being used for the tests, can be null.
-   * 
+   *
    * @return            the currently set classifier
    */
   public Classifier getClassifier() {
     return m_Classifier;
   }
-  
+
   /**
    * Sets the class to test.
-   * 
+   *
    * @param value       the class to test
    */
   public void setSourceCode(Classifier value) {
     m_SourceCode = value;
   }
-  
+
   /**
    * Gets the class to test.
-   * 
+   *
    * @return            the currently set class, can be null.
    */
   public Classifier getSourceCode() {
     return m_SourceCode;
   }
-  
+
   /**
    * Sets the dataset to use for testing.
-   * 
+   *
    * @param value       the dataset to use.
    */
   public void setDataset(File value) {
@@ -276,10 +276,10 @@ public class CheckSource
     else
       m_Dataset = value;
   }
-  
+
   /**
    * Gets the dataset to use for testing, can be null.
-   * 
+   *
    * @return            the dataset to use.
    */
   public File getDataset() {
@@ -288,32 +288,32 @@ public class CheckSource
 
   /**
    * Sets the class index of the dataset.
-   * 
+   *
    * @param value       the class index of the dataset.
    */
   public void setClassIndex(int value) {
     m_ClassIndex = value;
   }
-  
+
   /**
    * Gets the class index of the dataset.
-   * 
+   *
    * @return            the current class index.
    */
   public int getClassIndex() {
     return m_ClassIndex;
   }
-  
+
   /**
    * performs the comparison test
-   * 
+   *
    * @return            true if tests were successful
    * @throws Exception  if tests fail
    */
   public boolean execute() throws Exception {
     boolean     result;
     Classifier  cls;
-    Classifier	code;
+    Classifier  code;
     int         i;
     Instances   data;
     DataSource  source;
@@ -321,9 +321,9 @@ public class CheckSource
     boolean     different;
     double      predClassifier;
     double      predSource;
-    
+
     result = true;
-    
+
     // a few checks
     if (getClassifier() == null)
       throw new Exception("No classifier set!");
@@ -334,7 +334,7 @@ public class CheckSource
     if (!getDataset().exists())
       throw new Exception(
           "Dataset '" + getDataset().getAbsolutePath() + "' does not exist!");
-    
+
     // load data
     source = new DataSource(getDataset().getAbsolutePath());
     data   = source.getDataSet();
@@ -343,19 +343,19 @@ public class CheckSource
     else
       data.setClassIndex(getClassIndex());
     numeric = data.classAttribute().isNumeric();
-    
+
     // build classifier
     cls = AbstractClassifier.makeCopy(getClassifier());
     cls.buildClassifier(data);
-    
+
     code = getSourceCode();
-    
+
     // compare predictions
     for (i = 0; i < data.numInstances(); i++) {
       // perform predictions
       predClassifier = cls.classifyInstance(data.instance(i));
       predSource     = code.classifyInstance(data.instance(i));
-      
+
       // compare both results
       if (Double.isNaN(predClassifier) && Double.isNaN(predSource)) {
         different = false;
@@ -366,47 +366,47 @@ public class CheckSource
         else
           different = ((int) predClassifier != (int) predSource);
       }
-      
+
       if (different) {
         result = false;
         if (numeric)
           System.out.println(
-              (i+1) + ". instance (Classifier/Source code): " 
+              (i+1) + ". instance (Classifier/Source code): "
               + predClassifier + " != " + predSource);
         else
           System.out.println(
-              (i+1) + ". instance (Classifier/Source code): " 
-              + data.classAttribute().value((int) predClassifier) 
+              (i+1) + ". instance (Classifier/Source code): "
+              + data.classAttribute().value((int) predClassifier)
               + " != " + data.classAttribute().value((int) predSource));
       }
     }
-    
+
     return result;
   }
-  
+
   /**
    * Returns the revision string.
-   * 
+   *
    * @return		the revision
    */
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
-  
+
   /**
    * Executes the tests, use "-h" to list the commandline options.
-   * 
+   *
    * @param args        the commandline parameters
    * @throws Exception  if something goes wrong
    */
   public static void main(String[] args) throws Exception{
     CheckSource         check;
     StringBuffer        text;
-    Enumeration         enm;
-    
+    Enumeration<Option>         enm;
+
     check = new CheckSource();
     if (Utils.getFlag('h', args)) {
-      text = new StringBuffer();   
+      text = new StringBuffer();
       text.append("\nHelp requested:\n\n");
       enm = check.listOptions();
       while (enm.hasMoreElements()) {

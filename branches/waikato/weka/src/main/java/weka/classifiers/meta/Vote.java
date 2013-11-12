@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
@@ -35,6 +36,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.RandomizableMultipleClassifiersCombiner;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
+import weka.core.Aggregateable;
 import weka.core.Environment;
 import weka.core.EnvironmentHandler;
 import weka.core.Instance;
@@ -136,7 +138,7 @@ import weka.core.Utils;
  * @version $Revision$
  */
 public class Vote extends RandomizableMultipleClassifiersCombiner implements
-    TechnicalInformationHandler, EnvironmentHandler {
+    TechnicalInformationHandler, EnvironmentHandler, Aggregateable<Classifier> {
 
   /** for serialization */
   static final long serialVersionUID = -637891196294399624L;
@@ -203,16 +205,10 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
    * @return an enumeration of all the available options.
    */
   @Override
-  public Enumeration listOptions() {
-    Enumeration enm;
-    Vector result;
-
-    result = new Vector();
-
-    enm = super.listOptions();
-    while (enm.hasMoreElements())
-      result.addElement(enm.nextElement());
-
+  public Enumeration<Option> listOptions() {
+    
+    Vector<Option> result = new Vector<Option>();
+    
     result.addElement(new Option(
         "\tFull path to serialized classifier to include.\n"
             + "\tMay be specified multiple times to include\n"
@@ -223,6 +219,8 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
 
     result.addElement(new Option("\tThe combination rule to use\n"
         + "\t(default: AVG)", "R", 1, "-R " + Tag.toOptionList(TAGS_RULES)));
+    
+    result.addAll(Collections.list(super.listOptions()));
 
     return result.elements();
   }
@@ -235,10 +233,8 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
   @Override
   public String[] getOptions() {
     int i;
-    Vector result;
+    Vector<String> result = new Vector<String>();
     String[] options;
-
-    result = new Vector();
 
     options = super.getOptions();
     for (i = 0; i < options.length; i++)
@@ -428,7 +424,6 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
       m_preBuiltClassifiers.clear();
       loadClassifiers(data);
 
-      int index = 0;
       if (m_Classifiers.length == 1
           && m_Classifiers[0] instanceof weka.classifiers.rules.ZeroR) {
         // remove the single ZeroR
@@ -470,12 +465,14 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
           new FileInputStream(toLoad)));
       Object c = is.readObject();
       if (!(c instanceof Classifier)) {
+        is.close();
         throw new Exception("\"" + path + "\" does not contain a classifier!");
       }
       Object header = null;
       header = is.readObject();
       if (header instanceof Instances) {
         if (data != null && !data.equalHeaders((Instances) header)) {
+          is.close();
           throw new Exception("\"" + path + "\" was trained with data that is "
               + "of a differnet structure than the incoming training data");
         }
@@ -484,7 +481,7 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
         System.out.println("[Vote] warning: no header instances for \"" + path
             + "\"");
       }
-
+      is.close();
       addPreBuiltClassifier((Classifier) c);
     }
   }
@@ -1002,6 +999,40 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
   }
 
   /**
+   * Aggregate an object with this one
+   * 
+   * @param toAggregate the object to aggregate
+   * @return the result of aggregation
+   * @throws Exception if the supplied object can't be aggregated for some
+   *           reason
+   */
+  @Override
+  public Classifier aggregate(Classifier toAggregate) throws Exception {
+    
+    if (m_structure == null && m_Classifiers.length == 1 && 
+        (m_Classifiers[0] instanceof weka.classifiers.rules.ZeroR)) {
+      // remove the single untrained ZeroR
+      setClassifiers(new Classifier[0]);
+    }
+    
+    // Can't do any training data compatibility checks unfortunately
+    addPreBuiltClassifier(toAggregate);
+    
+    return this;
+  }
+
+  /**
+   * Call to complete the aggregation process. Allows implementers to do any
+   * final processing based on how many objects were aggregated.
+   * 
+   * @throws Exception if the aggregation can't be finalized for some reason
+   */
+  @Override
+  public void finalizeAggregation() throws Exception {
+    // nothing to do
+  }
+  
+  /**
    * Main method for testing this class.
    * 
    * @param argv should contain the following arguments: -t training file [-T
@@ -1010,4 +1041,5 @@ public class Vote extends RandomizableMultipleClassifiersCombiner implements
   public static void main(String[] argv) {
     runClassifier(new Vote(), argv);
   }
+
 }

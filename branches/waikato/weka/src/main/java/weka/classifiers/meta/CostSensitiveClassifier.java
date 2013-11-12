@@ -15,17 +15,27 @@
 
 /*
  *    CostSensitiveClassifier.java
- *    Copyright (C) 2002 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2002-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers.meta;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.Vector;
+
 import weka.classifiers.Classifier;
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.CostMatrix;
 import weka.classifiers.RandomizableSingleClassifierEnhancer;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.Drawable;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -36,16 +46,6 @@ import weka.core.SelectedTag;
 import weka.core.Tag;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
-import weka.core.Capabilities.Capability;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Enumeration;
-import java.util.Random;
-import java.util.Vector;
 
 /**
  <!-- globalinfo-start -->
@@ -106,7 +106,7 @@ public class CostSensitiveClassifier
   implements OptionHandler, Drawable {
 
   /** for serialization */
-  static final long serialVersionUID = -720658209263002404L;
+  static final long serialVersionUID = -110658209263002404L;
   
   /** load cost matrix on demand */
   public static final int MATRIX_ON_DEMAND = 1;
@@ -161,9 +161,9 @@ public class CostSensitiveClassifier
    *
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
 
-    Vector newVector = new Vector(5);
+    Vector<Option> newVector = new Vector<Option>(4);
 
     newVector.addElement(new Option(
 	      "\tMinimize expected misclassification cost. Default is to\n"
@@ -184,10 +184,7 @@ public class CostSensitiveClassifier
               "\tThe cost matrix in Matlab single line format.",
               "cost-matrix", 1, "-cost-matrix <matrix>"));
 
-    Enumeration enu = super.listOptions();
-    while (enu.hasMoreElements()) {
-      newVector.addElement(enu.nextElement());
-    }
+    newVector.addAll(Collections.list(super.listOptions()));
 
     return newVector.elements();
   }
@@ -280,6 +277,8 @@ public class CostSensitiveClassifier
     }
     
     super.setOptions(options);
+    
+    Utils.checkForRemainingOptions(options);
   }
 
 
@@ -289,40 +288,30 @@ public class CostSensitiveClassifier
    * @return an array of strings suitable for passing to setOptions
    */
   public String [] getOptions() {
-    String [] superOptions = super.getOptions();
-    String [] options = new String [superOptions.length + 7];
-
-    int current = 0;
+    
+    Vector<String> options = new Vector<String>();
 
     if (m_MatrixSource == MATRIX_SUPPLIED) {
       if (m_CostFile != null) {
-        options[current++] = "-C";
-        options[current++] = "" + m_CostFile;
+          options.add("-C");
+          options.add("" + m_CostFile);
       }
       else {
-        options[current++] = "-cost-matrix";
-        options[current++] = getCostMatrix().toMatlab();
+          options.add("-cost-matrix");
+          options.add(getCostMatrix().toMatlab());
       }
     } else {
-      options[current++] = "-N";
-      options[current++] = "" + getOnDemandDirectory();
+        options.add("-N");
+        options.add("" + getOnDemandDirectory());
     }
 
     if (getMinimizeExpectedCost()) {
-      options[current++] = "-M";
+        options.add("-M");
     }
 
-    System.arraycopy(superOptions, 0, options, current, 
-		     superOptions.length);
+    Collections.addAll(options, super.getOptions());
 
-    while (current < options.length) {
-      if (options[current] == null) {
-        options[current] = "";
-      }
-      current++;
-    }
-
-    return options;
+    return options.toArray(new String[0]);
   }
 
   /**

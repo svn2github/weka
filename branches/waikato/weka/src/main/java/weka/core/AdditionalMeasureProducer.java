@@ -15,13 +15,13 @@
 
 /*
  *    AdditionalMeasureProducer.java
- *    Copyright (C) 2000 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2000-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.core;
 
-import java.util.*;
+import java.util.Enumeration;
 
 /** 
  * Interface to something that can produce measures other than those
@@ -38,7 +38,7 @@ public interface AdditionalMeasureProducer {
    * double measureBlah()
    * @return an enumeration of the measure names
    */
-  Enumeration enumerateMeasures();
+  Enumeration<String> enumerateMeasures();
 
   /**
    * Returns the value of the named measure

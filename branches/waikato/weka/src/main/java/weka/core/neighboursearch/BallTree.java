@@ -15,10 +15,14 @@
 
 /*
  * BallTree.java
- * Copyright (C) 2007 University of Waikato
+ * Copyright (C) 2007-2012 University of Waikato
  */
 
 package weka.core.neighboursearch;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import weka.core.EuclideanDistance;
 import weka.core.Instance;
@@ -26,16 +30,13 @@ import weka.core.Instances;
 import weka.core.Option;
 import weka.core.RevisionUtils;
 import weka.core.TechnicalInformation;
-import weka.core.TechnicalInformationHandler;
-import weka.core.Utils;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
+import weka.core.TechnicalInformationHandler;
+import weka.core.Utils;
 import weka.core.neighboursearch.balltrees.BallNode;
 import weka.core.neighboursearch.balltrees.BallTreeConstructor;
 import weka.core.neighboursearch.balltrees.TopDownConstructor;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 /**
  <!-- globalinfo-start -->
@@ -494,15 +495,13 @@ public class BallTree
    * 
    * @return 		an enumeration of the measure names
    */
-  public Enumeration enumerateMeasures() {
+  public Enumeration<String> enumerateMeasures() {
     Vector<String> newVector = new Vector<String>();
     newVector.addElement("measureTreeSize");
     newVector.addElement("measureNumLeaves");
     newVector.addElement("measureMaxDepth");
     if (m_Stats != null) {
-      for (Enumeration e = m_Stats.enumerateMeasures(); e.hasMoreElements();) {
-        newVector.addElement((String)e.nextElement());
-      }
+      newVector.addAll(Collections.list(m_Stats.enumerateMeasures()));
     }
     return newVector.elements();
   }
@@ -549,7 +548,7 @@ public class BallTree
    * 
    * @return 		an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
     Vector<Option> newVector = new Vector<Option>();
     
     newVector.addElement(new Option(
@@ -557,6 +556,8 @@ public class BallTree
 	+ "\t(default: weka.core.TopDownConstructor)",
 	"C", 1, "-C <classname and options>"));
 
+    newVector.addAll(Collections.list(super.listOptions()));
+    
     return newVector.elements();
   }
 
@@ -596,6 +597,8 @@ public class BallTree
     else {
       setBallTreeConstructor(new TopDownConstructor());  
     }
+    
+    Utils.checkForRemainingOptions(options);
   }
 
   /**
@@ -604,15 +607,9 @@ public class BallTree
    * @return 		an array of strings suitable for passing to setOptions
    */
   public String[] getOptions() {
-    Vector<String>	result;
-    String[]		options;
-    int			i;
+    Vector<String>	result = new Vector<String>();
     
-    result = new Vector<String>();
-    
-    options = super.getOptions();
-    for (i = 0; i < options.length; i++)
-      result.add(options[i]);
+    Collections.addAll(result, super.getOptions());
     
     result.add("-C");
     result.add(

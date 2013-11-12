@@ -15,15 +15,16 @@
 
 /*
  * TreePerformanceStats.java
- * Copyright (C) 2007 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2007-2012 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.core.neighboursearch;
 
-import weka.core.RevisionUtils;
-
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import weka.core.RevisionUtils;
 
 /**
  * The class that measures the performance of a tree based 
@@ -235,13 +236,11 @@ public class TreePerformanceStats
    * 
    * @return An enumeration of the measure names.
    */
-  public Enumeration enumerateMeasures() {
+  public Enumeration<String> enumerateMeasures() {
     Vector<String> newVector = new Vector<String>();
     
-    Enumeration en = super.enumerateMeasures();
-    while(en.hasMoreElements())
-      newVector.addElement((String)en.nextElement());
-    
+    newVector.addAll(Collections.list(super.enumerateMeasures()));
+   
     newVector.addElement("measureTotal_nodes_visited");
     newVector.addElement("measureMean_nodes_visited");
     newVector.addElement("measureStdDev_nodes_visited");

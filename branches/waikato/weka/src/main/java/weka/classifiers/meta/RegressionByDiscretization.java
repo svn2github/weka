@@ -15,43 +15,41 @@
 
 /*
  *    RegressionByDiscretization.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers.meta;
 
-import weka.classifiers.SingleClassifierEnhancer;
-import weka.classifiers.IntervalEstimator;
-import weka.classifiers.ConditionalDensityEstimator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
 
+import weka.classifiers.ConditionalDensityEstimator;
+import weka.classifiers.IntervalEstimator;
+import weka.classifiers.SingleClassifierEnhancer;
+import weka.core.Attribute;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Attribute;
-import weka.core.FastVector;
 import weka.core.Option;
 import weka.core.RevisionUtils;
-import weka.core.Utils;
-import weka.core.Capabilities.Capability;
-import weka.core.Tag;
 import weka.core.SelectedTag;
+import weka.core.Tag;
 import weka.core.TechnicalInformation;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
-
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Discretize;
-
+import weka.core.Utils;
 import weka.estimators.UnivariateDensityEstimator;
-import weka.estimators.UnivariateIntervalEstimator;
-import weka.estimators.UnivariateQuantileEstimator;
 import weka.estimators.UnivariateEqualFrequencyHistogramEstimator;
+import weka.estimators.UnivariateIntervalEstimator;
 import weka.estimators.UnivariateKernelEstimator;
 import weka.estimators.UnivariateNormalEstimator;
-
-import java.util.Enumeration;
-import java.util.Vector;
+import weka.estimators.UnivariateQuantileEstimator;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Discretize;
 
 /**
  <!-- globalinfo-start -->
@@ -147,6 +145,9 @@ public class RegressionByDiscretization
 
   /** Whether to delete empty intervals. */
   protected boolean m_DeleteEmptyBins;
+
+  /** Mapping to convert indices in case empty bins are deleted. */
+  protected int[] m_OldIndexToNewIndex;
 
   /** Header of discretized data. */
   protected Instances m_DiscretizedHeader = null;
@@ -281,6 +282,7 @@ public class RegressionByDiscretization
     Instances newTrain = Filter.useFilter(instances, m_Discretizer);
 
     // Should empty bins be deleted?
+    m_OldIndexToNewIndex = null;
     if (m_DeleteEmptyBins) {
 
       // Figure out which classes are empty after discretization
@@ -294,24 +296,24 @@ public class RegressionByDiscretization
       }
       
       // Compute new list of non-empty classes and mapping of indices
-      FastVector newClassVals = new FastVector(numNonEmptyClasses);
-      int[] oldIndexToNewIndex = new int[newTrain.numClasses()];
+      ArrayList<String> newClassVals = new ArrayList<String>(numNonEmptyClasses);
+      m_OldIndexToNewIndex = new int[newTrain.numClasses()];
       for (int i = 0; i < newTrain.numClasses(); i++) {
         if (notEmptyClass[i]) {
-         oldIndexToNewIndex[i] = newClassVals.size();
-          newClassVals.addElement(newTrain.classAttribute().value(i));
+         m_OldIndexToNewIndex[i] = newClassVals.size();
+          newClassVals.add(newTrain.classAttribute().value(i));
         }
       }
       
       // Compute new header information
       Attribute newClass = new Attribute(newTrain.classAttribute().name(), 
                                          newClassVals);
-      FastVector newAttributes = new FastVector(newTrain.numAttributes());
+      ArrayList<Attribute> newAttributes = new ArrayList<Attribute>(newTrain.numAttributes());
       for (int i = 0; i < newTrain.numAttributes(); i++) {
         if (i != newTrain.classIndex()) {
-          newAttributes.addElement(newTrain.attribute(i).copy());
+          newAttributes.add((Attribute)newTrain.attribute(i).copy());
         } else {
-          newAttributes.addElement(newClass);
+          newAttributes.add(newClass);
         }
       }
       
@@ -324,7 +326,7 @@ public class RegressionByDiscretization
         Instance inst = newTrain.instance(i);
         newTrainTransformed.add(inst);
         newTrainTransformed.lastInstance().
-          setClassValue(oldIndexToNewIndex[(int)inst.classValue()]);
+          setClassValue(m_OldIndexToNewIndex[(int)inst.classValue()]);
       }
       newTrain = newTrainTransformed;
     }
@@ -407,7 +409,12 @@ public class RegressionByDiscretization
     }
 
     // Make sure structure of class attribute correct
-    Instance newInstance = (Instance)instance.copy();
+    m_Discretizer.input(instance);
+    m_Discretizer.batchFinished();
+    Instance newInstance = m_Discretizer.output();//(Instance)instance.copy();
+    if (m_OldIndexToNewIndex != null) {
+      newInstance.setClassValue(m_OldIndexToNewIndex[(int)newInstance.classValue()]);
+    }
     newInstance.setDataset(m_DiscretizedHeader);
     double [] probs = m_Classifier.distributionForInstance(newInstance);
 
@@ -468,7 +475,12 @@ public class RegressionByDiscretization
   public double classifyInstance(Instance instance) throws Exception {  
 
     // Make sure structure of class attribute correct
-    Instance newInstance = (Instance)instance.copy();
+    m_Discretizer.input(instance);
+    m_Discretizer.batchFinished();
+    Instance newInstance = m_Discretizer.output();//(Instance)instance.copy();
+    if (m_OldIndexToNewIndex != null) {
+      newInstance.setClassValue(m_OldIndexToNewIndex[(int)newInstance.classValue()]);
+    }
     newInstance.setDataset(m_DiscretizedHeader);
     double [] probs = m_Classifier.distributionForInstance(newInstance);
 
@@ -497,9 +509,9 @@ public class RegressionByDiscretization
    *
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions() {
+  public Enumeration<Option> listOptions() {
 
-    Vector newVector = new Vector(5);
+    Vector<Option> newVector = new Vector<Option>(5);
 
     newVector.addElement(new Option(
 	      "\tNumber of bins for equal-width discretization\n"
@@ -524,10 +536,7 @@ public class RegressionByDiscretization
 	     "\tWhat type of density estimator to use: 0=histogram/1=kernel/2=normal (default: 0).",
 	     "K", 1, "-K"));
 
-    Enumeration enu = super.listOptions();
-    while (enu.hasMoreElements()) {
-      newVector.addElement(enu.nextElement());
-    }
+    newVector.addAll(Collections.list(super.listOptions()));
 
     return newVector.elements();
   }
@@ -561,6 +570,8 @@ public class RegressionByDiscretization
       setEstimatorType(new SelectedTag(ESTIMATOR_HISTOGRAM, TAGS_ESTIMATOR));
 
     super.setOptions(options);
+    
+    Utils.checkForRemainingOptions(options);
   }
 
   /**
@@ -570,37 +581,29 @@ public class RegressionByDiscretization
    */
   public String [] getOptions() {
 
-    String [] superOptions = super.getOptions();
-    String [] options = new String [superOptions.length + 7];
-    int current = 0;
+    Vector<String> options = new Vector<String>();
 
-    options[current++] = "-B";
-    options[current++] = "" + getNumBins();
+    options.add("-B");
+    options.add("" + getNumBins());
 
     if (getDeleteEmptyBins()) {
-      options[current++] = "-E";
+        options.add("-E");
     }
     
     if (getUseEqualFrequency()) {
-      options[current++] = "-F";
+        options.add("-F");
     }
 
     if (getMinimizeAbsoluteError()) {
-      options[current++] = "-A";
+        options.add("-A");
     }
     
-    options[current++] = "-K";
-    options[current++] = "" + m_estimatorType;
+    options.add("-K");
+    options.add("" + m_estimatorType);
 
-    System.arraycopy(superOptions, 0, options, current, 
-		     superOptions.length);
+    Collections.addAll(options, super.getOptions());
 
-    current += superOptions.length;
-    while (current < options.length) {
-      options[current++] = "";
-    }
-
-    return options;
+    return options.toArray(new String[0]);
   }
 
   /**

@@ -15,13 +15,13 @@
 
 /*
  *    OptionHandler.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.core;
 
-import java.util.*;
+import java.util.Enumeration;
 
 /** 
  * Interface to something that understands options.
@@ -37,7 +37,7 @@ public interface OptionHandler {
    *
    * @return an enumeration of all available options.
    */
-  Enumeration listOptions();
+  Enumeration<Option> listOptions();
 
   /**
    * Sets the OptionHandler's options using the given list. All options

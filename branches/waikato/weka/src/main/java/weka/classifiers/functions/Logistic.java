@@ -21,8 +21,8 @@
 
 package weka.classifiers.functions;
 
-import weka.classifiers.Classifier;
 import weka.classifiers.AbstractClassifier;
+import weka.core.Aggregateable;
 import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -43,6 +43,7 @@ import weka.filters.unsupervised.attribute.NominalToBinary;
 import weka.filters.unsupervised.attribute.RemoveUseless;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -117,7 +118,8 @@ import java.util.Vector;
  * @version $Revision$
  */
 public class Logistic extends AbstractClassifier 
-  implements OptionHandler, WeightedInstancesHandler, TechnicalInformationHandler {
+  implements OptionHandler, WeightedInstancesHandler, TechnicalInformationHandler,
+  Aggregateable<Logistic> {
   
   /** for serialization */
   static final long serialVersionUID = 3932117032546553727L;
@@ -226,10 +228,9 @@ public class Logistic extends AbstractClassifier
    *
    * @return an enumeration of all the available options
    */
-  public Enumeration listOptions() {
-    Vector newVector = new Vector(4);
-    newVector.addElement(new Option("\tTurn on debugging output.",
-				    "D", 0, "-D"));
+  public Enumeration<Option> listOptions() {
+    Vector<Option> newVector = new Vector<Option>(4);
+    
     newVector.addElement(new Option("\tUse conjugate gradient descent rather than BFGS updates.",
 				    "C", 0, "-C"));
     newVector.addElement(new Option("\tSet the ridge in the log-likelihood.",
@@ -237,6 +238,9 @@ public class Logistic extends AbstractClassifier
     newVector.addElement(new Option("\tSet the maximum number of iterations"+
 				    " (default -1, until convergence).",
 				    "M", 1, "-M <number>"));
+    
+    newVector.addAll(Collections.list(super.listOptions()));
+    
     return newVector.elements();
   }
     
@@ -261,7 +265,6 @@ public class Logistic extends AbstractClassifier
    * @throws Exception if an option is not supported
    */
   public void setOptions(String[] options) throws Exception {
-    setDebug(Utils.getFlag('D', options));
 
     setUseConjugateGradientDescent(Utils.getFlag('C', options));
 
@@ -276,6 +279,10 @@ public class Logistic extends AbstractClassifier
       m_MaxIts = Integer.parseInt(maxItsString);
     else 
       m_MaxIts = -1;
+    
+    super.setOptions(options);
+    
+    Utils.checkForRemainingOptions(options);
   }
     
   /**
@@ -285,21 +292,19 @@ public class Logistic extends AbstractClassifier
    */
   public String [] getOptions() {
 	
-    String [] options = new String [6];
-    int current = 0;
-	
-    if (getDebug()) 
-      options[current++] = "-D";
+    Vector<String> options = new Vector<String>();
+    
     if (getUseConjugateGradientDescent()) {
-      options[current++] = "-C";
+      options.add("-C");
     }
-    options[current++] = "-R";
-    options[current++] = ""+m_Ridge;	
-    options[current++] = "-M";
-    options[current++] = ""+m_MaxIts;
-    while (current < options.length) 
-      options[current++] = "";
-    return options;
+    options.add("-R");
+    options.add(""+m_Ridge);	
+    options.add("-M");
+    options.add(""+m_MaxIts);
+    
+    Collections.addAll(options, super.getOptions());
+    
+    return options.toArray(new String[0]);
   }
    
   /**
@@ -979,7 +984,73 @@ public class Logistic extends AbstractClassifier
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
+      
+  protected int m_numModels = 0;
+
+  /**
+   * Aggregate an object with this one
+   * 
+   * @param toAggregate the object to aggregate
+   * @return the result of aggregation
+   * @throws Exception if the supplied object can't be aggregated for some
+   *           reason
+   */
+  @Override
+  public Logistic aggregate(Logistic toAggregate) throws Exception {
+    if (m_numModels == Integer.MIN_VALUE) {
+      throw new Exception(
+          "Can't aggregate further - model has already been "
+              + "aggregated and finalized");
+    }
     
+    if (m_Par == null) {
+      throw new Exception("No model built yet, can't aggregate");
+    }
+    
+    if (!m_structure.equalHeaders(toAggregate.m_structure)) {
+      throw new Exception("Can't aggregate - data headers dont match: "
+          + m_structure.equalHeadersMsg(toAggregate.m_structure));
+    }
+    
+    for (int i = 0; i < m_Par.length; i++) {
+      for (int j = 0; j < m_Par[i].length; j++) {
+        m_Par[i][j] += toAggregate.m_Par[i][j];
+      }
+    }
+    
+    m_numModels++;
+    
+    return this;
+  }
+
+  /**
+   * Call to complete the aggregation process. Allows implementers to do any
+   * final processing based on how many objects were aggregated.
+   * 
+   * @throws Exception if the aggregation can't be finalized for some reason
+   */
+  @Override
+  public void finalizeAggregation() throws Exception {
+    
+    if (m_numModels == Integer.MIN_VALUE) {
+      throw new Exception("Aggregation has already been finalized");
+    }
+    
+    if (m_numModels == 0) {
+      throw new Exception("Unable to finalize aggregation - " +
+                "haven't seen any models to aggregate");
+    }
+    
+    for (int i = 0; i < m_Par.length; i++) {
+      for (int j = 0; j < m_Par[i].length; j++) {
+        m_Par[i][j] /= (m_numModels + 1);
+      }
+    }
+    
+    // aggregation complete
+    m_numModels = Integer.MIN_VALUE;
+  }
+  
   /**
    * Main method for testing this class.
    *
@@ -989,4 +1060,5 @@ public class Logistic extends AbstractClassifier
   public static void main(String [] argv) {
     runClassifier(new Logistic(), argv);
   }
+
 }
