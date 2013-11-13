@@ -15,7 +15,7 @@
 
 /*
  *    AppenderBeanInfo.java
- *    Copyright (C) 2011 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2011-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -31,31 +31,20 @@ import java.beans.SimpleBeanInfo;
  * @version $Revision$
  */
 public class AppenderBeanInfo extends SimpleBeanInfo {
-  
+
   /**
    * Returns the event set descriptors
-   *
+   * 
    * @return an <code>EventSetDescriptor[]</code> value
    */
-  public EventSetDescriptor [] getEventSetDescriptors() {
+  @Override
+  public EventSetDescriptor[] getEventSetDescriptors() {
     try {
-      EventSetDescriptor [] esds = 
-      { new EventSetDescriptor(DataSource.class, 
-                               "dataSet", 
-                               DataSourceListener.class, 
-                               "acceptDataSet"),
-        new EventSetDescriptor(DataSource.class, 
-                               "instance", 
-                               InstanceListener.class, 
-                               "acceptInstance"),
-        new EventSetDescriptor(TrainingSetProducer.class, 
-                               "trainingSet", 
-                               TrainingSetListener.class, 
-                               "acceptTrainingSet"),
-        new EventSetDescriptor(TestSetProducer.class, 
-                               "testSet", 
-                               TestSetListener.class, 
-                               "acceptTestSet")  };
+      EventSetDescriptor[] esds = {
+        new EventSetDescriptor(DataSource.class, "dataSet",
+          DataSourceListener.class, "acceptDataSet"),
+        new EventSetDescriptor(DataSource.class, "instance",
+          InstanceListener.class, "acceptInstance"), };
       return esds;
     } catch (Exception ex) {
       ex.printStackTrace();
