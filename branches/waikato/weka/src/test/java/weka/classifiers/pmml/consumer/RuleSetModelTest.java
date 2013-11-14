@@ -12,20 +12,21 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /*
  * Copyright 2009 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.classifiers.pmml.consumer;
 
-import weka.core.FastVector;
+import java.util.ArrayList;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
  * Tests the pmml RuleSetModel classifier.
- *
+ * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
  */
@@ -35,11 +36,12 @@ public class RuleSetModelTest extends AbstractPMMLClassifierTest {
     super(name);
   }
 
+  @Override
   protected void setUp() throws Exception {
-    m_modelNames = new FastVector();
-    m_dataSetNames = new FastVector();
-    m_modelNames.addElement("HEART_RULESET.xml");
-    m_dataSetNames.addElement("heart-c.arff");
+    m_modelNames = new ArrayList<String>();
+    m_dataSetNames = new ArrayList<String>();
+    m_modelNames.add("HEART_RULESET.xml");
+    m_dataSetNames.add("heart-c.arff");
   }
 
   public static Test suite() {

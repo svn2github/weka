@@ -12,20 +12,21 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /*
  * Copyright 2008 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.classifiers.pmml.consumer;
 
-import weka.core.FastVector;
+import java.util.ArrayList;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
  * Tests the pmml Regression classifier.
- *
+ * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision 1.0 $
  */
@@ -35,13 +36,14 @@ public class RegressionTest extends AbstractPMMLClassifierTest {
     super(name);
   }
 
+  @Override
   protected void setUp() throws Exception {
-    m_modelNames = new FastVector();
-    m_dataSetNames = new FastVector();
-    m_modelNames.addElement("linear_regression_model.xml");
-    m_modelNames.addElement("ELNINO_REGRESSION_SIMPLE.xml");
-    m_dataSetNames.addElement("Elnino_small.arff");
-    m_dataSetNames.addElement("Elnino_small.arff");
+    m_modelNames = new ArrayList<String>();
+    m_dataSetNames = new ArrayList<String>();
+    m_modelNames.add("linear_regression_model.xml");
+    m_modelNames.add("ELNINO_REGRESSION_SIMPLE.xml");
+    m_dataSetNames.add("Elnino_small.arff");
+    m_dataSetNames.add("Elnino_small.arff");
   }
 
   public static Test suite() {

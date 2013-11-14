@@ -12,20 +12,21 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /*
  * Copyright 2010 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.classifiers.pmml.consumer;
 
-import weka.core.FastVector;
+import java.util.ArrayList;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
  * Tests the pmml SupportVectorMachineModel classifier.
- *
+ * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
  */
@@ -35,15 +36,17 @@ public class SupportVectorMachineModelTest extends AbstractPMMLClassifierTest {
     super(name);
   }
 
+  @Override
   protected void setUp() throws Exception {
-    m_modelNames = new FastVector();
-    m_dataSetNames = new FastVector();
-    m_modelNames.addElement("Audit_SVM.xml");
-    m_dataSetNames.addElement("Audit_SVM_small.arff");
+    m_modelNames = new ArrayList<String>();
+    m_dataSetNames = new ArrayList<String>();
+    m_modelNames.add("Audit_SVM.xml");
+    m_dataSetNames.add("Audit_SVM_small.arff");
   }
 
   public static Test suite() {
-    return new TestSuite(weka.classifiers.pmml.consumer.SupportVectorMachineModelTest.class);
+    return new TestSuite(
+      weka.classifiers.pmml.consumer.SupportVectorMachineModelTest.class);
   }
 
   public static void main(String[] args) {
