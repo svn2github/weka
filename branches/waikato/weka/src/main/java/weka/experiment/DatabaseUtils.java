@@ -15,7 +15,7 @@
 
 /*
  *    DatabaseUtils.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -84,10 +84,10 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
   public final static String PROPERTY_FILE = "weka/experiment/DatabaseUtils.props";
 
   /** Holds the jdbc drivers to be used (only to stop them being gc'ed). */
-  protected Vector DRIVERS = new Vector();
+  protected Vector<String> DRIVERS = new Vector<String>();
 
   /** keeping track of drivers that couldn't be loaded. */
-  protected static Vector DRIVERS_ERRORS;
+  protected static Vector<String> DRIVERS_ERRORS;
 
   /** Properties associated with the database connection. */
   protected Properties PROPERTIES;
@@ -189,7 +189,7 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
    */
   public DatabaseUtils(Properties props) throws Exception {
     if (DRIVERS_ERRORS == null) {
-      DRIVERS_ERRORS = new Vector();
+      DRIVERS_ERRORS = new Vector<String>();
     }
 
     initialize(props);
@@ -545,7 +545,7 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
           // Try loading the drivers
           for (int i = 0; i < DRIVERS.size(); i++) {
             try {
-              Class.forName((String) DRIVERS.elementAt(i));
+              Class.forName(DRIVERS.elementAt(i));
             } catch (Exception ex) {
               // Drop through
             }
@@ -561,7 +561,7 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
           // Try loading the drivers
           for (int i = 0; i < DRIVERS.size(); i++) {
             try {
-              Class.forName((String) DRIVERS.elementAt(i));
+              Class.forName(DRIVERS.elementAt(i));
             } catch (Exception ex) {
               // Drop through
             }
