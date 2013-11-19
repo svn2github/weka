@@ -15,13 +15,21 @@
 
 /*
  *    Filter.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.filters;
 
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.CapabilitiesHandler;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -36,15 +44,7 @@ import weka.core.StringLocator;
 import weka.core.UnsupportedAttributeTypeException;
 import weka.core.Utils;
 import weka.core.Version;
-import weka.core.Capabilities.Capability;
 import weka.core.converters.ConverterUtils.DataSource;
-
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
 
 /** 
  * An abstract class for instance filters: objects that take instances
