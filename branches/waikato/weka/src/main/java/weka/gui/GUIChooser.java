@@ -15,7 +15,7 @@
 
 /*
  *    GUIChooser.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -74,6 +74,8 @@ import weka.core.SystemInfo;
 import weka.core.Utils;
 import weka.core.Version;
 import weka.core.WekaPackageManager;
+import weka.core.scripting.Groovy;
+import weka.core.scripting.Jython;
 import weka.gui.arffviewer.ArffViewer;
 import weka.gui.beans.KnowledgeFlow;
 import weka.gui.beans.KnowledgeFlowApp;
@@ -81,6 +83,8 @@ import weka.gui.boundaryvisualizer.BoundaryVisualizer;
 import weka.gui.experiment.Experimenter;
 import weka.gui.explorer.Explorer;
 import weka.gui.graphvisualizer.GraphVisualizer;
+import weka.gui.scripting.GroovyPanel;
+import weka.gui.scripting.JythonPanel;
 import weka.gui.sql.SqlViewer;
 import weka.gui.treevisualizer.Node;
 import weka.gui.treevisualizer.NodePlace;
@@ -107,10 +111,11 @@ public class GUIChooser extends JFrame {
       Object MacApp = Class.forName("com.apple.eawt.Application").newInstance();
 
       Object macArffHandler = Class.forName("weka.gui.MacArffOpenFilesHandler")
-          .newInstance();
+        .newInstance();
 
-      Class fileHandlerClass = Class.forName("com.apple.eawt.OpenFilesHandler");
-      Class[] paramClass = new Class[1];
+      Class<?> fileHandlerClass = Class
+        .forName("com.apple.eawt.OpenFilesHandler");
+      Class<?>[] paramClass = new Class[1];
       paramClass[0] = fileHandlerClass;
       Object[] args = new Object[1];
       args[0] = macArffHandler;
@@ -157,11 +162,11 @@ public class GUIChooser extends JFrame {
   /** Click to open the KnowledgeFlow */
   protected JButton m_KnowledgeFlowBut = new JButton("KnowledgeFlow");
 
-  /** The frame containing the knowledge flow interface */
-  protected JFrame m_KnowledgeFlowFrame;
-
   /** Pending file to load on startup of the KnowledgeFlow */
   protected String m_pendingKnowledgeFlowLoad = null;
+
+  /** The frame containing the knowledge flow interface */
+  protected JFrame m_KnowledgeFlowFrame;
 
   /** Click to open the simplecli */
   protected JButton m_SimpleBut = new JButton("Simple CLI");
@@ -169,8 +174,14 @@ public class GUIChooser extends JFrame {
   /** The SimpleCLI */
   protected SimpleCLI m_SimpleCLI;
 
+  /** The frame containing the Groovy console. */
+  protected JFrame m_GroovyConsoleFrame;
+
+  /** The frame containing the Jython console. */
+  protected JFrame m_JythonConsoleFrame;
+
   /** keeps track of the opened ArffViewer instancs */
-  protected Vector m_ArffViewers = new Vector();
+  protected Vector<ArffViewer> m_ArffViewers = new Vector<ArffViewer>();
 
   /** The frame containing the SqlViewer */
   protected JFrame m_SqlViewerFrame;
@@ -187,16 +198,16 @@ public class GUIChooser extends JFrame {
   // Visualization
 
   /** keeps track of the opened plots */
-  protected Vector m_Plots = new Vector();
+  protected Vector<JFrame> m_Plots = new Vector<JFrame>();
 
   /** keeps track of the opened ROCs */
-  protected Vector m_ROCs = new Vector();
+  protected Vector<JFrame> m_ROCs = new Vector<JFrame>();
 
   /** keeps track of the opened tree visualizer instancs */
-  protected Vector m_TreeVisualizers = new Vector();
+  protected Vector<JFrame> m_TreeVisualizers = new Vector<JFrame>();
 
   /** keeps track of the opened graph visualizer instancs */
-  protected Vector m_GraphVisualizers = new Vector();
+  protected Vector<JFrame> m_GraphVisualizers = new Vector<JFrame>();
 
   /** The frame containing the boundary visualizer */
   protected JFrame m_BoundaryVisualizerFrame;
@@ -216,24 +227,24 @@ public class GUIChooser extends JFrame {
 
   /** The weka image */
   Image m_weka = Toolkit.getDefaultToolkit().getImage(
-      GUIChooser.class.getClassLoader().getResource(
-          "weka/gui/images/weka_background.gif"));
+    GUIChooser.class.getClassLoader().getResource(
+      "weka/gui/images/weka_background.gif"));
 
   /** filechooser for the TreeVisualizer */
   protected JFileChooser m_FileChooserTreeVisualizer = new JFileChooser(
-      new File(System.getProperty("user.dir")));
+    new File(System.getProperty("user.dir")));
 
   /** filechooser for the GraphVisualizer */
   protected JFileChooser m_FileChooserGraphVisualizer = new JFileChooser(
-      new File(System.getProperty("user.dir")));
+    new File(System.getProperty("user.dir")));
 
   /** filechooser for Plots */
   protected JFileChooser m_FileChooserPlot = new JFileChooser(new File(
-      System.getProperty("user.dir")));
+    System.getProperty("user.dir")));
 
   /** filechooser for ROC curves */
   protected JFileChooser m_FileChooserROC = new JFileChooser(new File(
-      System.getProperty("user.dir")));
+    System.getProperty("user.dir")));
 
   /** the icon for the frames */
   protected Image m_Icon;
@@ -270,25 +281,25 @@ public class GUIChooser extends JFrame {
 
     // filechoosers
     m_FileChooserGraphVisualizer
-        .addChoosableFileFilter(new ExtensionFileFilter(".bif",
-            "BIF Files (*.bif)"));
+      .addChoosableFileFilter(new ExtensionFileFilter(".bif",
+        "BIF Files (*.bif)"));
     m_FileChooserGraphVisualizer
-        .addChoosableFileFilter(new ExtensionFileFilter(".xml",
-            "XML Files (*.xml)"));
+      .addChoosableFileFilter(new ExtensionFileFilter(".xml",
+        "XML Files (*.xml)"));
 
     m_FileChooserPlot.addChoosableFileFilter(new ExtensionFileFilter(
-        Instances.FILE_EXTENSION, "ARFF Files (*" + Instances.FILE_EXTENSION
-            + ")"));
+      Instances.FILE_EXTENSION, "ARFF Files (*" + Instances.FILE_EXTENSION
+        + ")"));
     m_FileChooserPlot.setMultiSelectionEnabled(true);
 
     m_FileChooserROC.addChoosableFileFilter(new ExtensionFileFilter(
-        Instances.FILE_EXTENSION, "ARFF Files (*" + Instances.FILE_EXTENSION
-            + ")"));
+      Instances.FILE_EXTENSION, "ARFF Files (*" + Instances.FILE_EXTENSION
+        + ")"));
 
     // general layout
     m_Icon = Toolkit.getDefaultToolkit().getImage(
-        GUIChooser.class.getClassLoader().getResource(
-            "weka/gui/weka_icon_new_48.png"));
+      GUIChooser.class.getClassLoader().getResource(
+        "weka/gui/weka_icon_new_48.png"));
     setIconImage(m_Icon);
     this.getContentPane().setLayout(new BorderLayout());
 
@@ -296,7 +307,7 @@ public class GUIChooser extends JFrame {
 
     // applications
     m_PanelApplications.setBorder(BorderFactory
-        .createTitledBorder("Applications"));
+      .createTitledBorder("Applications"));
     m_PanelApplications.setLayout(new GridLayout(4, 1));
     m_PanelApplications.add(m_ExplorerBut);
     m_PanelApplications.add(m_ExperimenterBut);
@@ -312,10 +323,10 @@ public class GUIChooser extends JFrame {
     JLabel wekaLab = new JLabel(wii);
     wekaPan.add(wekaLab, BorderLayout.CENTER);
     String infoString = "<html>" + "<font size=-2>"
-        + "Waikato Environment for Knowledge Analysis<br>" + "Version "
-        + Version.VERSION + "<br>" + "(c) " + Copyright.getFromYear() + " - "
-        + Copyright.getToYear() + "<br>" + Copyright.getOwner() + "<br>"
-        + Copyright.getAddress() + "</font>" + "</html>";
+      + "Waikato Environment for Knowledge Analysis<br>" + "Version "
+      + Version.VERSION + "<br>" + "(c) " + Copyright.getFromYear() + " - "
+      + Copyright.getToYear() + "<br>" + Copyright.getOwner() + "<br>"
+      + Copyright.getAddress() + "</font>" + "</html>";
     JLabel infoLab = new JLabel(infoString);
     infoLab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     wekaPan.add(infoLab, BorderLayout.SOUTH);
@@ -337,7 +348,7 @@ public class GUIChooser extends JFrame {
     jMenuItemProgramLogWindow.setText("LogWindow");
     // jMenuItemProgramLogWindow.setMnemonic('L');
     jMenuItemProgramLogWindow.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_L, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_L, KeyEvent.CTRL_MASK));
     m_LogWindow.setIconImage(m_Icon);
     jMenuItemProgramLogWindow.addActionListener(new ActionListener() {
       @Override
@@ -351,7 +362,7 @@ public class GUIChooser extends JFrame {
     jMenuItemProgramMemUsage.setText("Memory usage");
     // jMenuItemProgramMemUsage.setMnemonic('M');
     jMenuItemProgramMemUsage.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_M, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_M, KeyEvent.CTRL_MASK));
 
     jMenuItemProgramMemUsage.addActionListener(new ActionListener() {
       @Override
@@ -376,12 +387,13 @@ public class GUIChooser extends JFrame {
           m_MemoryUsageFrame.pack();
           m_MemoryUsageFrame.setSize(400, 50);
           Point l = panel.getFrameLocation();
-          if ((l.x != -1) && (l.y != -1))
+          if ((l.x != -1) && (l.y != -1)) {
             m_MemoryUsageFrame.setLocation(l);
+          }
           m_MemoryUsageFrame.setVisible(true);
           Dimension size = m_MemoryUsageFrame.getPreferredSize();
           m_MemoryUsageFrame.setSize(new Dimension((int) size.getWidth(),
-              (int) size.getHeight()));
+            (int) size.getHeight()));
         }
       }
     });
@@ -394,7 +406,7 @@ public class GUIChooser extends JFrame {
     jMenuItemProgramExit.setText("Exit");
     // jMenuItemProgramExit.setMnemonic('E');
     jMenuItemProgramExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
     jMenuItemProgramExit.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -415,15 +427,16 @@ public class GUIChooser extends JFrame {
     jMenuItemVisualizationPlot.setText("Plot");
     // jMenuItemVisualizationPlot.setMnemonic('P');
     jMenuItemVisualizationPlot.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_P, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_P, KeyEvent.CTRL_MASK));
 
     jMenuItemVisualizationPlot.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         // choose file
         int retVal = m_FileChooserPlot.showOpenDialog(m_Self);
-        if (retVal != JFileChooser.APPROVE_OPTION)
+        if (retVal != JFileChooser.APPROVE_OPTION) {
           return;
+        }
 
         // build plot
         VisualizePanel panel = new VisualizePanel();
@@ -431,8 +444,9 @@ public class GUIChooser extends JFrame {
         File[] files = m_FileChooserPlot.getSelectedFiles();
         for (int j = 0; j < files.length; j++) {
           String filename = files[j].getAbsolutePath();
-          if (j > 0)
+          if (j > 0) {
             filenames += ", ";
+          }
           filenames += filename;
           System.err.println("Loading instances from " + filename);
           try {
@@ -453,7 +467,7 @@ public class GUIChooser extends JFrame {
           } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(m_Self, "Error loading file '"
-                + files[j] + "':\n" + ex.getMessage());
+              + files[j] + "':\n" + ex.getMessage());
             return;
           }
         }
@@ -484,15 +498,16 @@ public class GUIChooser extends JFrame {
     jMenuItemVisualizationROC.setText("ROC");
     // jMenuItemVisualizationROC.setMnemonic('R');
     jMenuItemVisualizationROC.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_R, KeyEvent.CTRL_MASK));
 
     jMenuItemVisualizationROC.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         // choose file
         int retVal = m_FileChooserROC.showOpenDialog(m_Self);
-        if (retVal != JFileChooser.APPROVE_OPTION)
+        if (retVal != JFileChooser.APPROVE_OPTION) {
           return;
+        }
 
         // create plot
         String filename = m_FileChooserROC.getSelectedFile().getAbsolutePath();
@@ -502,13 +517,13 @@ public class GUIChooser extends JFrame {
         } catch (Exception ex) {
           ex.printStackTrace();
           JOptionPane.showMessageDialog(m_Self, "Error loading file '"
-              + filename + "':\n" + ex.getMessage());
+            + filename + "':\n" + ex.getMessage());
           return;
         }
         result.setClassIndex(result.numAttributes() - 1);
         ThresholdVisualizePanel vmc = new ThresholdVisualizePanel();
         vmc.setROCString("(Area under ROC = "
-            + Utils.doubleToString(ThresholdCurve.getROCArea(result), 4) + ")");
+          + Utils.doubleToString(ThresholdCurve.getROCArea(result), 4) + ")");
         vmc.setName(result.relationName());
         PlotData2D tempd = new PlotData2D(result);
         tempd.setPlotName(result.relationName());
@@ -518,7 +533,7 @@ public class GUIChooser extends JFrame {
         } catch (Exception ex) {
           ex.printStackTrace();
           JOptionPane.showMessageDialog(m_Self,
-              "Error adding plot:\n" + ex.getMessage());
+            "Error adding plot:\n" + ex.getMessage());
           return;
         }
 
@@ -547,19 +562,20 @@ public class GUIChooser extends JFrame {
     jMenuItemVisualizationTree.setText("TreeVisualizer");
     // jMenuItemVisualizationTree.setMnemonic('T');
     jMenuItemVisualizationTree.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_T, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_T, KeyEvent.CTRL_MASK));
 
     jMenuItemVisualizationTree.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         // choose file
         int retVal = m_FileChooserTreeVisualizer.showOpenDialog(m_Self);
-        if (retVal != JFileChooser.APPROVE_OPTION)
+        if (retVal != JFileChooser.APPROVE_OPTION) {
           return;
+        }
 
         // build tree
         String filename = m_FileChooserTreeVisualizer.getSelectedFile()
-            .getAbsolutePath();
+          .getAbsolutePath();
         TreeBuild builder = new TreeBuild();
         Node top = null;
         NodePlace arrange = new PlaceNode2();
@@ -568,7 +584,7 @@ public class GUIChooser extends JFrame {
         } catch (Exception ex) {
           ex.printStackTrace();
           JOptionPane.showMessageDialog(m_Self, "Error loading file '"
-              + filename + "':\n" + ex.getMessage());
+            + filename + "':\n" + ex.getMessage());
           return;
         }
 
@@ -577,7 +593,7 @@ public class GUIChooser extends JFrame {
         frame.setIconImage(m_Icon);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(new TreeVisualizer(null, top, arrange),
-            BorderLayout.CENTER);
+          BorderLayout.CENTER);
         frame.addWindowListener(new WindowAdapter() {
           @Override
           public void windowClosing(WindowEvent e) {
@@ -599,23 +615,24 @@ public class GUIChooser extends JFrame {
     jMenuItemVisualizationGraph.setText("GraphVisualizer");
     // jMenuItemVisualizationGraph.setMnemonic('G');
     jMenuItemVisualizationGraph.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_G, KeyEvent.CTRL_MASK));
 
     jMenuItemVisualizationGraph.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         // choose file
         int retVal = m_FileChooserGraphVisualizer.showOpenDialog(m_Self);
-        if (retVal != JFileChooser.APPROVE_OPTION)
+        if (retVal != JFileChooser.APPROVE_OPTION) {
           return;
+        }
 
         // build graph
         String filename = m_FileChooserGraphVisualizer.getSelectedFile()
-            .getAbsolutePath();
+          .getAbsolutePath();
         GraphVisualizer panel = new GraphVisualizer();
         try {
           if (filename.toLowerCase().endsWith(".xml")
-              || filename.toLowerCase().endsWith(".bif")) {
+            || filename.toLowerCase().endsWith(".bif")) {
             panel.readBIF(new FileInputStream(filename));
           } else {
             panel.readDOT(new FileReader(filename));
@@ -623,7 +640,7 @@ public class GUIChooser extends JFrame {
         } catch (Exception ex) {
           ex.printStackTrace();
           JOptionPane.showMessageDialog(m_Self, "Error loading file '"
-              + filename + "':\n" + ex.getMessage());
+            + filename + "':\n" + ex.getMessage());
           return;
         }
 
@@ -653,7 +670,7 @@ public class GUIChooser extends JFrame {
     jMenuItemVisualizationBoundary.setText("BoundaryVisualizer");
     // jMenuItemVisualizationBoundary.setMnemonic('B');
     jMenuItemVisualizationBoundary.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_B, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_B, KeyEvent.CTRL_MASK));
 
     jMenuItemVisualizationBoundary.addActionListener(new ActionListener() {
       @Override
@@ -663,11 +680,10 @@ public class GUIChooser extends JFrame {
           m_BoundaryVisualizerFrame = new JFrame("BoundaryVisualizer");
           m_BoundaryVisualizerFrame.setIconImage(m_Icon);
           m_BoundaryVisualizerFrame.getContentPane().setLayout(
-              new BorderLayout());
-
+            new BorderLayout());
           final BoundaryVisualizer bv = new BoundaryVisualizer();
           m_BoundaryVisualizerFrame.getContentPane().add(bv,
-              BorderLayout.CENTER);
+            BorderLayout.CENTER);
           m_BoundaryVisualizerFrame.setSize(bv.getMinimumSize());
           m_BoundaryVisualizerFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -696,20 +712,19 @@ public class GUIChooser extends JFrame {
     jMenuExtensions.setVisible(false);
 
     String extensions = GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
-        MainMenuExtension.class.getName(), "");
+      MainMenuExtension.class.getName(), "");
 
     if (extensions.length() > 0) {
       jMenuExtensions.setVisible(true);
       String[] classnames = GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
-          MainMenuExtension.class.getName(), "").split(",");
+        MainMenuExtension.class.getName(), "").split(",");
       Hashtable<String, JMenu> submenus = new Hashtable<String, JMenu>();
 
       // add all extensions
-      for (int i = 0; i < classnames.length; i++) {
-        String classname = classnames[i];
+      for (String classname : classnames) {
         try {
           MainMenuExtension ext = (MainMenuExtension) Class.forName(classname)
-              .newInstance();
+            .newInstance();
 
           // menuitem in a submenu?
           JMenu submenu = null;
@@ -737,7 +752,7 @@ public class GUIChooser extends JFrame {
               @Override
               public void actionPerformed(ActionEvent e) {
                 Component frame = createFrame(m_Self, finalMenuitem.getText(),
-                    null, null, null, -1, -1, null, false, false);
+                  null, null, null, -1, -1, null, false, false);
                 finalExt.fillFrame(frame);
                 frame.setVisible(true);
               }
@@ -745,10 +760,11 @@ public class GUIChooser extends JFrame {
           }
 
           // sorted insert of menu item
-          if (submenu != null)
+          if (submenu != null) {
             insertMenuItem(submenu, menuitem);
-          else
+          } else {
             insertMenuItem(jMenuExtensions, menuitem);
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -767,7 +783,7 @@ public class GUIChooser extends JFrame {
     final String offline = (WekaPackageManager.m_offline ? " (offline)" : "");
     jMenuItemToolsPackageManager.setText("Package manager" + offline);
     jMenuItemToolsPackageManager.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_U, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_U, KeyEvent.CTRL_MASK));
     jMenuItemToolsPackageManager.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -779,12 +795,12 @@ public class GUIChooser extends JFrame {
               final weka.gui.PackageManager pm;
               pm = new weka.gui.PackageManager();
               if (!WekaPackageManager.m_noPackageMetaDataAvailable) {
-                m_PackageManagerFrame = new JFrame("Package Manager");
+                m_PackageManagerFrame = new JFrame("Package Manager" + offline);
                 m_PackageManagerFrame.setIconImage(m_Icon);
                 m_PackageManagerFrame.getContentPane().setLayout(
-                    new BorderLayout());
+                  new BorderLayout());
                 m_PackageManagerFrame.getContentPane().add(pm,
-                    BorderLayout.CENTER);
+                  BorderLayout.CENTER);
                 m_PackageManagerFrame.addWindowListener(new WindowAdapter() {
                   @Override
                   public void windowClosing(WindowEvent w) {
@@ -795,11 +811,11 @@ public class GUIChooser extends JFrame {
                   }
                 });
                 Dimension screenSize = m_PackageManagerFrame.getToolkit()
-                    .getScreenSize();
+                  .getScreenSize();
                 int width = screenSize.width * 8 / 10;
                 int height = screenSize.height * 8 / 10;
                 m_PackageManagerFrame.setBounds(width / 8, height / 8, width,
-                    height);
+                  height);
                 m_PackageManagerFrame.setVisible(true);
                 pm.setInitialSplitPaneDividerLocation();
               }
@@ -816,7 +832,7 @@ public class GUIChooser extends JFrame {
     jMenuItemToolsArffViewer.setText("ArffViewer");
     // jMenuItemToolsArffViewer.setMnemonic('A');
     jMenuItemToolsArffViewer.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_A, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_A, KeyEvent.CTRL_MASK));
 
     jMenuItemToolsArffViewer.addActionListener(new ActionListener() {
       @Override
@@ -840,7 +856,7 @@ public class GUIChooser extends JFrame {
     jMenuItemToolsSql.setText("SqlViewer");
     // jMenuItemToolsSql.setMnemonic('S');
     jMenuItemToolsSql.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
 
     jMenuItemToolsSql.addActionListener(new ActionListener() {
       @Override
@@ -873,7 +889,7 @@ public class GUIChooser extends JFrame {
     m_jMenuTools.add(jMenuItemBayesNet);
     jMenuItemBayesNet.setText("Bayes net editor");
     jMenuItemBayesNet.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
     jMenuItemBayesNet.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -885,7 +901,7 @@ public class GUIChooser extends JFrame {
           m_BayesNetGUIFrame.setIconImage(m_Icon);
           m_BayesNetGUIFrame.setJMenuBar(bayesBar);
           m_BayesNetGUIFrame.getContentPane().add(bayesNetGUI,
-              BorderLayout.CENTER);
+            BorderLayout.CENTER);
           m_BayesNetGUIFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent w) {
@@ -901,6 +917,74 @@ public class GUIChooser extends JFrame {
       }
     });
 
+    // Tools/Groovy console
+    if (Groovy.isPresent()) {
+      final JMenuItem jMenuItemGroovyConsole = new JMenuItem();
+      m_jMenuTools.add(jMenuItemGroovyConsole);
+      jMenuItemGroovyConsole.setText("Groovy console");
+      jMenuItemGroovyConsole.setAccelerator(KeyStroke.getKeyStroke(
+        KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+      jMenuItemGroovyConsole.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          if (m_BayesNetGUIFrame == null) {
+            jMenuItemGroovyConsole.setEnabled(false);
+            final GroovyPanel groovyPanel = new GroovyPanel();
+            m_GroovyConsoleFrame = new JFrame(groovyPanel.getPlainTitle());
+            m_GroovyConsoleFrame.setIconImage(m_Icon);
+            m_GroovyConsoleFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            m_GroovyConsoleFrame.setJMenuBar(groovyPanel.getMenuBar());
+            m_GroovyConsoleFrame.getContentPane().add(groovyPanel,
+              BorderLayout.CENTER);
+            m_GroovyConsoleFrame.addWindowListener(new WindowAdapter() {
+              @Override
+              public void windowClosed(WindowEvent w) {
+                m_GroovyConsoleFrame = null;
+                jMenuItemGroovyConsole.setEnabled(true);
+                checkExit();
+              }
+            });
+            m_GroovyConsoleFrame.setSize(800, 600);
+            m_GroovyConsoleFrame.setVisible(true);
+          }
+        }
+      });
+    }
+
+    // Tools/Jython console
+    if (Jython.isPresent()) {
+      final JMenuItem jMenuItemJythonConsole = new JMenuItem();
+      m_jMenuTools.add(jMenuItemJythonConsole);
+      jMenuItemJythonConsole.setText("Jython console");
+      jMenuItemJythonConsole.setAccelerator(KeyStroke.getKeyStroke(
+        KeyEvent.VK_J, KeyEvent.CTRL_MASK));
+      jMenuItemJythonConsole.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          if (m_BayesNetGUIFrame == null) {
+            jMenuItemJythonConsole.setEnabled(false);
+            final JythonPanel jythonPanel = new JythonPanel();
+            m_JythonConsoleFrame = new JFrame(jythonPanel.getPlainTitle());
+            m_JythonConsoleFrame.setIconImage(m_Icon);
+            m_JythonConsoleFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            m_JythonConsoleFrame.setJMenuBar(jythonPanel.getMenuBar());
+            m_JythonConsoleFrame.getContentPane().add(jythonPanel,
+              BorderLayout.CENTER);
+            m_JythonConsoleFrame.addWindowListener(new WindowAdapter() {
+              @Override
+              public void windowClosed(WindowEvent w) {
+                m_JythonConsoleFrame = null;
+                jMenuItemJythonConsole.setEnabled(true);
+                checkExit();
+              }
+            });
+            m_JythonConsoleFrame.setSize(800, 600);
+            m_JythonConsoleFrame.setVisible(true);
+          }
+        }
+      });
+    }
+
     // Help
     m_jMenuHelp = new JMenu();
     m_jMenuBar.add(m_jMenuHelp);
@@ -913,7 +997,7 @@ public class GUIChooser extends JFrame {
     jMenuItemHelpHomepage.setText("Weka homepage");
     // jMenuItemHelpHomepage.setMnemonic('H');
     jMenuItemHelpHomepage.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
     jMenuItemHelpHomepage.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -929,7 +1013,7 @@ public class GUIChooser extends JFrame {
     jMenuItemHelpWekaWiki.setText("HOWTOs, code snippets, etc.");
     // jMenuItemHelpWekaWiki.setMnemonic('W');
     jMenuItemHelpWekaWiki.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
 
     jMenuItemHelpWekaWiki.addActionListener(new ActionListener() {
       @Override
@@ -944,7 +1028,7 @@ public class GUIChooser extends JFrame {
     jMenuItemHelpSourceforge.setText("Weka on Sourceforge");
     // jMenuItemHelpSourceforge.setMnemonic('F');
     jMenuItemHelpSourceforge.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_F, KeyEvent.CTRL_MASK));
+      KeyEvent.VK_F, KeyEvent.CTRL_MASK));
 
     jMenuItemHelpSourceforge.addActionListener(new ActionListener() {
       @Override
@@ -959,7 +1043,7 @@ public class GUIChooser extends JFrame {
     jMenuItemHelpSysInfo.setText("SystemInfo");
     // jMenuItemHelpSysInfo.setMnemonic('S');
     jMenuItemHelpSysInfo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,
-        KeyEvent.CTRL_MASK));
+      KeyEvent.CTRL_MASK));
 
     jMenuItemHelpSysInfo.addActionListener(new ActionListener() {
       @Override
@@ -971,13 +1055,14 @@ public class GUIChooser extends JFrame {
           m_SystemInfoFrame.getContentPane().setLayout(new BorderLayout());
 
           // get info
-          Hashtable info = new SystemInfo().getSystemInfo();
+          Hashtable<String, String> info = new SystemInfo().getSystemInfo();
 
           // sort names
-          Vector names = new Vector();
-          Enumeration enm = info.keys();
-          while (enm.hasMoreElements())
+          Vector<String> names = new Vector<String>();
+          Enumeration<String> enm = info.keys();
+          while (enm.hasMoreElements()) {
             names.add(enm.nextElement());
+          }
           Collections.sort(names);
 
           // generate table
@@ -990,7 +1075,7 @@ public class GUIChooser extends JFrame {
           JTable table = new JTable(data, titles);
 
           m_SystemInfoFrame.getContentPane().add(new JScrollPane(table),
-              BorderLayout.CENTER);
+            BorderLayout.CENTER);
           m_SystemInfoFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent w) {
@@ -1025,7 +1110,7 @@ public class GUIChooser extends JFrame {
           m_ExperimenterFrame.setIconImage(m_Icon);
           m_ExperimenterFrame.getContentPane().setLayout(new BorderLayout());
           m_ExperimenterFrame.getContentPane().add(new Experimenter(false),
-              BorderLayout.CENTER);
+            BorderLayout.CENTER);
           m_ExperimenterFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent w) {
@@ -1049,9 +1134,9 @@ public class GUIChooser extends JFrame {
           final KnowledgeFlowApp kna = KnowledgeFlowApp.getSingleton();
           m_KnowledgeFlowBut.setEnabled(false);
           if (m_pendingKnowledgeFlowLoad != null
-              && m_pendingKnowledgeFlowLoad.length() > 0) {
+            && m_pendingKnowledgeFlowLoad.length() > 0) {
             KnowledgeFlowApp.getSingleton().loadLayout(
-                new File(m_pendingKnowledgeFlowLoad), true);
+              new File(m_pendingKnowledgeFlowLoad), true);
             m_pendingKnowledgeFlowLoad = null;
           }
           m_KnowledgeFlowFrame = new JFrame("Weka KnowledgeFlow Environment");
@@ -1062,7 +1147,8 @@ public class GUIChooser extends JFrame {
             @Override
             public void windowClosing(WindowEvent w) {
               kna.closeAllTabs();
-              kna.clearLayout(); // add an initial "Untitled" tab for next time
+              kna.clearLayout(); // add a single "Untitled" tab ready for next
+                                 // time
               m_KnowledgeFlowFrame.dispose();
               m_KnowledgeFlowFrame = null;
               m_KnowledgeFlowBut.setEnabled(true);
@@ -1145,17 +1231,17 @@ public class GUIChooser extends JFrame {
           JCheckBox dontShow = new JCheckBox("Do not show this message again");
           Object[] stuff = new Object[2];
           stuff[0] = "Weka has a package manager that you\n"
-              + "can use to install many learning schemes and tools.\nThe package manager can be "
-              + "found under the \"Tools\" menu.\n";
+            + "can use to install many learning schemes and tools.\nThe package manager can be "
+            + "found under the \"Tools\" menu.\n";
           stuff[1] = dontShow;
           // Display the tip on finding/using the package manager
           JOptionPane.showMessageDialog(GUIChooser.this, stuff,
-              "Weka GUIChooser", JOptionPane.OK_OPTION);
+            "Weka GUIChooser", JOptionPane.OK_OPTION);
 
           if (dontShow.isSelected()) {
             try {
               Utils
-                  .setDontShowDialog("weka.gui.GUIChooser.HowToFindPackageManager");
+                .setDontShowDialog("weka.gui.GUIChooser.HowToFindPackageManager");
             } catch (Exception ex) {
               // quietly ignore
             }
@@ -1210,7 +1296,7 @@ public class GUIChooser extends JFrame {
     if (fileToLoad != null) {
       try {
         weka.core.converters.AbstractFileLoader loader = weka.core.converters.ConverterUtils
-            .getLoaderForFile(fileToLoad);
+          .getLoaderForFile(fileToLoad);
         loader.setFile(new File(fileToLoad));
         expl.getPreprocessPanel().setInstancesFromFile(loader);
       } catch (Exception ex) {
@@ -1248,8 +1334,9 @@ public class GUIChooser extends JFrame {
 
     // try to find a spot inbetween
     for (i = startIndex; i < menu.getMenuComponentCount(); i++) {
-      if (!(menu.getMenuComponent(i) instanceof JMenuItem))
+      if (!(menu.getMenuComponent(i) instanceof JMenuItem)) {
         continue;
+      }
 
       current = (JMenuItem) menu.getMenuComponent(i);
       currentStr = current.getText().toLowerCase();
@@ -1261,8 +1348,9 @@ public class GUIChooser extends JFrame {
     }
 
     // add it at the end if not yet inserted
-    if (!inserted)
+    if (!inserted) {
       menu.add(menuitem);
+    }
   }
 
   /**
@@ -1281,8 +1369,8 @@ public class GUIChooser extends JFrame {
    * @return the generated frame
    */
   protected Container createFrame(GUIChooser parent, String title, Component c,
-      LayoutManager layout, Object layoutConstraints, int width, int height,
-      JMenuBar menu, boolean listener, boolean visible) {
+    LayoutManager layout, Object layoutConstraints, int width, int height,
+    JMenuBar menu, boolean listener, boolean visible) {
 
     Container result = null;
 
@@ -1290,23 +1378,25 @@ public class GUIChooser extends JFrame {
 
     // layout
     frame.setLayout(layout);
-    if (c != null)
+    if (c != null) {
       frame.getContentPane().add(c, layoutConstraints);
+    }
 
     // menu
     frame.setJMenuBar(menu);
 
     // size
     frame.pack();
-    if ((width > -1) && (height > -1))
+    if ((width > -1) && (height > -1)) {
       frame.setSize(width, height);
+    }
     frame.validate();
 
     // location
     int screenHeight = getGraphicsConfiguration().getBounds().height;
     int screenWidth = getGraphicsConfiguration().getBounds().width;
     frame.setLocation((screenWidth - frame.getBounds().width) / 2,
-        (screenHeight - frame.getBounds().height) / 2);
+      (screenHeight - frame.getBounds().height) / 2);
 
     // listener?
     if (listener) {
@@ -1319,8 +1409,9 @@ public class GUIChooser extends JFrame {
     }
 
     // display frame
-    if (visible)
+    if (visible) {
       frame.setVisible(true);
+    }
 
     result = frame;
 
@@ -1356,8 +1447,9 @@ public class GUIChooser extends JFrame {
         @Override
         public void windowActivated(WindowEvent e) {
           // update title of parent
-          if (getParentFrame() != null)
+          if (getParentFrame() != null) {
             getParentFrame().createTitle(getTitle());
+          }
         }
       });
 
@@ -1400,8 +1492,9 @@ public class GUIChooser extends JFrame {
     String newTitle;
 
     newTitle = "Weka " + new Version();
-    if (title.length() != 0)
+    if (title.length() != 0) {
       newTitle += " - " + title;
+    }
 
     setTitle(newTitle);
   }
@@ -1432,21 +1525,22 @@ public class GUIChooser extends JFrame {
   private void checkExit() {
 
     if (!isVisible()
-        // applications
-        && (m_ExplorerFrame == null)
-        && (m_ExperimenterFrame == null)
-        && (m_KnowledgeFlowFrame == null)
-        && (m_SimpleCLI == null)
-        // tools
-        && (m_ArffViewers.size() == 0)
-        && (m_SqlViewerFrame == null)
-        && (m_EnsembleLibraryFrame == null)
-        // visualization
-        && (m_Plots.size() == 0) && (m_ROCs.size() == 0)
-        && (m_TreeVisualizers.size() == 0) && (m_GraphVisualizers.size() == 0)
-        && (m_BoundaryVisualizerFrame == null)
-        // help
-        && (m_SystemInfoFrame == null)) {
+      // applications
+      && (m_ExplorerFrame == null)
+      && (m_ExperimenterFrame == null)
+      && (m_KnowledgeFlowFrame == null)
+      && (m_SimpleCLI == null)
+      // tools
+      && (m_ArffViewers.size() == 0) && (m_SqlViewerFrame == null)
+      && (m_GroovyConsoleFrame == null)
+      && (m_JythonConsoleFrame == null)
+      && (m_EnsembleLibraryFrame == null)
+      // visualization
+      && (m_Plots.size() == 0) && (m_ROCs.size() == 0)
+      && (m_TreeVisualizers.size() == 0) && (m_GraphVisualizers.size() == 0)
+      && (m_BoundaryVisualizerFrame == null)
+      // help
+      && (m_SystemInfoFrame == null)) {
       System.exit(0);
     }
   }
@@ -1468,14 +1562,13 @@ public class GUIChooser extends JFrame {
   public static void main(String[] args) {
 
     weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO,
-        "Logging started");
+      "Logging started");
     LookAndFeel.setLookAndFeel();
 
     try {
 
       // uncomment to disable the memory management:
       // m_Memory.setEnabled(false);
-
       // m_chooser = new GUIChooser();
       GUIChooser.createSingleton();
       m_chooser.setVisible(true);
@@ -1485,14 +1578,13 @@ public class GUIChooser extends JFrame {
       }
 
       Thread memMonitor = new Thread() {
+        @SuppressWarnings("static-access")
         @Override
         public void run() {
           while (true) {
             try {
               // System.out.println("before sleeping");
-              this.sleep(4000);
-
-              System.gc();
+              this.sleep(10);
 
               if (m_Memory.isOutOfMemory()) {
                 // clean up
@@ -1515,16 +1607,13 @@ public class GUIChooser extends JFrame {
                 }
                 if (m_chooser.m_ArffViewers.size() > 0) {
                   for (int i = 0; i < m_chooser.m_ArffViewers.size(); i++) {
-                    ArffViewer av = (ArffViewer) m_chooser.m_ArffViewers.get(i);
+                    ArffViewer av = m_chooser.m_ArffViewers.get(i);
                     av.dispose();
                   }
                   m_chooser.m_ArffViewers.clear();
                 }
                 m_chooser = null;
                 System.gc();
-
-                // stop threads
-                m_Memory.stopThreads();
 
                 // display error
                 m_chooser.m_LogWindow.setVisible(true);
