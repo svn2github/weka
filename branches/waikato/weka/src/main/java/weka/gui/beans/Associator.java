@@ -32,9 +32,9 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
-import weka.associations.Apriori;
 import weka.associations.AssociationRules;
 import weka.associations.AssociationRulesProducer;
+import weka.associations.FPGrowth;
 import weka.core.Attribute;
 import weka.core.Environment;
 import weka.core.EnvironmentHandler;
@@ -104,7 +104,7 @@ public class Associator extends JPanel implements BeanCommon, Visible,
   /** The objects listening for batchAssociationRules events **/
   private final Vector<BatchAssociationRulesListener> m_rulesListeners = new Vector<BatchAssociationRulesListener>();
 
-  private weka.associations.Associator m_Associator = new Apriori();
+  private weka.associations.Associator m_Associator = new FPGrowth();
 
   private transient Logger m_log = null;
 

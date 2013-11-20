@@ -74,8 +74,6 @@ import weka.core.SystemInfo;
 import weka.core.Utils;
 import weka.core.Version;
 import weka.core.WekaPackageManager;
-import weka.core.scripting.Groovy;
-import weka.core.scripting.Jython;
 import weka.gui.arffviewer.ArffViewer;
 import weka.gui.beans.KnowledgeFlow;
 import weka.gui.beans.KnowledgeFlowApp;
@@ -83,8 +81,6 @@ import weka.gui.boundaryvisualizer.BoundaryVisualizer;
 import weka.gui.experiment.Experimenter;
 import weka.gui.explorer.Explorer;
 import weka.gui.graphvisualizer.GraphVisualizer;
-import weka.gui.scripting.GroovyPanel;
-import weka.gui.scripting.JythonPanel;
 import weka.gui.sql.SqlViewer;
 import weka.gui.treevisualizer.Node;
 import weka.gui.treevisualizer.NodePlace;
@@ -916,74 +912,6 @@ public class GUIChooser extends JFrame {
         }
       }
     });
-
-    // Tools/Groovy console
-    if (Groovy.isPresent()) {
-      final JMenuItem jMenuItemGroovyConsole = new JMenuItem();
-      m_jMenuTools.add(jMenuItemGroovyConsole);
-      jMenuItemGroovyConsole.setText("Groovy console");
-      jMenuItemGroovyConsole.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_G, KeyEvent.CTRL_MASK));
-      jMenuItemGroovyConsole.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          if (m_BayesNetGUIFrame == null) {
-            jMenuItemGroovyConsole.setEnabled(false);
-            final GroovyPanel groovyPanel = new GroovyPanel();
-            m_GroovyConsoleFrame = new JFrame(groovyPanel.getPlainTitle());
-            m_GroovyConsoleFrame.setIconImage(m_Icon);
-            m_GroovyConsoleFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-            m_GroovyConsoleFrame.setJMenuBar(groovyPanel.getMenuBar());
-            m_GroovyConsoleFrame.getContentPane().add(groovyPanel,
-              BorderLayout.CENTER);
-            m_GroovyConsoleFrame.addWindowListener(new WindowAdapter() {
-              @Override
-              public void windowClosed(WindowEvent w) {
-                m_GroovyConsoleFrame = null;
-                jMenuItemGroovyConsole.setEnabled(true);
-                checkExit();
-              }
-            });
-            m_GroovyConsoleFrame.setSize(800, 600);
-            m_GroovyConsoleFrame.setVisible(true);
-          }
-        }
-      });
-    }
-
-    // Tools/Jython console
-    if (Jython.isPresent()) {
-      final JMenuItem jMenuItemJythonConsole = new JMenuItem();
-      m_jMenuTools.add(jMenuItemJythonConsole);
-      jMenuItemJythonConsole.setText("Jython console");
-      jMenuItemJythonConsole.setAccelerator(KeyStroke.getKeyStroke(
-        KeyEvent.VK_J, KeyEvent.CTRL_MASK));
-      jMenuItemJythonConsole.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          if (m_BayesNetGUIFrame == null) {
-            jMenuItemJythonConsole.setEnabled(false);
-            final JythonPanel jythonPanel = new JythonPanel();
-            m_JythonConsoleFrame = new JFrame(jythonPanel.getPlainTitle());
-            m_JythonConsoleFrame.setIconImage(m_Icon);
-            m_JythonConsoleFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-            m_JythonConsoleFrame.setJMenuBar(jythonPanel.getMenuBar());
-            m_JythonConsoleFrame.getContentPane().add(jythonPanel,
-              BorderLayout.CENTER);
-            m_JythonConsoleFrame.addWindowListener(new WindowAdapter() {
-              @Override
-              public void windowClosed(WindowEvent w) {
-                m_JythonConsoleFrame = null;
-                jMenuItemJythonConsole.setEnabled(true);
-                checkExit();
-              }
-            });
-            m_JythonConsoleFrame.setSize(800, 600);
-            m_JythonConsoleFrame.setVisible(true);
-          }
-        }
-      });
-    }
 
     // Help
     m_jMenuHelp = new JMenu();

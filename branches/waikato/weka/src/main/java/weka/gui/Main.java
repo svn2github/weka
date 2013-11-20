@@ -80,8 +80,6 @@ import weka.core.SystemInfo;
 import weka.core.Tag;
 import weka.core.Utils;
 import weka.core.Version;
-import weka.core.scripting.Groovy;
-import weka.core.scripting.Jython;
 import weka.gui.arffviewer.ArffViewerMainPanel;
 import weka.gui.beans.KnowledgeFlowApp;
 import weka.gui.beans.StartUpListener;
@@ -89,8 +87,6 @@ import weka.gui.boundaryvisualizer.BoundaryVisualizer;
 import weka.gui.experiment.Experimenter;
 import weka.gui.explorer.Explorer;
 import weka.gui.graphvisualizer.GraphVisualizer;
-import weka.gui.scripting.GroovyPanel;
-import weka.gui.scripting.JythonPanel;
 import weka.gui.sql.SqlViewer;
 import weka.gui.treevisualizer.Node;
 import weka.gui.treevisualizer.NodePlace;
@@ -895,86 +891,6 @@ public class Main extends JFrame implements OptionHandler {
           }
         }
       });
-
-      // Tools/Groovy console
-      if (Groovy.isPresent()) {
-        jMenuItemToolsGroovyConsole = new JMenuItem();
-        jMenuTools.add(jMenuItemToolsGroovyConsole);
-        jMenuItemToolsGroovyConsole.setText("Groovy console");
-        jMenuItemToolsGroovyConsole.setMnemonic('G');
-        jMenuItemToolsGroovyConsole.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            String title = jMenuItemToolsGroovyConsole.getText();
-            if (!containsWindow(title)) {
-              final GroovyPanel panel = new GroovyPanel();
-              final Container frame = createFrame(m_Self, title, panel,
-                new BorderLayout(), BorderLayout.CENTER, 800, 600,
-                panel.getMenuBar(), false, true);
-
-              // custom listener
-              if (frame instanceof ChildFrameMDI) {
-                ((ChildFrameMDI) frame)
-                  .addInternalFrameListener(new InternalFrameAdapter() {
-                    @Override
-                    public void internalFrameClosing(InternalFrameEvent e) {
-                      ((ChildFrameMDI) frame).dispose();
-                    }
-                  });
-              } else if (frame instanceof ChildFrameSDI) {
-                ((ChildFrameSDI) frame).addWindowListener(new WindowAdapter() {
-                  @Override
-                  public void windowClosing(WindowEvent e) {
-                    ((ChildFrameSDI) frame).dispose();
-                  }
-                });
-              }
-            } else {
-              showWindow(getWindow(title));
-            }
-          }
-        });
-      }
-
-      // Tools/Jython console
-      if (Jython.isPresent()) {
-        jMenuItemToolsJythonConsole = new JMenuItem();
-        jMenuTools.add(jMenuItemToolsJythonConsole);
-        jMenuItemToolsJythonConsole.setText("Jython console");
-        jMenuItemToolsJythonConsole.setMnemonic('J');
-        jMenuItemToolsJythonConsole.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            String title = jMenuItemToolsJythonConsole.getText();
-            if (!containsWindow(title)) {
-              final JythonPanel panel = new JythonPanel();
-              final Container frame = createFrame(m_Self, title, panel,
-                new BorderLayout(), BorderLayout.CENTER, 800, 600,
-                panel.getMenuBar(), false, true);
-
-              // custom listener
-              if (frame instanceof ChildFrameMDI) {
-                ((ChildFrameMDI) frame)
-                  .addInternalFrameListener(new InternalFrameAdapter() {
-                    @Override
-                    public void internalFrameClosing(InternalFrameEvent e) {
-                      ((ChildFrameMDI) frame).dispose();
-                    }
-                  });
-              } else if (frame instanceof ChildFrameSDI) {
-                ((ChildFrameSDI) frame).addWindowListener(new WindowAdapter() {
-                  @Override
-                  public void windowClosing(WindowEvent e) {
-                    ((ChildFrameSDI) frame).dispose();
-                  }
-                });
-              }
-            } else {
-              showWindow(getWindow(title));
-            }
-          }
-        });
-      }
 
       // Tools/EnsembleLibrary
       /*
