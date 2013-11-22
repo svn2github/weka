@@ -144,6 +144,7 @@ import weka.core.Instances;
 import weka.core.Memory;
 import weka.core.SerializedObject;
 import weka.core.Utils;
+import weka.core.WekaEnumeration;
 import weka.core.WekaPackageManager;
 import weka.core.converters.FileSourcedConverter;
 import weka.core.xml.KOML;
@@ -168,7 +169,7 @@ import weka.gui.visualize.PrintablePanel;
  * @see PropertyChangeListener
  */
 public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
-    BeanCustomizer.ModifyListener {
+  BeanCustomizer.ModifyListener {
 
   /** for serialization */
   private static final long serialVersionUID = -7064906770289728431L;
@@ -211,7 +212,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * Holds the details needed to construct button bars for various supported
    * classes of weka algorithms/tools
    */
-  private static Vector TOOLBARS = new Vector();
+  private static Vector<Vector<?>> TOOLBARS = new Vector<Vector<?>>();
 
   public static void addToPluginBeanProps(File beanPropsFile) throws Exception {
     Properties tempP = new Properties();
@@ -223,7 +224,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   public static void removeFromPluginBeanProps(File beanPropsFile)
-      throws Exception {
+    throws Exception {
     Properties tempP = new Properties();
 
     tempP.load(new FileInputStream(beanPropsFile));
@@ -246,38 +247,38 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // Allow a properties file in the current directory to override
       try {
         BEAN_PROPERTIES = Utils.readProperties(PROPERTY_FILE);
-        java.util.Enumeration keys = BEAN_PROPERTIES.propertyNames();
+        java.util.Enumeration<?> keys = BEAN_PROPERTIES.propertyNames();
         if (!keys.hasMoreElements()) {
           throw new Exception(
-              "Could not read a configuration file for the bean\n"
-                  + "panel. An example file is included with the Weka distribution.\n"
-                  + "This file should be named \"" + PROPERTY_FILE + "\" and\n"
-                  + "should be placed either in your user home (which is set\n"
-                  + "to \"" + System.getProperties().getProperty("user.home")
-                  + "\")\n" + "or the directory that java was started from\n");
+            "Could not read a configuration file for the bean\n"
+              + "panel. An example file is included with the Weka distribution.\n"
+              + "This file should be named \"" + PROPERTY_FILE + "\" and\n"
+              + "should be placed either in your user home (which is set\n"
+              + "to \"" + System.getProperties().getProperty("user.home")
+              + "\")\n" + "or the directory that java was started from\n");
         }
       } catch (Exception ex) {
         JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
-            JOptionPane.ERROR_MESSAGE);
+          JOptionPane.ERROR_MESSAGE);
       }
 
       if (VISIBLE_PERSPECTIVES == null) {
         // set up built-in perspectives
         Properties pp = new Properties();
         pp.setProperty("weka.gui.beans.KnowledgeFlow.Perspectives",
-            "weka.gui.beans.ScatterPlotMatrix,weka.gui.beans.AttributeSummarizer,"
-                + "weka.gui.beans.SQLViewerPerspective");
+          "weka.gui.beans.ScatterPlotMatrix,weka.gui.beans.AttributeSummarizer,"
+            + "weka.gui.beans.SQLViewerPerspective");
         BEAN_PLUGINS_PROPERTIES.add(pp);
 
         VISIBLE_PERSPECTIVES = new TreeSet<String>();
         try {
 
           Properties visible = Utils
-              .readProperties(VISIBLE_PERSPECTIVES_PROPERTIES_FILE);
-          Enumeration keys = visible.propertyNames();
+            .readProperties(VISIBLE_PERSPECTIVES_PROPERTIES_FILE);
+          Enumeration<?> keys = visible.propertyNames();
           if (keys.hasMoreElements()) {
             String listedPerspectives = visible
-                .getProperty("weka.gui.beans.KnowledgeFlow.SelectedPerspectives");
+              .getProperty("weka.gui.beans.KnowledgeFlow.SelectedPerspectives");
             if (listedPerspectives != null && listedPerspectives.length() > 0) {
               // split up the list of user selected perspectives and populate
               // VISIBLE_PERSPECTIVES
@@ -286,14 +287,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               while (st.hasMoreTokens()) {
                 String perspectiveName = st.nextToken().trim();
                 System.err.println("Adding perspective " + perspectiveName
-                    + " to visible list");
+                  + " to visible list");
                 VISIBLE_PERSPECTIVES.add(perspectiveName);
               }
             }
           }
         } catch (Exception ex) {
           JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
-              JOptionPane.ERROR_MESSAGE);
+            JOptionPane.ERROR_MESSAGE);
         }
       }
 
@@ -307,18 +308,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       try {
         Properties templateProps = Utils.readProperties(TEMPLATE_PROPERTY_FILE);
         String paths = templateProps
-            .getProperty("weka.gui.beans.KnowledgeFlow.templates");
+          .getProperty("weka.gui.beans.KnowledgeFlow.templates");
         String descriptions = templateProps
-            .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
+          .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
         if (paths == null || paths.length() == 0) {
           System.err
-              .println("[KnowledgeFlow] WARNING: no templates found in classpath");
+            .println("[KnowledgeFlow] WARNING: no templates found in classpath");
         } else {
           String[] templates = paths.split(",");
           String[] desc = descriptions.split(",");
           if (templates.length != desc.length) {
             throw new Exception("Number of template descriptions does "
-                + "not match number of templates.");
+              + "not match number of templates.");
           }
           for (String template : templates) {
             TEMPLATE_PATHS.add(template.trim());
@@ -329,17 +330,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
       } catch (Exception ex) {
         JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
-            JOptionPane.ERROR_MESSAGE);
+          JOptionPane.ERROR_MESSAGE);
       }
     }
 
     if (!s_pluginManagerIntialized && BEAN_PLUGINS_PROPERTIES != null
-        && BEAN_PLUGINS_PROPERTIES.size() > 0) {
+      && BEAN_PLUGINS_PROPERTIES.size() > 0) {
       for (int i = 0; i < BEAN_PLUGINS_PROPERTIES.size(); i++) {
         Properties tempP = BEAN_PLUGINS_PROPERTIES.get(i);
         // Check for OffScreenChartRenderers
         String offscreenRenderers = tempP
-            .getProperty("weka.gui.beans.OffscreenChartRenderer");
+          .getProperty("weka.gui.beans.OffscreenChartRenderer");
         if (offscreenRenderers != null && offscreenRenderers.length() > 0) {
           String[] parts = offscreenRenderers.split(",");
           for (String renderer : parts) {
@@ -350,17 +351,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               if (p instanceof OffscreenChartRenderer) {
                 String name = ((OffscreenChartRenderer) p).rendererName();
                 PluginManager.addPlugin(
-                    "weka.gui.beans.OffscreenChartRenderer", name, renderer);
+                  "weka.gui.beans.OffscreenChartRenderer", name, renderer);
                 System.err
-                    .println("[KnowledgeFlow] registering chart rendering "
-                        + "plugin: " + renderer);
+                  .println("[KnowledgeFlow] registering chart rendering "
+                    + "plugin: " + renderer);
               }
             } catch (Exception ex) {
 
-              System.err
-                  .println("[KnowledgeFlow] WARNING: "
-                      + "unable to instantiate chart renderer \"" + renderer
-                      + "\"");
+              System.err.println("[KnowledgeFlow] WARNING: "
+                + "unable to instantiate chart renderer \"" + renderer + "\"");
               ex.printStackTrace();
 
             }
@@ -369,11 +368,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         // Check for user templates
         String templatePaths = tempP
-            .getProperty("weka.gui.beans.KnowledgeFlow.templates");
+          .getProperty("weka.gui.beans.KnowledgeFlow.templates");
         String templateDesc = tempP
-            .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
+          .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
         if (templatePaths != null && templatePaths.length() > 0
-            && templateDesc != null && templateDesc.length() > 0) {
+          && templateDesc != null && templateDesc.length() > 0) {
           String[] templates = templatePaths.split(",");
           String[] desc = templateDesc.split(",");
           // quietly ignore any user-templates that are not consistent
@@ -412,16 +411,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       XMLBeans.SUPPRESS_PROPERTY_WARNINGS.add("visual.iconPath");
     }
     if (!XMLBeans.SUPPRESS_PROPERTY_WARNINGS
-        .contains("visual.animatedIconPath")) {
+      .contains("visual.animatedIconPath")) {
       XMLBeans.SUPPRESS_PROPERTY_WARNINGS.add("visual.animatedIconPath");
     }
 
     try {
-      TOOLBARS = new Vector();
+      TOOLBARS = new Vector<Vector<?>>();
 
-      TreeMap wrapList = new TreeMap();
+      TreeMap<Integer, Object> wrapList = new TreeMap<Integer, Object>();
       Properties GEOProps = GenericPropertiesCreator
-          .getGlobalOutputProperties();
+        .getGlobalOutputProperties();
 
       if (GEOProps == null) {
         GenericPropertiesCreator creator = new GenericPropertiesCreator();
@@ -439,7 +438,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           GEOProps = Utils.readProperties("weka/gui/GenericObjectEditor.props");
         }
       }
-      Enumeration en = GEOProps.propertyNames();
+      Enumeration<?> en = GEOProps.propertyNames();
       while (en.hasMoreElements()) {
         String geoKey = (String) en.nextElement();
         // System.err.println("GEOKey " + geoKey);
@@ -449,17 +448,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         if (beanCompName != null) {
           // add details necessary to construct a button bar for this class
           // of algorithms
-          Vector newV = new Vector();
+          Vector<Object> newV = new Vector<Object>();
           // check for a naming alias for this toolbar
           String toolBarNameAlias = BEAN_PROPERTIES.getProperty(geoKey
-              + ".alias");
+            + ".alias");
           String toolBarName = (toolBarNameAlias != null) ? toolBarNameAlias
-              : geoKey.substring(geoKey.lastIndexOf('.') + 1, geoKey.length());
+            : geoKey.substring(geoKey.lastIndexOf('.') + 1, geoKey.length());
 
           // look for toolbar ordering information for this wrapper type
           String order = BEAN_PROPERTIES.getProperty(geoKey + ".order");
           Integer intOrder = (order != null) ? new Integer(order)
-              : new Integer(0);
+            : new Integer(0);
 
           // Name for the toolbar (name of weka algorithm class)
           newV.addElement(toolBarName);
@@ -474,12 +473,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           // All the weka algorithms of this class of algorithm
           String wekaAlgs = GEOProps.getProperty(geoKey);
 
-          Hashtable roots = GenericObjectEditor.sortClassesByRoot(wekaAlgs);
-          Hashtable hpps = new Hashtable();
-          Enumeration enm = roots.keys();
+          Hashtable<String, String> roots = GenericObjectEditor
+            .sortClassesByRoot(wekaAlgs);
+          Hashtable<String, HierarchyPropertyParser> hpps = new Hashtable<String, HierarchyPropertyParser>();
+          Enumeration<String> enm = roots.keys();
           while (enm.hasMoreElements()) {
-            String root = (String) enm.nextElement();
-            String classes = (String) roots.get(root);
+            String root = enm.nextElement();
+            String classes = roots.get(root);
             weka.gui.HierarchyPropertyParser hpp = new weka.gui.HierarchyPropertyParser();
             hpp.build(classes, ", ");
             // System.err.println(hpp.showTree());
@@ -506,40 +506,41 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           // TOOLBARS.addElement(newV);
         }
       }
-      Iterator keysetIt = wrapList.keySet().iterator();
+      Iterator<Integer> keysetIt = wrapList.keySet().iterator();
       while (keysetIt.hasNext()) {
-        Integer key = (Integer) keysetIt.next();
-        Vector newV = (Vector) wrapList.get(key);
+        Integer key = keysetIt.next();
+        @SuppressWarnings("unchecked")
+        Vector<Object> newV = (Vector<Object>) wrapList.get(key);
         if (newV != null) {
           TOOLBARS.addElement(newV);
         }
       }
     } catch (Exception ex) {
       JOptionPane.showMessageDialog(null,
-          "Could not read a configuration file for the generic objecte editor"
-              + ". An example file is included with the Weka distribution.\n"
-              + "This file should be named \"GenericObjectEditor.props\" and\n"
-              + "should be placed either in your user home (which is set\n"
-              + "to \"" + System.getProperties().getProperty("user.home")
-              + "\")\n" + "or the directory that java was started from\n",
-          "KnowledgeFlow", JOptionPane.ERROR_MESSAGE);
+        "Could not read a configuration file for the generic objecte editor"
+          + ". An example file is included with the Weka distribution.\n"
+          + "This file should be named \"GenericObjectEditor.props\" and\n"
+          + "should be placed either in your user home (which is set\n"
+          + "to \"" + System.getProperties().getProperty("user.home") + "\")\n"
+          + "or the directory that java was started from\n", "KnowledgeFlow",
+        JOptionPane.ERROR_MESSAGE);
     }
 
     try {
       String standardToolBarNames = BEAN_PROPERTIES
-          .getProperty("weka.gui.beans.KnowledgeFlow.standardToolBars");
+        .getProperty("weka.gui.beans.KnowledgeFlow.standardToolBars");
       StringTokenizer st = new StringTokenizer(standardToolBarNames, ", ");
       while (st.hasMoreTokens()) {
         String tempBarName = st.nextToken().trim();
         // construct details for this toolbar
-        Vector newV = new Vector();
+        Vector<String> newV = new Vector<String>();
         // add the name of the toolbar
         newV.addElement(tempBarName);
 
         // indicate that this is a standard toolbar (no wrapper bean)
         newV.addElement("null");
         String toolBarContents = BEAN_PROPERTIES
-            .getProperty("weka.gui.beans.KnowledgeFlow." + tempBarName);
+          .getProperty("weka.gui.beans.KnowledgeFlow." + tempBarName);
         StringTokenizer st2 = new StringTokenizer(toolBarContents, ", ");
         while (st2.hasMoreTokens()) {
           String tempBeanName = st2.nextToken().trim();
@@ -549,16 +550,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     } catch (Exception ex) {
       JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
-          JOptionPane.ERROR_MESSAGE);
+        JOptionPane.ERROR_MESSAGE);
     }
   }
 
   protected class BeanIconRenderer extends DefaultTreeCellRenderer {
+
+    /** Added ID to avoid warning. */
+    private static final long serialVersionUID = -4488876734500244945L;
+
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value,
-        boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+      boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
       super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row,
-          hasFocus);
+        hasFocus);
 
       if (leaf) {
         Object userO = ((DefaultMutableTreeNode) value).getUserObject();
@@ -575,6 +580,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   protected class InvisibleNode extends DefaultMutableTreeNode {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -9064396835384819887L;
     protected boolean m_isVisible;
 
     public InvisibleNode() {
@@ -586,7 +595,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     public InvisibleNode(Object userObject, boolean allowsChildren,
-        boolean isVisible) {
+      boolean isVisible) {
       super(userObject, allowsChildren);
       this.m_isVisible = isVisible;
     }
@@ -601,9 +610,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
       int realIndex = -1;
       int visibleIndex = -1;
-      Enumeration e = children.elements();
+      @SuppressWarnings("unchecked")
+      Enumeration<InvisibleNode> e = new WekaEnumeration<InvisibleNode>(
+        children);
       while (e.hasMoreElements()) {
-        InvisibleNode node = (InvisibleNode) e.nextElement();
+        InvisibleNode node = e.nextElement();
         if (node.isVisible()) {
           visibleIndex++;
         }
@@ -625,9 +636,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
 
       int count = 0;
-      Enumeration e = children.elements();
+      @SuppressWarnings("unchecked")
+      Enumeration<InvisibleNode> e = new WekaEnumeration<InvisibleNode>(
+        children);
       while (e.hasMoreElements()) {
-        InvisibleNode node = (InvisibleNode) e.nextElement();
+        InvisibleNode node = e.nextElement();
         if (node.isVisible()) {
           count++;
         }
@@ -647,6 +660,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   protected class InvisibleTreeModel extends DefaultTreeModel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6940101211275068260L;
     protected boolean m_filterIsActive;
 
     public InvisibleTreeModel(TreeNode root) {
@@ -658,7 +675,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren,
-        boolean filterIsActive) {
+      boolean filterIsActive) {
       super(root, asksAllowsChildren);
       this.m_filterIsActive = filterIsActive;
     }
@@ -720,7 +737,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     /** XML serialized MetaBean (if this is a user component) */
     // protected StringBuffer m_metaBean = null;
-    protected Vector m_metaBean = null;
+    protected Vector<Object> m_metaBean = null;
 
     /** true if this is a MetaBean (user component) */
     protected boolean m_isMeta = false;
@@ -747,7 +764,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
      * 
      * @param icon icon for the bean
      */
-    protected JTreeLeafDetails(String name, Vector serializedMeta, Icon icon) {
+    protected JTreeLeafDetails(String name, Vector<Object> serializedMeta,
+      Icon icon) {
       this(name, "", icon);
 
       // m_isMeta = isMeta;
@@ -770,10 +788,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_fullyQualifiedCompName = fullName;
       m_wekaAlgoName = wekaAlgoName;
       m_leafLabel = (wekaAlgoName.length() > 0) ? wekaAlgoName
-          : m_fullyQualifiedCompName;
+        : m_fullyQualifiedCompName;
       if (m_leafLabel.lastIndexOf('.') > 0) {
         m_leafLabel = m_leafLabel.substring(m_leafLabel.lastIndexOf('.') + 1,
-            m_leafLabel.length());
+          m_leafLabel.length());
       }
       m_scaledIcon = icon;
     }
@@ -847,7 +865,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
      * @return the XML serialized MetaBean as a 3-element Vector containing
      *         display name serialized bean and icon
      */
-    protected Vector getMetaBean() {
+    protected Vector<Object> getMetaBean() {
       return m_metaBean;
     }
 
@@ -862,22 +880,22 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           m_toolBarBean = m_metaBean.get(1);
         } else {
           m_toolBarBean = Beans.instantiate(KnowledgeFlowApp.this.getClass()
-              .getClassLoader(), m_fullyQualifiedCompName);
+            .getClassLoader(), m_fullyQualifiedCompName);
           if (isWrappedAlgorithm()) {
             Object algo = Beans.instantiate(KnowledgeFlowApp.this.getClass()
-                .getClassLoader(), m_wekaAlgoName);
+              .getClassLoader(), m_wekaAlgoName);
             ((WekaWrapper) m_toolBarBean).setWrappedAlgorithm(algo);
           }
         }
 
         KnowledgeFlowApp.this.setCursor(Cursor
-            .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+          .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         m_mode = ADDING;
         m_pasteB.setEnabled(false);
 
       } catch (Exception ex) {
-        System.err.println("Problem instantiating bean \""
-            + m_fullyQualifiedCompName
+        System.err
+          .println("Problem instantiating bean \"" + m_fullyQualifiedCompName
             + "\" (JTreeLeafDetails.instantiateBean()");
         ex.printStackTrace();
       }
@@ -907,29 +925,29 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       super.paintComponent(gx);
 
       ((Graphics2D) gx).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-          RenderingHints.VALUE_ANTIALIAS_ON);
+        RenderingHints.VALUE_ANTIALIAS_ON);
 
       ((Graphics2D) gx).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-          RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+        RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
       BeanInstance.paintLabels(gx, m_mainKFPerspective.getCurrentTabIndex());
       BeanConnection.paintConnections(gx,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
       // BeanInstance.paintConnections(gx);
       if (m_mode == CONNECTING) {
         gx.drawLine(m_startX, m_startY, m_oldX, m_oldY);
       } else if (m_mode == SELECTING) {
         gx.drawRect((m_startX < m_oldX) ? m_startX : m_oldX,
-            (m_startY < m_oldY) ? m_startY : m_oldY,
-            Math.abs(m_oldX - m_startX), Math.abs(m_oldY - m_startY));
+          (m_startY < m_oldY) ? m_startY : m_oldY, Math.abs(m_oldX - m_startX),
+          Math.abs(m_oldY - m_startY));
       }
     }
 
     @Override
     public void doLayout() {
       super.doLayout();
-      Vector comps = BeanInstance.getBeanInstances(m_mainKFPerspective
-          .getCurrentTabIndex());
+      Vector<Object> comps = BeanInstance.getBeanInstances(m_mainKFPerspective
+        .getCurrentTabIndex());
       for (int i = 0; i < comps.size(); i++) {
         BeanInstance bi = (BeanInstance) comps.elementAt(i);
         JComponent c = (JComponent) bi.getBean();
@@ -1015,6 +1033,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    */
   public class MainKFPerspective extends JPanel implements KFPerspective {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7666381888012259527L;
+
     /** Holds the tabs of the perspective */
     protected JTabbedPane m_flowTabs = new JTabbedPane();
 
@@ -1043,7 +1066,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     protected List<RunThread> m_executionThreads = new ArrayList<RunThread>();
 
     /** Keeps track of any highlighted beans on the canvas for a tab */
-    protected List<Vector> m_selectedBeans = new ArrayList<Vector>();
+    protected List<Vector<Object>> m_selectedBeans = new ArrayList<Vector<Object>>();
 
     /** Keeps track of the undo buffers for each tab */
     protected List<Stack<File>> m_undoBufferList = new ArrayList<Stack<File>>();
@@ -1171,12 +1194,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_groupB.setEnabled(false);
         if (getSelectedBeans().size() > 0 && !getExecuting()) {
           // Able to group selected subflow?
-          final Vector selected = m_mainKFPerspective.getSelectedBeans();
+          final Vector<Object> selected = m_mainKFPerspective
+            .getSelectedBeans();
           // check if sub flow is valid
-          final Vector inputs = BeanConnection.inputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
-          final Vector outputs = BeanConnection.outputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> inputs = BeanConnection.inputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> outputs = BeanConnection.outputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
 
           if (groupable(selected, inputs, outputs)) {
             m_groupB.setEnabled(true);
@@ -1187,11 +1211,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_copyB.setEnabled(getSelectedBeans().size() > 0 && !getExecuting());
         m_deleteB.setEnabled(getSelectedBeans().size() > 0 && !getExecuting());
         m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-            getCurrentTabIndex()).size() > 0
-            && !getExecuting());
+          getCurrentTabIndex()).size() > 0
+          && !getExecuting());
         m_pasteB
-            .setEnabled((m_pasteBuffer != null && m_pasteBuffer.length() > 0)
-                && !getExecuting());
+          .setEnabled((m_pasteBuffer != null && m_pasteBuffer.length() > 0)
+            && !getExecuting());
         m_stopB.setEnabled(getExecuting());
         m_undoB.setEnabled(!getExecuting() && getUndoBuffer().size() > 0);
       }
@@ -1207,7 +1231,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       if (index < getNumTabs() && index >= 0) {
         m_executingList.set(index, new Boolean(executing));
         ((CloseableTabTitle) m_flowTabs.getTabComponentAt(index))
-            .setButtonEnabled(!executing);
+          .setButtonEnabled(!executing);
 
         m_saveB.setEnabled(!getExecuting());
         m_saveBB.setEnabled(!getExecuting());
@@ -1218,12 +1242,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_groupB.setEnabled(false);
         if (getSelectedBeans().size() > 0 && !getExecuting()) {
           // Able to group selected subflow?
-          final Vector selected = m_mainKFPerspective.getSelectedBeans();
+          final Vector<Object> selected = m_mainKFPerspective
+            .getSelectedBeans();
           // check if sub flow is valid
-          final Vector inputs = BeanConnection.inputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
-          final Vector outputs = BeanConnection.outputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> inputs = BeanConnection.inputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> outputs = BeanConnection.outputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
 
           if (groupable(selected, inputs, outputs)) {
             m_groupB.setEnabled(true);
@@ -1233,12 +1258,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_cutB.setEnabled(getSelectedBeans().size() > 0 && !getExecuting());
         m_deleteB.setEnabled(getSelectedBeans().size() > 0 && !getExecuting());
         m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-            getCurrentTabIndex()).size() > 0
-            && !getExecuting());
+          getCurrentTabIndex()).size() > 0
+          && !getExecuting());
         m_copyB.setEnabled(getSelectedBeans().size() > 0 && !getExecuting());
         m_pasteB
-            .setEnabled((m_pasteBuffer != null && m_pasteBuffer.length() > 0)
-                && !getExecuting());
+          .setEnabled((m_pasteBuffer != null && m_pasteBuffer.length() > 0)
+            && !getExecuting());
         m_undoB.setEnabled(!getExecuting() && getUndoBuffer().size() > 0);
       }
     }
@@ -1331,7 +1356,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         Boolean newStatus = new Boolean(status);
         m_editedList.set(index, newStatus);
         ((CloseableTabTitle) m_flowTabs.getTabComponentAt(index))
-            .setBold(status);
+          .setBold(status);
       }
     }
 
@@ -1390,33 +1415,34 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       return null;
     }
 
-    public synchronized Vector getSelectedBeans() {
+    public synchronized Vector<Object> getSelectedBeans() {
       if (getNumTabs() > 0) {
         return getSelectedBeans(getCurrentTabIndex());
       }
       return null;
     }
 
-    public synchronized Vector getSelectedBeans(int index) {
+    public synchronized Vector<Object> getSelectedBeans(int index) {
       if (index < getNumTabs() && index >= 0) {
         return m_selectedBeans.get(index);
       }
       return null;
     }
 
-    public synchronized void setSelectedBeans(Vector beans) {
+    public synchronized void setSelectedBeans(Vector<Object> beans) {
       if (getNumTabs() > 0) {
         setSelectedBeans(getCurrentTabIndex(), beans);
 
         m_groupB.setEnabled(false);
         if (getSelectedBeans().size() > 0 && !getExecuting()) {
           // Able to group selected subflow?
-          final Vector selected = m_mainKFPerspective.getSelectedBeans();
+          final Vector<Object> selected = m_mainKFPerspective
+            .getSelectedBeans();
           // check if sub flow is valid
-          final Vector inputs = BeanConnection.inputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
-          final Vector outputs = BeanConnection.outputs(selected,
-              m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> inputs = BeanConnection.inputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
+          final Vector<Object> outputs = BeanConnection.outputs(selected,
+            m_mainKFPerspective.getCurrentTabIndex());
 
           if (groupable(selected, inputs, outputs)) {
             m_groupB.setEnabled(true);
@@ -1429,12 +1455,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     }
 
-    public synchronized void setSelectedBeans(int index, Vector beans) {
+    public synchronized void setSelectedBeans(int index, Vector<Object> beans) {
       if (index < getNumTabs() && index >= 0) {
         // turn turn off any set ones
         for (int i = 0; i < m_selectedBeans.get(index).size(); i++) {
           BeanInstance temp = (BeanInstance) m_selectedBeans.get(index)
-              .elementAt(i);
+            .elementAt(i);
           if (temp.getBean() instanceof Visible) {
             ((Visible) temp.getBean()).getVisual().setDisplayConnectors(false);
           } else if (temp.getBean() instanceof Note) {
@@ -1512,12 +1538,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       height *= 0.035;
 
       wekaI = wekaI.getScaledInstance((int) width, (int) height,
-          Image.SCALE_SMOOTH);
+        Image.SCALE_SMOOTH);
       icon = new ImageIcon(wekaI);
 
       return icon;
     }
 
+    @SuppressWarnings("unchecked")
     private void setUpToolsAndJTree() {
       JPanel toolBarPanel = new JPanel();
       toolBarPanel.setLayout(new BorderLayout());
@@ -1528,6 +1555,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         // set up an action for closing the curren tab
         final Action closeAction = new AbstractAction("Close") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 4762166880144590384L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             if (m_mainKFPerspective.getCurrentTabIndex() >= 0) {
@@ -1536,96 +1568,96 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke closeKey = KeyStroke.getKeyStroke(KeyEvent.VK_W,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Close", closeAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(closeKey, "Close");
+          .put(closeKey, "Close");
 
         JToolBar fixedTools = new JToolBar();
         fixedTools.setOrientation(JToolBar.HORIZONTAL);
 
         m_groupB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "bricks.png")));
+          + "bricks.png")));
         m_groupB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_groupB.setToolTipText("Group selected (Ctrl+Z)");
         m_cutB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "cut.png")));
+          + "cut.png")));
         m_cutB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_cutB.setToolTipText("Cut selected (Ctrl+X)");
         m_copyB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "page_copy.png")));
+          + "page_copy.png")));
         m_copyB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_copyB.setToolTipText("Copy selected (Ctrl+C)");
         m_pasteB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "paste_plain.png")));
+          + "paste_plain.png")));
         m_pasteB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_pasteB.setToolTipText("Paste from clipboard (Ctrl+V)");
         m_deleteB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "delete.png")));
+          + "delete.png")));
         m_deleteB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_deleteB.setToolTipText("Delete selected (DEL)");
         m_snapToGridB = new JToggleButton(new ImageIcon(
-            loadImage(BeanVisual.ICON_PATH + "shape_handles.png")));
+          loadImage(BeanVisual.ICON_PATH + "shape_handles.png")));
         // m_snapToGridB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_snapToGridB.setToolTipText("Snap to grid (Ctrl+G)");
 
         m_saveB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "disk.png")));
+          + "disk.png")));
         m_saveB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_saveB.setToolTipText("Save layout (Ctrl+S)");
         m_saveBB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "disk_multiple.png")));
+          + "disk_multiple.png")));
         m_saveBB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_saveBB.setToolTipText("Save layout with new name");
 
         m_loadB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "folder_add.png")));
+          + "folder_add.png")));
         m_loadB.setToolTipText("Open (Ctrl+O)");
         m_loadB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_newB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "page_add.png")));
+          + "page_add.png")));
         m_newB.setToolTipText("New layout (Ctrl+N)");
         m_newB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_newB.setEnabled(getAllowMultipleTabs());
 
         m_helpB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "help.png")));
+          + "help.png")));
         m_helpB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_helpB.setToolTipText("Display help (Ctrl+H)");
         m_togglePerspectivesB = new JButton(new ImageIcon(
-            loadImage(BeanVisual.ICON_PATH + "cog_go.png")));
+          loadImage(BeanVisual.ICON_PATH + "cog_go.png")));
         m_togglePerspectivesB.setBorder(BorderFactory.createEmptyBorder(0, 8,
-            0, 0));
+          0, 0));
         m_togglePerspectivesB
-            .setToolTipText("Show/hide perspectives toolbar (Ctrl+P)");
+          .setToolTipText("Show/hide perspectives toolbar (Ctrl+P)");
 
         m_templatesB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "application_view_tile.png")));
+          + "application_view_tile.png")));
         m_templatesB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_templatesB.setToolTipText("Load a template layout");
 
         m_noteB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "note_add.png")));
+          + "note_add.png")));
         m_noteB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_noteB.setToolTipText("Add a note to the layout (Ctrl+I)");
 
         m_selectAllB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "shape_group.png")));
+          + "shape_group.png")));
         m_selectAllB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_selectAllB.setToolTipText("Select all (Ctrl+A)");
 
         m_zoomInB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "zoom_in.png")));
+          + "zoom_in.png")));
         m_zoomInB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_zoomInB.setToolTipText("Zoom in (Ctrl++)");
 
         m_zoomOutB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "zoom_out.png")));
+          + "zoom_out.png")));
         m_zoomOutB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_zoomOutB.setToolTipText("Zoom out (Ctrl+-)");
 
         m_undoB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-            + "arrow_undo.png")));
+          + "arrow_undo.png")));
         m_undoB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         m_undoB.setToolTipText("Undo (Ctrl+U)");
 
@@ -1659,6 +1691,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         fixedTools.setMaximumSize(d3);
 
         final Action saveAction = new AbstractAction("Save") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 5182044142154404706L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             if (m_mainKFPerspective.getCurrentTabIndex() >= 0) {
@@ -1667,10 +1704,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke saveKey = KeyStroke.getKeyStroke(KeyEvent.VK_S,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Save", saveAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(saveKey, "Save");
+          .put(saveKey, "Save");
         m_saveB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1686,6 +1723,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action openAction = new AbstractAction("Open") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = -5106547209818805444L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             m_flowEnvironment = new Environment();
@@ -1693,10 +1735,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke openKey = KeyStroke.getKeyStroke(KeyEvent.VK_O,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Open", openAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(openKey, "Open");
+          .put(openKey, "Open");
         m_loadB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1705,16 +1747,21 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action newAction = new AbstractAction("New") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 8002244400334262966L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             clearLayout();
           }
         };
         KeyStroke newKey = KeyStroke.getKeyStroke(KeyEvent.VK_N,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("New", newAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(newKey, "New");
+          .put(newKey, "New");
         m_newB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent ae) {
@@ -1723,23 +1770,28 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action selectAllAction = new AbstractAction("SelectAll") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = -8086754050844707658L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             if (BeanInstance.getBeanInstances(
-                m_mainKFPerspective.getCurrentTabIndex()).size() > 0) {
+              m_mainKFPerspective.getCurrentTabIndex()).size() > 0) {
               // select all beans
-              Vector allBeans = BeanInstance
-                  .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
-              Vector newSelected = new Vector();
+              Vector<Object> allBeans = BeanInstance
+                .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
+              Vector<Object> newSelected = new Vector<Object>();
               for (int i = 0; i < allBeans.size(); i++) {
                 newSelected.add(allBeans.get(i));
               }
 
               // toggle
               if (newSelected.size() == m_mainKFPerspective.getSelectedBeans()
-                  .size()) {
+                .size()) {
                 // unselect all beans
-                m_mainKFPerspective.setSelectedBeans(new Vector());
+                m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
               } else {
                 // select all beans
                 m_mainKFPerspective.setSelectedBeans(newSelected);
@@ -1751,10 +1803,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke selectAllKey = KeyStroke.getKeyStroke(KeyEvent.VK_A,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("SelectAll", selectAllAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(selectAllKey, "SelectAll");
+          .put(selectAllKey, "SelectAll");
         m_selectAllB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1763,6 +1815,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action zoomInAction = new AbstractAction("ZoomIn") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1348383794897269484L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             m_layoutZoom += 25;
@@ -1778,10 +1835,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke zoomInKey = KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("ZoomIn", zoomInAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(zoomInKey, "ZoomIn");
+          .put(zoomInKey, "ZoomIn");
         m_zoomInB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1790,6 +1847,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action zoomOutAction = new AbstractAction("ZoomOut") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = -1120096894263455918L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             m_layoutZoom -= 25;
@@ -1805,10 +1867,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke zoomOutKey = KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("ZoomOut", zoomOutAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(zoomOutKey, "ZoomOut");
+          .put(zoomOutKey, "ZoomOut");
         m_zoomOutB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1817,21 +1879,27 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action groupAction = new AbstractAction("Group") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = -5752742619180091435L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
-            final Vector selected = m_mainKFPerspective.getSelectedBeans();
-            final Vector inputs = BeanConnection.inputs(selected,
-                m_mainKFPerspective.getCurrentTabIndex());
-            final Vector outputs = BeanConnection.outputs(selected,
-                m_mainKFPerspective.getCurrentTabIndex());
+            final Vector<Object> selected = m_mainKFPerspective
+              .getSelectedBeans();
+            final Vector<Object> inputs = BeanConnection.inputs(selected,
+              m_mainKFPerspective.getCurrentTabIndex());
+            final Vector<Object> outputs = BeanConnection.outputs(selected,
+              m_mainKFPerspective.getCurrentTabIndex());
             groupSubFlow(selected, inputs, outputs);
           }
         };
         KeyStroke groupKey = KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Group", groupAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(groupKey, "Group");
+          .put(groupKey, "Group");
         m_groupB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1840,6 +1908,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action cutAction = new AbstractAction("Cut") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = -4955878102742013040L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             // only delete if our copy was successful!
@@ -1849,10 +1922,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke cutKey = KeyStroke.getKeyStroke(KeyEvent.VK_X,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Cut", cutAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(cutKey, "Cut");
+          .put(cutKey, "Cut");
         m_cutB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1861,6 +1934,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action deleteAction = new AbstractAction("Delete") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 4621688037874199553L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             deleteSelectedBeans();
@@ -1869,7 +1947,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         KeyStroke deleteKey = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
         MainKFPerspective.this.getActionMap().put("Delete", deleteAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(deleteKey, "Delete");
+          .put(deleteKey, "Delete");
         m_deleteB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1878,17 +1956,22 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action copyAction = new AbstractAction("Copy") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 117010390180468707L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             copyToClipboard();
-            m_mainKFPerspective.setSelectedBeans(new Vector());
+            m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
           }
         };
         KeyStroke copyKey = KeyStroke.getKeyStroke(KeyEvent.VK_C,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Copy", copyAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(copyKey, "Copy");
+          .put(copyKey, "Copy");
         m_copyB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1897,18 +1980,23 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action pasteAction = new AbstractAction("Paste") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 5935121051028929455L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             KnowledgeFlowApp.this.setCursor(Cursor
-                .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+              .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
             m_mode = PASTING;
           }
         };
         KeyStroke pasteKey = KeyStroke.getKeyStroke(KeyEvent.VK_V,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Paste", pasteAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(pasteKey, "Paste");
+          .put(pasteKey, "Paste");
         m_pasteB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1917,6 +2005,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         });
 
         final Action snapAction = new AbstractAction("Snap") {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 7820689847829357449L;
+
           @Override
           public void actionPerformed(ActionEvent e) {
             // toggle first
@@ -1927,10 +2020,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         };
         KeyStroke snapKey = KeyStroke.getKeyStroke(KeyEvent.VK_G,
-            InputEvent.CTRL_DOWN_MASK);
+          InputEvent.CTRL_DOWN_MASK);
         MainKFPerspective.this.getActionMap().put("Snap", snapAction);
         MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(snapKey, "Snap");
+          .put(snapKey, "Snap");
         m_snapToGridB.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -1945,21 +2038,26 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
 
       final Action noteAction = new AbstractAction("Note") {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 2991743619130024875L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
           Note n = new Note();
           m_toolBarBean = n;
 
           KnowledgeFlowApp.this.setCursor(Cursor
-              .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+            .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
           m_mode = ADDING;
         }
       };
       KeyStroke noteKey = KeyStroke.getKeyStroke(KeyEvent.VK_I,
-          InputEvent.CTRL_DOWN_MASK);
+        InputEvent.CTRL_DOWN_MASK);
       MainKFPerspective.this.getActionMap().put("Note", noteAction);
       MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-          .put(noteKey, "Note");
+        .put(noteKey, "Note");
       m_noteB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -1968,6 +2066,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       });
 
       final Action undoAction = new AbstractAction("Undo") {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 7248362305594881263L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
           Stack<File> undo = m_mainKFPerspective.getUndoBuffer();
@@ -1981,10 +2084,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
       };
       KeyStroke undoKey = KeyStroke.getKeyStroke(KeyEvent.VK_U,
-          InputEvent.CTRL_DOWN_MASK);
+        InputEvent.CTRL_DOWN_MASK);
       MainKFPerspective.this.getActionMap().put("Undo", undoAction);
       MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-          .put(undoKey, "Undo");
+        .put(undoKey, "Undo");
       m_undoB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -1993,15 +2096,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       });
 
       m_playB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-          + "resultset_next.png")));
+        + "resultset_next.png")));
       m_playB.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
       m_playB
-          .setToolTipText("Run this flow (all start points launched in parallel)");
+        .setToolTipText("Run this flow (all start points launched in parallel)");
       m_playB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
           if (BeanInstance.getBeanInstances(
-              m_mainKFPerspective.getCurrentTabIndex()).size() == 0) {
+            m_mainKFPerspective.getCurrentTabIndex()).size() == 0) {
             return;
           }
 
@@ -2017,39 +2120,39 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       });
 
       m_playBB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-          + "resultset_last.png")));
+        + "resultset_last.png")));
       m_playBB.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
       m_playBB
-          .setToolTipText("Run this flow (start points launched sequentially)");
+        .setToolTipText("Run this flow (start points launched sequentially)");
       m_playBB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
           if (BeanInstance.getBeanInstances(
-              m_mainKFPerspective.getCurrentTabIndex()).size() == 0) {
+            m_mainKFPerspective.getCurrentTabIndex()).size() == 0) {
             return;
           }
           if (!Utils
-              .getDontShowDialog("weka.gui.beans.KnowledgeFlow.SequentialRunInfo")) {
+            .getDontShowDialog("weka.gui.beans.KnowledgeFlow.SequentialRunInfo")) {
             JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
             stuff[0] = "The order that data sources are launched in can be\n"
-                + "specified by setting a custom name for each data source that\n"
-                + "that includes a number. E.g. \"1:MyArffLoader\". To set a name,\n"
-                + "right-click over a data source and select \"Set name\"\n\n"
-                + "If the prefix is not specified, then the order of execution\n"
-                + "will correspond to the order that the components were added\n"
-                + "to the layout. Note that it is also possible to prevent a data\n"
-                + "source from executing by prefixing its name with a \"!\". E.g\n"
-                + "\"!:MyArffLoader\"";
+              + "specified by setting a custom name for each data source that\n"
+              + "that includes a number. E.g. \"1:MyArffLoader\". To set a name,\n"
+              + "right-click over a data source and select \"Set name\"\n\n"
+              + "If the prefix is not specified, then the order of execution\n"
+              + "will correspond to the order that the components were added\n"
+              + "to the layout. Note that it is also possible to prevent a data\n"
+              + "source from executing by prefixing its name with a \"!\". E.g\n"
+              + "\"!:MyArffLoader\"";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
-                "Sequential execution information", JOptionPane.OK_OPTION);
+              "Sequential execution information", JOptionPane.OK_OPTION);
 
             if (dontShow.isSelected()) {
               try {
                 Utils
-                    .setDontShowDialog("weka.gui.beans.KnowledgeFlow.SequentialRunInfo");
+                  .setDontShowDialog("weka.gui.beans.KnowledgeFlow.SequentialRunInfo");
               } catch (Exception ex) {
                 // quietly ignore
               }
@@ -2068,7 +2171,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       });
 
       m_stopB = new JButton(new ImageIcon(loadImage(BeanVisual.ICON_PATH
-          + "shape_square.png")));
+        + "shape_square.png")));
       m_stopB.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
       m_stopB.setToolTipText("Stop all execution");
 
@@ -2081,7 +2184,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           m_toolBarBean = null;
           m_mode = NONE;
           KnowledgeFlowApp.this.setCursor(Cursor
-              .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           m_componentTree.clearSelection();
         }
       });
@@ -2118,23 +2221,28 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void actionPerformed(ActionEvent e) {
           m_logPanel
-              .statusMessage("@!@[KnowledgeFlow]|Attempting to stop all components...");
+            .statusMessage("@!@[KnowledgeFlow]|Attempting to stop all components...");
           stopFlow();
           m_logPanel.statusMessage("@!@[KnowledgeFlow]|OK.");
         }
       });
 
       final Action helpAction = new AbstractAction("Help") {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 3301809940717051925L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
           popupHelp();
         }
       };
       KeyStroke helpKey = KeyStroke.getKeyStroke(KeyEvent.VK_H,
-          InputEvent.CTRL_DOWN_MASK);
+        InputEvent.CTRL_DOWN_MASK);
       MainKFPerspective.this.getActionMap().put("Help", helpAction);
       MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-          .put(helpKey, "Help");
+        .put(helpKey, "Help");
       m_helpB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent ae) {
@@ -2152,7 +2260,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_templatesB.setEnabled(TEMPLATE_PATHS.size() > 0);
 
       final Action togglePerspectivesAction = new AbstractAction(
-          "Toggle perspectives") {
+        "Toggle perspectives") {
+        /**
+           * 
+           */
+        private static final long serialVersionUID = 5394622655137498495L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
           if (m_firstUserComponentOpp) {
@@ -2161,26 +2274,26 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
 
           if (!Utils
-              .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
+            .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
             JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
             stuff[0] = "Perspectives are environments that take over the\n"
-                + "Knowledge Flow UI and provide major additional functionality.\n"
-                + "Many perspectives will operate on a set of instances. Instances\n"
-                + "Can be sent to a perspective by placing a DataSource on the\n"
-                + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
-                + "from the contextual popup menu that appears when you right-click on\n"
-                + "it. Several perspectives are built in to the Knowledge Flow, others\n"
-                + "can be installed via the package manager.\n";
+              + "Knowledge Flow UI and provide major additional functionality.\n"
+              + "Many perspectives will operate on a set of instances. Instances\n"
+              + "Can be sent to a perspective by placing a DataSource on the\n"
+              + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
+              + "from the contextual popup menu that appears when you right-click on\n"
+              + "it. Several perspectives are built in to the Knowledge Flow, others\n"
+              + "can be installed via the package manager.\n";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
-                "Perspective information", JOptionPane.OK_OPTION);
+              "Perspective information", JOptionPane.OK_OPTION);
 
             if (dontShow.isSelected()) {
               try {
                 Utils
-                    .setDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo");
+                  .setDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo");
               } catch (Exception ex) {
                 // quietly ignore
               }
@@ -2192,7 +2305,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             m_configAndPerspectivesVisible = false;
           } else {
             KnowledgeFlowApp.this.add(m_configAndPerspectives,
-                BorderLayout.NORTH);
+              BorderLayout.NORTH);
             m_configAndPerspectivesVisible = true;
           }
           revalidate();
@@ -2201,11 +2314,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
       };
       KeyStroke togglePerspectivesKey = KeyStroke.getKeyStroke(KeyEvent.VK_P,
-          InputEvent.CTRL_DOWN_MASK);
+        InputEvent.CTRL_DOWN_MASK);
       MainKFPerspective.this.getActionMap().put("Toggle perspectives",
-          togglePerspectivesAction);
+        togglePerspectivesAction);
       MainKFPerspective.this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-          .put(togglePerspectivesKey, "Toggle perspectives");
+        .put(togglePerspectivesKey, "Toggle perspectives");
       m_togglePerspectivesB.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -2221,7 +2334,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       DefaultMutableTreeNode jtreeRoot = new DefaultMutableTreeNode("Weka");
       // set up wrapper toolsets
       for (int i = 0; i < TOOLBARS.size(); i++) {
-        Vector tempBarSpecs = (Vector) TOOLBARS.elementAt(i);
+        Vector<?> tempBarSpecs = TOOLBARS.elementAt(i);
 
         // name for the tool bar
         String tempToolSetName = (String) tempBarSpecs.elementAt(0);
@@ -2234,34 +2347,30 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // name of the bean component to handle this class of weka algorithms
         String tempBeanCompName = (String) tempBarSpecs.elementAt(1);
 
-        // a JPanel holding an instantiated bean + label ready to be added
-        // to the current toolbar
-        JPanel tempBean;
-
         // the root package for weka algorithms
         String rootPackage = "";
         weka.gui.HierarchyPropertyParser hpp = null;
-        Hashtable hpps = null;
+        Hashtable<String, HierarchyPropertyParser> hpps = null;
 
         // Is this a wrapper toolbar?
         if (tempBeanCompName.compareTo("null") != 0) {
-          tempBean = null;
           toolBarType = wrapper_toolset;
           rootPackage = (String) tempBarSpecs.elementAt(2);
           // hpp = (weka.gui.HierarchyPropertyParser)tempBarSpecs.elementAt(3);
-          hpps = (Hashtable) tempBarSpecs.elementAt(3);
+          hpps = (Hashtable<String, HierarchyPropertyParser>) tempBarSpecs
+            .elementAt(3);
 
           try {
             // modifications by Zerbetto
             // Beans.instantiate(null, tempBeanCompName);
             Beans.instantiate(this.getClass().getClassLoader(),
-                tempBeanCompName);
+              tempBeanCompName);
 
             // end modifications by Zerbetto
           } catch (Exception ex) {
             // ignore
             System.err.println("[KnowledgeFlow] Failed to instantiate: "
-                + tempBeanCompName);
+              + tempBeanCompName);
 
             break;
           }
@@ -2277,24 +2386,21 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         int z = 2;
 
         if (toolBarType == wrapper_toolset) {
-          Enumeration enm = hpps.keys();
+          Enumeration<String> enm = hpps.keys();
 
           while (enm.hasMoreElements()) {
-            String root = (String) enm.nextElement();
-            String userPrefix = "";
-            hpp = (HierarchyPropertyParser) hpps.get(root);
+            String root = enm.nextElement();
+            hpp = hpps.get(root);
 
             if (!hpp.goTo(rootPackage)) {
               System.out.println("[KnowledgeFlow] Processing user package... ");
-              // System.exit(1);
-              userPrefix = root + ".";
             }
 
             String[] primaryPackages = hpp.childrenValues();
 
-            for (int kk = 0; kk < primaryPackages.length; kk++) {
+            for (String primaryPackage : primaryPackages) {
 
-              hpp.goToChild(primaryPackages[kk]);
+              hpp.goToChild(primaryPackage);
 
               // check to see if this is a leaf - if so then there are no
               // sub packages
@@ -2310,7 +2416,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 // -- tempBean = instantiateToolBarBean(true, tempBeanCompName,
                 // algName);
                 Object visibleCheck = instantiateBean(
-                    (toolBarType == wrapper_toolset), tempBeanCompName, algName);
+                  (toolBarType == wrapper_toolset), tempBeanCompName, algName);
 
                 // if (tempBean != null) {
                 if (visibleCheck != null) {
@@ -2342,7 +2448,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                   }
 
                   JTreeLeafDetails leafData = new JTreeLeafDetails(
-                      tempBeanCompName, algName, scaledForTree);
+                    tempBeanCompName, algName, scaledForTree);
 
                   if (toolTip != null && toolTip.length() > 0) {
                     leafData.setToolTipText(toolTip);
@@ -2351,8 +2457,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                   subTreeNode.add(leafAlgo);
 
                   m_nodeTextIndex.put(algName.toLowerCase() + " "
-                      + (toolTip != null ? toolTip.toLowerCase() + " " : ""),
-                      leafAlgo);
+                    + (toolTip != null ? toolTip.toLowerCase() + " " : ""),
+                    leafAlgo);
                 }
 
                 hpp.goToParent();
@@ -2368,13 +2474,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                  */
 
                 DefaultMutableTreeNode firstLevelOfMainAlgoType = new InvisibleNode(
-                    primaryPackages[kk]);
+                  primaryPackage);
                 subTreeNode.add(firstLevelOfMainAlgoType);
 
                 // processPackage(holderPanel, tempBeanCompName, hpp,
                 // firstLevelOfMainAlgoType);
                 processPackage(tempBeanCompName, hpp, firstLevelOfMainAlgoType,
-                    m_nodeTextIndex);
+                  m_nodeTextIndex);
                 // tempToolBar.add(holderPanel);
               }
             }
@@ -2393,10 +2499,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
            */
 
           for (int j = z; j < tempBarSpecs.size(); j++) {
-            tempBean = null;
             tempBeanCompName = (String) tempBarSpecs.elementAt(j);
             Object visibleCheck = instantiateBean(
-                (toolBarType == wrapper_toolset), tempBeanCompName, "");
+              (toolBarType == wrapper_toolset), tempBeanCompName, "");
 
             /*
              * -- tempBean = instantiateToolBarBean((toolBarType ==
@@ -2412,7 +2517,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               String treeName = tempBeanCompName;
               if (treeName.lastIndexOf('.') > 0) {
                 treeName = treeName.substring(treeName.lastIndexOf('.') + 1,
-                    treeName.length());
+                  treeName.length());
               }
 
               /*
@@ -2438,7 +2543,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
               // check for annotation and let this override any global info tool
               // tip
-              Class compClass = visibleCheck.getClass();
+              Class<?> compClass = visibleCheck.getClass();
               Annotation[] annotations = compClass.getDeclaredAnnotations();
 
               String category = null;
@@ -2446,16 +2551,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               for (Annotation ann : annotations) {
                 if (ann instanceof KFStep) {
                   tipText = "<html><font color=blue>"
-                      + ((KFStep) ann).toolTipText() + "</font></html>";
+                    + ((KFStep) ann).toolTipText() + "</font></html>";
                   category = ((KFStep) ann).category();
 
                   // Does this category already exist?
-                  Enumeration children = jtreeRoot.children();
+                  Enumeration<Object> children = jtreeRoot.children();
                   while (children.hasMoreElements()) {
                     Object child = children.nextElement();
                     if (child instanceof DefaultMutableTreeNode) {
                       if (((DefaultMutableTreeNode) child).getUserObject()
-                          .toString().equals(category)) {
+                        .toString().equals(category)) {
                         targetFolder = (DefaultMutableTreeNode) child;
                         break;
                       }
@@ -2467,7 +2572,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               }
 
               JTreeLeafDetails leafData = new JTreeLeafDetails(
-                  tempBeanCompName, "", scaledForTree);
+                tempBeanCompName, "", scaledForTree);
               if (tipText != null) {
                 leafData.setToolTipText(tipText);
               }
@@ -2478,7 +2583,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 subTreeNode.add(fixedLeafNode);
               }
 
-              m_nodeTextIndex.put(tempBeanCompName.toLowerCase() + " "
+              m_nodeTextIndex
+                .put(tempBeanCompName.toLowerCase() + " "
                   + (tipText != null ? tipText.toLowerCase() : ""),
                   fixedLeafNode);
             }
@@ -2507,9 +2613,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         DefaultMutableTreeNode userSubTree = null;
         for (int i = 0; i < BEAN_PLUGINS_PROPERTIES.size(); i++) {
           Properties tempP = BEAN_PLUGINS_PROPERTIES.get(i);
-          JPanel tempBean = null;
           String components = tempP
-              .getProperty("weka.gui.beans.KnowledgeFlow.Plugins");
+            .getProperty("weka.gui.beans.KnowledgeFlow.Plugins");
           if (components != null && components.length() > 0) {
             StringTokenizer st2 = new StringTokenizer(components, ", ");
 
@@ -2519,7 +2624,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               String treeName = tempBeanCompName;
               if (treeName.lastIndexOf('.') > 0) {
                 treeName = treeName.substring(treeName.lastIndexOf('.') + 1,
-                    treeName.length());
+                  treeName.length());
               }
 
               // tempBean = instantiateToolBarBean(false, tempBeanCompName, "");
@@ -2530,7 +2635,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                */
 
               Object visibleCheck = instantiateBean(
-                  (toolBarType == wrapper_toolset), tempBeanCompName, "");
+                (toolBarType == wrapper_toolset), tempBeanCompName, "");
               if (visibleCheck instanceof BeanContextChild) {
                 m_bcSupport.add(visibleCheck);
               }
@@ -2547,7 +2652,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               tipText = getGlobalInfo(visibleCheck);
 
               // check for annotation
-              Class compClass = visibleCheck.getClass();
+              Class<?> compClass = visibleCheck.getClass();
               Annotation[] annotations = compClass.getDeclaredAnnotations();
               DefaultMutableTreeNode targetFolder = null;
               String category = null;
@@ -2556,16 +2661,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 if (ann instanceof KFStep) {
                   category = ((KFStep) ann).category();
                   tipText = "<html><font color=red>"
-                      + ((KFStep) ann).toolTipText() + "</font></html>";
+                    + ((KFStep) ann).toolTipText() + "</font></html>";
 
                   // Does this category already exist?
-                  Enumeration children = jtreeRoot.children();
+                  Enumeration<Object> children = jtreeRoot.children();
 
                   while (children.hasMoreElements()) {
                     Object child = children.nextElement();
                     if (child instanceof DefaultMutableTreeNode) {
                       if (((DefaultMutableTreeNode) child).getUserObject()
-                          .toString().equals(category)) {
+                        .toString().equals(category)) {
                         targetFolder = (DefaultMutableTreeNode) child;
                         break;
                       }
@@ -2576,21 +2681,21 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               }
 
               JTreeLeafDetails leafData = new JTreeLeafDetails(
-                  tempBeanCompName, "", scaledForTree);
+                tempBeanCompName, "", scaledForTree);
               if (tipText != null) {
                 leafData.setToolTipText(tipText);
               }
               DefaultMutableTreeNode pluginLeaf = new InvisibleNode(leafData);
 
               m_nodeTextIndex.put(tempBeanCompName.toLowerCase()
-                  + (tipText != null ? " " + tipText.toLowerCase() : ""),
-                  pluginLeaf);
+                + (tipText != null ? " " + tipText.toLowerCase() : ""),
+                pluginLeaf);
               if (targetFolder != null) {
                 targetFolder.add(pluginLeaf);
               } else if (category != null) {
                 // make a new category folder
                 DefaultMutableTreeNode newCategoryNode = new InvisibleNode(
-                    category);
+                  category);
                 jtreeRoot.add(newCategoryNode);
                 newCategoryNode.add(pluginLeaf);
               } else {
@@ -2608,7 +2713,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
           // check for perspectives
           String perspectives = tempP
-              .getProperty(("weka.gui.beans.KnowledgeFlow.Perspectives"));
+            .getProperty(("weka.gui.beans.KnowledgeFlow.Perspectives"));
           if (perspectives != null && perspectives.length() > 0) {
             StringTokenizer st2 = new StringTokenizer(perspectives, ",");
             while (st2.hasMoreTokens()) {
@@ -2621,7 +2726,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 if (p instanceof KFPerspective && p instanceof JPanel) {
                   String title = ((KFPerspective) p).getPerspectiveTitle();
                   System.out.println("[KnowledgeFlow] loaded perspective: "
-                      + title);
+                    + title);
                   m_pluginPerspectiveLookup.put(className, title);
 
                   // not selected as part of the users set of perspectives
@@ -2641,12 +2746,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 }
               } catch (Exception ex) {
                 if (m_logPanel != null) {
-                  m_logPanel.logMessage("[KnowledgeFlow] WARNING: "
+                  m_logPanel
+                    .logMessage("[KnowledgeFlow] WARNING: "
                       + "unable to instantiate perspective \"" + className
                       + "\"");
                   ex.printStackTrace();
                 } else {
-                  System.err.println("[KnowledgeFlow] WARNING: "
+                  System.err
+                    .println("[KnowledgeFlow] WARNING: "
                       + "unable to instantiate perspective \"" + className
                       + "\"");
                   ex.printStackTrace();
@@ -2658,7 +2765,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
 
       m_togglePerspectivesB.setEnabled(m_pluginPerspectiveLookup.keySet()
-          .size() > 0);
+        .size() > 0);
 
       // toolBarPanel.add(m_toolBars, BorderLayout.CENTER);
 
@@ -2672,6 +2779,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // subclass JTree so that tool tips can be displayed for leaves (if
       // necessary)
       m_componentTree = new JTree(model) {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 6628795889296634120L;
+
         @Override
         public String getToolTipText(MouseEvent e) {
           if ((getRowForLocation(e.getX(), e.getY())) == -1) {
@@ -2680,7 +2792,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           TreePath currPath = getPathForLocation(e.getX(), e.getY());
           if (currPath.getLastPathComponent() instanceof DefaultMutableTreeNode) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) currPath
-                .getLastPathComponent();
+              .getLastPathComponent();
             if (node.isLeaf()) {
               JTreeLeafDetails leaf = (JTreeLeafDetails) node.getUserObject();
               return leaf.getToolTipText();
@@ -2704,7 +2816,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         public void mouseClicked(MouseEvent e) {
 
           if (((e.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
-              || e.isAltDown()) {
+            || e.isAltDown()) {
             boolean clearSelection = true;
             /*
              * TreePath path = m_componentTree.getPathForLocation(e.getX(),
@@ -2721,7 +2833,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               m_toolBarBean = null;
               m_mode = NONE;
               KnowledgeFlowApp.this.setCursor(Cursor
-                  .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
               m_componentTree.clearSelection();
             }
           }
@@ -2730,7 +2842,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           if (p != null) {
             if (p.getLastPathComponent() instanceof DefaultMutableTreeNode) {
               DefaultMutableTreeNode tNode = (DefaultMutableTreeNode) p
-                  .getLastPathComponent();
+                .getLastPathComponent();
 
               if (tNode.isLeaf()) {
                 // System.err.println("Selected : " +
@@ -2739,18 +2851,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 if (userObject instanceof JTreeLeafDetails) {
 
                   if ((e.getModifiers() & InputEvent.SHIFT_MASK) != 0
-                      && ((JTreeLeafDetails) userObject).isMetaBean()) {
+                    && ((JTreeLeafDetails) userObject).isMetaBean()) {
                     if (m_firstUserComponentOpp) {
                       installWindowListenerForSavingUserStuff();
                       m_firstUserComponentOpp = false;
                     }
 
-                    Vector toRemove = ((JTreeLeafDetails) userObject)
-                        .getMetaBean();
+                    Vector<Object> toRemove = ((JTreeLeafDetails) userObject)
+                      .getMetaBean();
                     DefaultTreeModel model = (DefaultTreeModel) m_componentTree
-                        .getModel();
+                      .getModel();
                     MutableTreeNode userRoot = (MutableTreeNode) tNode
-                        .getParent(); // The "User" folder
+                      .getParent(); // The "User" folder
                     model.removeNodeFromParent(tNode);
                     m_userComponents.remove(toRemove);
 
@@ -2791,11 +2903,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           List<DefaultMutableTreeNode> nonhits = new ArrayList<DefaultMutableTreeNode>();
           List<DefaultMutableTreeNode> hits = new ArrayList<DefaultMutableTreeNode>();
           DefaultTreeModel model = (DefaultTreeModel) m_componentTree
-              .getModel();
+            .getModel();
           model.reload(); // collapse all nodes first
 
           for (Map.Entry<String, DefaultMutableTreeNode> entry : m_nodeTextIndex
-              .entrySet()) {
+            .entrySet()) {
             if (entry.getValue() instanceof InvisibleNode) {
               ((InvisibleNode) entry.getValue()).setVisible(true);
             }
@@ -2835,7 +2947,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // m_perspectiveHolder.add(treeHolder, BorderLayout.WEST);
 
       JSplitPane p2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeHolder,
-          m_flowTabs);
+        m_flowTabs);
       p2.setOneTouchExpandable(true);
 
       add(p2, BorderLayout.CENTER);
@@ -2866,9 +2978,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // prompt for save
         String tabTitle = m_flowTabs.getTitleAt(tabIndex);
         String message = "\"" + tabTitle
-            + "\" has been modified. Save changes " + "before closing?";
+          + "\" has been modified. Save changes " + "before closing?";
         int result = JOptionPane.showConfirmDialog(KnowledgeFlowApp.this,
-            message, "Save changes", JOptionPane.YES_NO_CANCEL_OPTION);
+          message, "Save changes", JOptionPane.YES_NO_CANCEL_OPTION);
 
         if (result == JOptionPane.YES_OPTION) {
           saveLayout(tabIndex, false);
@@ -2899,9 +3011,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     public synchronized void addTab(String tabTitle) {
       // new beans for this tab
-      BeanInstance.addBeanInstances(new Vector(), null);
+      BeanInstance.addBeanInstances(new Vector<Object>(), null);
       // new connections for this tab
-      BeanConnection.addConnections(new Vector());
+      BeanConnection.addConnections(new Vector<BeanConnection>());
 
       JPanel p1 = new JPanel();
       p1.setLayout(new BorderLayout());
@@ -2952,7 +3064,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_editedList.add(new Boolean(false));
       m_executingList.add(new Boolean(false));
       m_executionThreads.add((RunThread) null);
-      m_selectedBeans.add(new Vector());
+      m_selectedBeans.add(new Vector<Object>());
       m_undoBufferList.add(new Stack<File>());
 
       m_flowTabs.addTab(tabTitle, splitHolder);
@@ -2964,6 +3076,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private class CloseableTabTitle extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6844232025394346426L;
+
     private final JTabbedPane m_enclosingPane;
 
     private JLabel m_tabLabel;
@@ -2978,10 +3095,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
       // read the title from the JTabbedPane
       m_tabLabel = new JLabel() {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 8515052190461050324L;
+
         @Override
         public String getText() {
           int index = m_enclosingPane
-              .indexOfTabComponent(CloseableTabTitle.this);
+            .indexOfTabComponent(CloseableTabTitle.this);
           if (index >= 0) {
             return m_enclosingPane.getTitleAt(index);
           }
@@ -3005,6 +3127,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     private class TabButton extends JButton implements ActionListener {
+      /**
+       * 
+       */
+      private static final long serialVersionUID = -4915800749132175968L;
+
       public TabButton() {
         int size = 17;
         setPreferredSize(new Dimension(size, size));
@@ -3029,7 +3156,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               button.setBorderPainted(true);
 
               int i = m_enclosingPane
-                  .indexOfTabComponent(CloseableTabTitle.this);
+                .indexOfTabComponent(CloseableTabTitle.this);
               if (i == m_mainKFPerspective.getCurrentTabIndex()) {
                 button.setToolTipText("close this tab (Ctrl+W)");
               } else {
@@ -3085,9 +3212,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
         int delta = 6;
         g2.drawLine(delta, delta, getWidth() - delta - 1, getHeight() - delta
-            - 1);
+          - 1);
         g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta
-            - 1);
+          - 1);
         g2.dispose();
       }
     }
@@ -3132,7 +3259,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   /** Whether to allow more than one tab or not */
   private boolean m_allowMultipleTabs = true;
 
-  private final Vector m_userComponents = new Vector();
+  private final Vector<Object> m_userComponents = new Vector<Object>();
 
   private boolean m_firstUserComponentOpp = true;
 
@@ -3180,9 +3307,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   /** The file chooser for selecting layout files */
   protected JFileChooser m_FileChooser = new JFileChooser(new File(
-      System.getProperty("user.dir")));
+    System.getProperty("user.dir")));
 
   protected class KFLogPanel extends LogPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2224509243343105276L;
+
     public synchronized void setMessageOnAll(boolean mainKFLine, String message) {
       for (String key : m_tableIndexes.keySet()) {
         if (!mainKFLine && key.equals("[KnowledgeFlow]")) {
@@ -3245,31 +3377,31 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * the chooser
    */
   protected FileFilter m_KfFilter = new ExtensionFileFilter(FILE_EXTENSION,
-      "Binary KnowledgeFlow configuration files (*" + FILE_EXTENSION + ")");
+    "Binary KnowledgeFlow configuration files (*" + FILE_EXTENSION + ")");
 
   /**
    * A filter to ensure only KnowledgeFlow files in KOML format get shown in the
    * chooser
    */
   protected FileFilter m_KOMLFilter = new ExtensionFileFilter(
-      KOML.FILE_EXTENSION + "kf", "XML KnowledgeFlow configuration files (*"
-          + KOML.FILE_EXTENSION + "kf)");
+    KOML.FILE_EXTENSION + "kf", "XML KnowledgeFlow configuration files (*"
+      + KOML.FILE_EXTENSION + "kf)");
 
   /**
    * A filter to ensure only KnowledgeFlow files in XStream format get shown in
    * the chooser
    */
   protected FileFilter m_XStreamFilter = new ExtensionFileFilter(
-      XStream.FILE_EXTENSION + "kf", "XML KnowledgeFlow configuration files (*"
-          + XStream.FILE_EXTENSION + "kf)");
+    XStream.FILE_EXTENSION + "kf", "XML KnowledgeFlow configuration files (*"
+      + XStream.FILE_EXTENSION + "kf)");
 
   /**
    * A filter to ensure only KnowledgeFlow layout files in XML format get shown
    * in the chooser
    */
   protected FileFilter m_XMLFilter = new ExtensionFileFilter(
-      FILE_EXTENSION_XML, "XML KnowledgeFlow layout files (*"
-          + FILE_EXTENSION_XML + ")");
+    FILE_EXTENSION_XML, "XML KnowledgeFlow layout files (*"
+      + FILE_EXTENSION_XML + ")");
 
   /** the scrollbar increment of the layout scrollpane */
   protected int m_ScrollBarIncrementLayout = 20;
@@ -3315,8 +3447,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   private void setEnvironment() {
     // pass m_flowEnvironment to all components
     // that implement EnvironmentHandler
-    Vector beans = BeanInstance.getBeanInstances(m_mainKFPerspective
-        .getCurrentTabIndex());
+    Vector<Object> beans = BeanInstance.getBeanInstances(m_mainKFPerspective
+      .getCurrentTabIndex());
     for (int i = 0; i < beans.size(); i++) {
       Object temp = ((BeanInstance) beans.elementAt(i)).getBean();
 
@@ -3350,20 +3482,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     // some GUI defaults
     try {
       m_ScrollBarIncrementLayout = Integer.parseInt(BEAN_PROPERTIES
-          .getProperty("ScrollBarIncrementLayout", ""
-              + m_ScrollBarIncrementLayout));
+        .getProperty("ScrollBarIncrementLayout", ""
+          + m_ScrollBarIncrementLayout));
       m_ScrollBarIncrementComponents = Integer.parseInt(BEAN_PROPERTIES
-          .getProperty("ScrollBarIncrementComponents", ""
-              + m_ScrollBarIncrementComponents));
+        .getProperty("ScrollBarIncrementComponents", ""
+          + m_ScrollBarIncrementComponents));
       m_FlowWidth = Integer.parseInt(BEAN_PROPERTIES.getProperty("FlowWidth",
-          "" + m_FlowWidth));
+        "" + m_FlowWidth));
       m_FlowHeight = Integer.parseInt(BEAN_PROPERTIES.getProperty("FlowHeight",
-          "" + m_FlowHeight));
+        "" + m_FlowHeight));
       m_PreferredExtension = BEAN_PROPERTIES.getProperty("PreferredExtension",
-          m_PreferredExtension);
+        m_PreferredExtension);
       m_UserComponentsInXML = Boolean.valueOf(
-          BEAN_PROPERTIES.getProperty("UserComponentsInXML", ""
-              + m_UserComponentsInXML)).booleanValue();
+        BEAN_PROPERTIES.getProperty("UserComponentsInXML", ""
+          + m_UserComponentsInXML)).booleanValue();
     } catch (Exception ex) {
       ex.printStackTrace();
     }
@@ -3382,10 +3514,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     if (m_PreferredExtension.equals(FILE_EXTENSION_XML)) {
       m_FileChooser.setFileFilter(m_XMLFilter);
     } else if (KOML.isPresent()
-        && m_PreferredExtension.equals(KOML.FILE_EXTENSION + "kf")) {
+      && m_PreferredExtension.equals(KOML.FILE_EXTENSION + "kf")) {
       m_FileChooser.setFileFilter(m_KOMLFilter);
     } else if (XStream.isPresent()
-        && m_PreferredExtension.equals(XStream.FILE_EXTENSION + "kf")) {
+      && m_PreferredExtension.equals(XStream.FILE_EXTENSION + "kf")) {
       m_FileChooser.setFileFilter(m_XStreamFilter);
     } else {
       m_FileChooser.setFileFilter(m_KfFilter);
@@ -3430,11 +3562,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void actionPerformed(ActionEvent e) {
           KFPerspective current = (KFPerspective) m_perspectiveHolder
-              .getComponent(0);
+            .getComponent(0);
           current.setActive(false);
           m_perspectiveHolder.remove(0);
           m_perspectiveHolder.add((JComponent) m_perspectives.get(0),
-              BorderLayout.CENTER);
+            BorderLayout.CENTER);
           m_perspectives.get(0).setActive(true);
           // KnowledgeFlowApp.this.invalidate();
           KnowledgeFlowApp.this.revalidate();
@@ -3458,20 +3590,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
       try {
         Properties visible = Utils
-            .readProperties(VISIBLE_PERSPECTIVES_PROPERTIES_FILE);
-        Enumeration keys = visible.propertyNames();
+          .readProperties(VISIBLE_PERSPECTIVES_PROPERTIES_FILE);
+        Enumeration<?> keys = visible.propertyNames();
         if (keys.hasMoreElements()) {
 
           String toolBarIsVisible = visible
-              .getProperty("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble");
+            .getProperty("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble");
           if (toolBarIsVisible != null && toolBarIsVisible.length() > 0) {
             m_configAndPerspectivesVisible = toolBarIsVisible
-                .equalsIgnoreCase("yes");
+              .equalsIgnoreCase("yes");
           }
         }
       } catch (Exception ex) {
         System.err
-            .println("Problem reading visible perspectives property file");
+          .println("Problem reading visible perspectives property file");
         ex.printStackTrace();
       }
 
@@ -3482,7 +3614,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
 
       JButton configB = new JButton(new ImageIcon(
-          loadImage(BeanVisual.ICON_PATH + "cog.png")));
+        loadImage(BeanVisual.ICON_PATH + "cog.png")));
       configB.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 1));
       configB.setToolTipText("Enable/disable perspectives");
       m_configAndPerspectives.add(configB, BorderLayout.WEST);
@@ -3491,26 +3623,26 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void actionPerformed(ActionEvent e) {
           if (!Utils
-              .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
+            .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
             JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
             stuff[0] = "Perspectives are environments that take over the\n"
-                + "Knowledge Flow UI and provide major additional functionality.\n"
-                + "Many perspectives will operate on a set of instances. Instances\n"
-                + "Can be sent to a perspective by placing a DataSource on the\n"
-                + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
-                + "from the contextual popup menu that appears when you right-click on\n"
-                + "it. Several perspectives are built in to the Knowledge Flow, others\n"
-                + "can be installed via the package manager.\n";
+              + "Knowledge Flow UI and provide major additional functionality.\n"
+              + "Many perspectives will operate on a set of instances. Instances\n"
+              + "Can be sent to a perspective by placing a DataSource on the\n"
+              + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
+              + "from the contextual popup menu that appears when you right-click on\n"
+              + "it. Several perspectives are built in to the Knowledge Flow, others\n"
+              + "can be installed via the package manager.\n";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
-                "Perspective information", JOptionPane.OK_OPTION);
+              "Perspective information", JOptionPane.OK_OPTION);
 
             if (dontShow.isSelected()) {
               try {
                 Utils
-                    .setDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo");
+                  .setDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo");
               } catch (Exception ex) {
                 // quietly ignore
               }
@@ -3543,7 +3675,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   private void popupPerspectiveConfigurer() {
     if (m_perspectiveConfigurer == null) {
       m_perspectiveConfigurer = new AttributeSelectionPanel(true, true, true,
-          true);
+        true);
     }
 
     if (m_firstUserComponentOpp) {
@@ -3565,7 +3697,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     Instances perspectiveInstances = new Instances("Perspectives", atts, 1);
 
     boolean[] selectedPerspectives = new boolean[perspectiveInstances
-        .numAttributes()];
+      .numAttributes()];
     for (String selected : VISIBLE_PERSPECTIVES) {
       String pName = m_pluginPerspectiveLookup.get(selected);
 
@@ -3588,8 +3720,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     final JDialog d = new JDialog(
-        (JFrame) KnowledgeFlowApp.this.getTopLevelAncestor(),
-        "Manage Perspectives", ModalityType.DOCUMENT_MODAL);
+      (JFrame) KnowledgeFlowApp.this.getTopLevelAncestor(),
+      "Manage Perspectives", ModalityType.DOCUMENT_MODAL);
     d.setLayout(new BorderLayout());
 
     JPanel holder = new JPanel();
@@ -3608,8 +3740,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         VISIBLE_PERSPECTIVES = new TreeSet<String>();
 
         int[] selected = m_perspectiveConfigurer.getSelectedAttributes();
-        for (int i = 0; i < selected.length; i++) {
-          String selectedClassName = pClasses.get(selected[i]);
+        for (int element : selected) {
+          String selectedClassName = pClasses.get(element);
 
           // first check to see if it's in the cache already
           if (m_perspectiveCache.get(selectedClassName) == null) {
@@ -3620,7 +3752,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               if (p instanceof KFPerspective && p instanceof JPanel) {
                 String title = ((KFPerspective) p).getPerspectiveTitle();
                 System.out.println("[KnowledgeFlow] loaded perspective: "
-                    + title);
+                  + title);
 
                 ((KFPerspective) p).setLoaded(true);
                 ((KFPerspective) p).setMainKFPerspective(m_mainKFPerspective);
@@ -3716,10 +3848,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     current.setActive(false);
     m_perspectiveHolder.remove(0);
     m_perspectiveHolder.add((JComponent) m_perspectives.get(theIndex),
-        BorderLayout.CENTER);
+      BorderLayout.CENTER);
     m_perspectives.get(theIndex).setActive(true);
     ((JToggleButton) m_perspectiveToolBar.getComponent(theIndex))
-        .setSelected(true);
+      .setSelected(true);
 
     // KnowledgeFlowApp.this.invalidate();
     KnowledgeFlowApp.this.revalidate();
@@ -3728,7 +3860,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private void snapSelectedToGrid() {
-    Vector v = m_mainKFPerspective.getSelectedBeans();
+    Vector<Object> v = m_mainKFPerspective.getSelectedBeans();
     if (v.size() > 0) {
       for (int i = 0; i < v.size(); i++) {
         BeanInstance b = (BeanInstance) v.get(i);
@@ -3748,8 +3880,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   private int snapToGrid(int val) {
     int r = val % m_gridSpacing;
     val /= m_gridSpacing;
-    if (r > (m_gridSpacing / 2))
+    if (r > (m_gridSpacing / 2)) {
       val++;
+    }
     val *= m_gridSpacing;
 
     return val;
@@ -3772,13 +3905,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         px /= z;
         if (m_toolBarBean == null) {
           if (((me.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK)
-              && m_mode == NONE) {
+            && m_mode == NONE) {
             /*
              * BeanInstance bi = BeanInstance.findInstance(me.getPoint(),
              * m_mainKFPerspective.getCurrentTabIndex());
              */
             BeanInstance bi = BeanInstance.findInstance(new Point((int) px,
-                (int) py), m_mainKFPerspective.getCurrentTabIndex());
+              (int) py), m_mainKFPerspective.getCurrentTabIndex());
             JComponent bc = null;
             if (bi != null) {
               bc = (JComponent) (bi.getBean());
@@ -3859,7 +3992,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         double z = m_layoutZoom / 100.0;
         np.setLocation(p.getX() / z, p.getY() / z);
         BeanInstance bi = BeanInstance.findInstance(np,
-            m_mainKFPerspective.getCurrentTabIndex());
+          m_mainKFPerspective.getCurrentTabIndex());
         if (m_mode == ADDING || m_mode == NONE) {
           // try and popup a context sensitive menu if we have
           // been clicked over a bean.
@@ -3869,12 +4002,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             // as long as we're not a meta bean
             if (me.getClickCount() == 2 && !(bc instanceof MetaBean)) {
               try {
-                Class custClass = Introspector.getBeanInfo(bc.getClass())
-                    .getBeanDescriptor().getCustomizerClass();
+                Class<?> custClass = Introspector.getBeanInfo(bc.getClass())
+                  .getBeanDescriptor().getCustomizerClass();
                 if (custClass != null) {
                   if (bc instanceof BeanCommon) {
                     if (!((BeanCommon) bc).isBusy()
-                        && !m_mainKFPerspective.getExecuting()) {
+                      && !m_mainKFPerspective.getExecuting()) {
                       popupCustomizer(custClass, bc);
                     }
                   } else {
@@ -3885,17 +4018,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 ex.printStackTrace();
               }
             } else if (((me.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
-                || me.isAltDown()) {
+              || me.isAltDown()) {
               // doPopup(me.getPoint(), bi, me.getX(), me.getY());
               doPopup(me.getPoint(), bi, (int) (p.getX() / z),
-                  (int) (p.getY() / z));
+                (int) (p.getY() / z));
               return;
             } else {
               // just select this bean
-              Vector v = m_mainKFPerspective.getSelectedBeans();
+              Vector<Object> v = m_mainKFPerspective.getSelectedBeans();
               if (me.isShiftDown()) {
               } else {
-                v = new Vector();
+                v = new Vector<Object>();
               }
               v.add(bi);
               m_mainKFPerspective.setSelectedBeans(v);
@@ -3904,7 +4037,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             }
           } else {
             if (((me.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
-                || me.isAltDown()) {
+              || me.isAltDown()) {
 
               double px = me.getX();
               double py = me.getY();
@@ -3947,10 +4080,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               if (m_toolBarBean instanceof StringBuffer) {
                 // serialized user meta bean
                 pasteFromClipboard((int) x, (int) y,
-                    (StringBuffer) m_toolBarBean, false);
+                  (StringBuffer) m_toolBarBean, false);
                 m_mode = NONE;
                 KnowledgeFlowApp.this.setCursor(Cursor
-                    .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                  .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 m_toolBarBean = null;
               } else {
                 // saveLayout(m_mainKFPerspective.getCurrentTabIndex(), false);
@@ -3974,18 +4107,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           pasteFromClipboard((int) px, (int) py, m_pasteBuffer, true);
           m_mode = NONE;
           KnowledgeFlowApp.this.setCursor(Cursor
-              .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           return;
         }
 
         if (m_mode == CONNECTING) {
           // turn off connecting points and remove connecting line
           layout.repaint();
-          Vector beanInstances = BeanInstance
-              .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
+          Vector<Object> beanInstances = BeanInstance
+            .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
           for (int i = 0; i < beanInstances.size(); i++) {
             JComponent bean = (JComponent) ((BeanInstance) beanInstances
-                .elementAt(i)).getBean();
+              .elementAt(i)).getBean();
             if (bean instanceof Visible) {
               ((Visible) bean).getVisual().setDisplayConnectors(false);
             }
@@ -4000,7 +4133,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               // connection
               if (((BeanCommon) bi.getBean()).
               // connectionAllowed(m_sourceEventSetDescriptor.getName())) {
-                  connectionAllowed(m_sourceEventSetDescriptor)) {
+                connectionAllowed(m_sourceEventSetDescriptor)) {
                 doConnection = true;
               }
             }
@@ -4010,12 +4143,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               // attempt to connect source and target beans
               if (bi.getBean() instanceof MetaBean) {
                 BeanConnection.doMetaConnection(m_editElement, bi,
-                    m_sourceEventSetDescriptor, layout,
-                    m_mainKFPerspective.getCurrentTabIndex());
+                  m_sourceEventSetDescriptor, layout,
+                  m_mainKFPerspective.getCurrentTabIndex());
               } else {
-                BeanConnection bc = new BeanConnection(m_editElement, bi,
-                    m_sourceEventSetDescriptor, m_mainKFPerspective
-                        .getCurrentTabIndex());
+                new BeanConnection(m_editElement, bi,
+                  m_sourceEventSetDescriptor, m_mainKFPerspective
+                    .getCurrentTabIndex());
               }
               m_mainKFPerspective.setEditedStatus(true);
             }
@@ -4027,7 +4160,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
 
         if (m_mainKFPerspective.getSelectedBeans().size() > 0) {
-          m_mainKFPerspective.setSelectedBeans(new Vector());
+          m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
         }
       }
     });
@@ -4051,10 +4184,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           int deltaY = (int) py - m_oldY;
 
           m_editElement.setXY(m_editElement.getX() + deltaX,
-              m_editElement.getY() + deltaY);
+            m_editElement.getY() + deltaY);
 
           if (m_mainKFPerspective.getSelectedBeans().size() > 0) {
-            Vector v = m_mainKFPerspective.getSelectedBeans();
+            Vector<Object> v = m_mainKFPerspective.getSelectedBeans();
             for (int i = 0; i < v.size(); i++) {
               BeanInstance b = (BeanInstance) v.get(i);
               if (b != m_editElement) {
@@ -4106,40 +4239,38 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   private void setUpLogPanel(final LogPanel logPanel) {
     String date = (new SimpleDateFormat("EEEE, d MMMM yyyy"))
-        .format(new Date());
+      .format(new Date());
     logPanel.logMessage("Weka Knowledge Flow was written by Mark Hall");
     logPanel.logMessage("Weka Knowledge Flow");
     logPanel.logMessage("(c) 2002-" + Copyright.getToYear() + " "
-        + Copyright.getOwner() + ", " + Copyright.getAddress());
+      + Copyright.getOwner() + ", " + Copyright.getAddress());
     logPanel.logMessage("web: " + Copyright.getURL());
     logPanel.logMessage(date);
     logPanel
-        .statusMessage("@!@[KnowledgeFlow]|Welcome to the Weka Knowledge Flow");
+      .statusMessage("@!@[KnowledgeFlow]|Welcome to the Weka Knowledge Flow");
     logPanel.getStatusTable().addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (logPanel.getStatusTable().rowAtPoint(e.getPoint()) == 0) {
           if (((e.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
-              || e.isAltDown()) {
+            || e.isAltDown()) {
             System.gc();
             Runtime currR = Runtime.getRuntime();
             long freeM = currR.freeMemory();
             long totalM = currR.totalMemory();
             long maxM = currR.maxMemory();
             logPanel
-                .logMessage("[KnowledgeFlow] Memory (free/total/max.) in bytes: "
-                    + String.format("%,d", freeM)
-                    + " / "
-                    + String.format("%,d", totalM)
-                    + " / "
-                    + String.format("%,d", maxM));
+              .logMessage("[KnowledgeFlow] Memory (free/total/max.) in bytes: "
+                + String.format("%,d", freeM) + " / "
+                + String.format("%,d", totalM) + " / "
+                + String.format("%,d", maxM));
             logPanel
-                .statusMessage("@!@[KnowledgeFlow]|Memory (free/total/max.) in bytes: "
-                    + String.format("%,d", freeM)
-                    + " / "
-                    + String.format("%,d", totalM)
-                    + " / "
-                    + String.format("%,d", maxM));
+              .statusMessage("@!@[KnowledgeFlow]|Memory (free/total/max.) in bytes: "
+                + String.format("%,d", freeM)
+                + " / "
+                + String.format("%,d", totalM)
+                + " / "
+                + String.format("%,d", maxM));
           }
         }
       }
@@ -4177,13 +4308,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_mainKFPerspective.setExecuting(true);
       m_mainKFPerspective.getLogPanel(m_flowIndex).clearStatus();
       m_mainKFPerspective.getLogPanel(m_flowIndex).statusMessage(
-          "@!@[KnowledgeFlow]|Executing...");
+        "@!@[KnowledgeFlow]|Executing...");
 
       FlowRunner runner = new FlowRunner(false, false);
       runner.setStartSequentially(m_sequential);
       runner.setEnvironment(m_flowEnvironment);
       runner.setLog(m_logPanel);
-      Vector comps = BeanInstance.getBeanInstances(m_flowIndex);
+      Vector<Object> comps = BeanInstance.getBeanInstances(m_flowIndex);
 
       runner.setFlows(comps);
       try {
@@ -4193,10 +4324,10 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
       } catch (Exception ex) {
         m_logPanel.logMessage("An error occurred while running the flow: "
-            + ex.getMessage());
+          + ex.getMessage());
       } finally {
         if (m_flowIndex >= m_mainKFPerspective.getNumTabs() - 1
-            || !m_mainKFPerspective.getTabTitle(m_flowIndex).equals(flowName)) {
+          || !m_mainKFPerspective.getTabTitle(m_flowIndex).equals(flowName)) {
           // try and find which index our flow is at (user must have closed some
           // other tabs at lower indexes than us)!
           for (int i = 0; i < m_mainKFPerspective.getNumTabs(); i++) {
@@ -4216,13 +4347,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           lp.setMessageOnAll(false, "Stopped.");
         } else {
           m_mainKFPerspective.getLogPanel(m_flowIndex).statusMessage(
-              "@!@[KnowledgeFlow]|OK.");
+            "@!@[KnowledgeFlow]|OK.");
         }
       }
     }
 
     public void stopAllFlows() {
-      Vector components = BeanInstance.getBeanInstances(m_flowIndex);
+      Vector<Object> components = BeanInstance.getBeanInstances(m_flowIndex);
 
       if (components != null) {
         for (int i = 0; i < components.size(); i++) {
@@ -4280,8 +4411,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private void processPackage(String tempBeanCompName,
-      weka.gui.HierarchyPropertyParser hpp, DefaultMutableTreeNode parentNode,
-      Map<String, DefaultMutableTreeNode> nodeTextIndex) {
+    weka.gui.HierarchyPropertyParser hpp, DefaultMutableTreeNode parentNode,
+    Map<String, DefaultMutableTreeNode> nodeTextIndex) {
     if (hpp.isLeafReached()) {
       // instantiate a bean and add it to the holderPanel
       // System.err.println("Would add "+hpp.fullValue());
@@ -4295,8 +4426,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       return;
     }
     String[] children = hpp.childrenValues();
-    for (int i = 0; i < children.length; i++) {
-      hpp.goToChild(children[i]);
+    for (String element : children) {
+      hpp.goToChild(element);
       DefaultMutableTreeNode child = null;
 
       if (hpp.isLeafReached()) {
@@ -4324,15 +4455,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
 
         JTreeLeafDetails leafData = new JTreeLeafDetails(tempBeanCompName,
-            algName, scaledForTree);
+          algName, scaledForTree);
         if (toolTip != null && toolTip.length() > 0) {
           leafData.setToolTipText(toolTip);
         }
         child = new InvisibleNode(leafData);
         nodeTextIndex.put(algName.toLowerCase() + " "
-            + (toolTip != null ? toolTip.toLowerCase() : ""), child);
+          + (toolTip != null ? toolTip.toLowerCase() : ""), child);
       } else {
-        child = new InvisibleNode(children[i]);
+        child = new InvisibleNode(element);
       }
       parentNode.add(child);
 
@@ -4342,29 +4473,29 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private Object instantiateBean(boolean wekawrapper, String tempBeanCompName,
-      String algName) {
+    String algName) {
     Object tempBean;
     if (wekawrapper) {
       try {
         // modifications by Zerbetto
         // tempBean = Beans.instantiate(null, tempBeanCompName);
         tempBean = Beans.instantiate(this.getClass().getClassLoader(),
-            tempBeanCompName);
+          tempBeanCompName);
 
         // end modifications by Zerbetto
       } catch (Exception ex) {
         System.err.println("[KnowledgeFlow] Failed to instantiate :"
-            + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
+          + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
         return null;
       }
       if (tempBean instanceof WekaWrapper) {
         // algName = (String)tempBarSpecs.elementAt(j);
-        Class c = null;
+        Class<?> c = null;
         try {
           c = Class.forName(algName);
         } catch (Exception ex) {
           System.err.println("[KnowledgeFlow] Can't find class called: "
-              + algName);
+            + algName);
           return null;
         }
         try {
@@ -4372,7 +4503,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           ((WekaWrapper) tempBean).setWrappedAlgorithm(o);
         } catch (Exception ex) {
           System.err.println("[KnowledgeFlow] Failed to configure "
-              + tempBeanCompName + " with " + algName);
+            + tempBeanCompName + " with " + algName);
           return null;
         }
       }
@@ -4381,13 +4512,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // modifications by Zerbetto
         // tempBean = Beans.instantiate(null, tempBeanCompName);
         tempBean = Beans.instantiate(this.getClass().getClassLoader(),
-            tempBeanCompName);
+          tempBeanCompName);
 
         // end modifications
       } catch (Exception ex) {
         ex.printStackTrace();
         System.err.println("[KnowledgeFlow] Failed to instantiate :"
-            + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
+          + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
         return null;
       }
     }
@@ -4406,7 +4537,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // ClassLoader.
       // getSystemResourceAsStream("weka/gui/beans/README_KnowledgeFlow");
       InputStream inR = this.getClass().getClassLoader()
-          .getResourceAsStream("weka/gui/beans/README_KnowledgeFlow");
+        .getResourceAsStream("weka/gui/beans/README_KnowledgeFlow");
 
       // end modifications
       StringBuffer helpHolder = new StringBuffer();
@@ -4455,11 +4586,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     if (!getAllowMultipleTabs()) {
-      BeanConnection.setConnections(new Vector(),
-          m_mainKFPerspective.getCurrentTabIndex());
-      BeanInstance.setBeanInstances(new Vector(), m_mainKFPerspective
-          .getBeanLayout(m_mainKFPerspective.getCurrentTabIndex()),
-          m_mainKFPerspective.getCurrentTabIndex());
+      BeanConnection.setConnections(new Vector<BeanConnection>(),
+        m_mainKFPerspective.getCurrentTabIndex());
+      BeanInstance.setBeanInstances(new Vector<Object>(), m_mainKFPerspective
+        .getBeanLayout(m_mainKFPerspective.getCurrentTabIndex()),
+        m_mainKFPerspective.getCurrentTabIndex());
     }
 
     /*
@@ -4487,15 +4618,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         public void actionPerformed(ActionEvent ee) {
           try {
             InputStream inR = this.getClass().getClassLoader()
-                .getResourceAsStream(path);
+              .getResourceAsStream(path);
             m_mainKFPerspective.addTab("Untitled" + m_untitledCount++);
             XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport,
-                m_mainKFPerspective.getCurrentTabIndex());
+              m_mainKFPerspective.getCurrentTabIndex());
             InputStreamReader isr = new InputStreamReader(inR);
 
-            Vector v = (Vector) xml.read(isr);
-            Vector beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-            Vector connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+            @SuppressWarnings("unchecked")
+            Vector<Vector<?>> v = (Vector<Vector<?>>) xml.read(isr);
+            @SuppressWarnings("unchecked")
+            Vector<Object> beans = (Vector<Object>) v
+              .get(XMLBeans.INDEX_BEANINSTANCES);
+            @SuppressWarnings("unchecked")
+            Vector<BeanConnection> connections = (Vector<BeanConnection>) v
+              .get(XMLBeans.INDEX_BEANCONNECTIONS);
             isr.close();
 
             integrateFlow(beans, connections, false, false);
@@ -4503,7 +4639,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             revalidate();
           } catch (Exception ex) {
             m_mainKFPerspective.getCurrentLogPanel().logMessage(
-                "Problem loading template: " + ex.getMessage());
+              "Problem loading template: " + ex.getMessage());
           }
         }
       });
@@ -4553,7 +4689,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void actionPerformed(ActionEvent e) {
           copyToClipboard();
-          m_mainKFPerspective.setSelectedBeans(new Vector());
+          m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
         }
       });
       beanContextMenu.add(copyItem);
@@ -4570,9 +4706,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           // ungroup
           bi.removeBean(m_beanLayout, m_mainKFPerspective.getCurrentTabIndex());
 
-          Vector group = ((MetaBean) bc).getBeansInSubFlow();
-          Vector associatedConnections = ((MetaBean) bc)
-              .getAssociatedConnections();
+          Vector<Object> group = ((MetaBean) bc).getBeansInSubFlow();
+          Vector<BeanConnection> associatedConnections = ((MetaBean) bc)
+            .getAssociatedConnections();
           ((MetaBean) bc).restoreBeans(xx, yy);
 
           for (int i = 0; i < group.size(); i++) {
@@ -4582,8 +4718,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
 
           for (int i = 0; i < associatedConnections.size(); i++) {
-            BeanConnection tbc = (BeanConnection) associatedConnections
-                .elementAt(i);
+            BeanConnection tbc = associatedConnections.elementAt(i);
             tbc.setHidden(false);
           }
 
@@ -4620,7 +4755,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       @Override
       public void actionPerformed(ActionEvent e) {
         BeanConnection.removeConnections(bi,
-            m_mainKFPerspective.getCurrentTabIndex());
+          m_mainKFPerspective.getCurrentTabIndex());
         bi.removeBean(m_beanLayout, m_mainKFPerspective.getCurrentTabIndex());
         if (bc instanceof BeanCommon) {
           String key = ((BeanCommon) bc).getCustomName() + "$" + bc.hashCode();
@@ -4636,7 +4771,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_mainKFPerspective.setEditedStatus(true);
         notifyIsDirty();
         m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-            m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
+          m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
       }
     });
 
@@ -4657,7 +4792,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         public void actionPerformed(ActionEvent e) {
           String oldName = ((BeanCommon) bc).getCustomName();
           String name = JOptionPane.showInputDialog(KnowledgeFlowApp.this,
-              "Enter a name for this component", oldName);
+            "Enter a name for this component", oldName);
           if (name != null) {
             ((BeanCommon) bc).setCustomName(name);
             m_mainKFPerspective.setEditedStatus(true);
@@ -4677,23 +4812,19 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     try {
       // BeanInfo [] compInfo = null;
       // JComponent [] associatedBeans = null;
-      Vector compInfo = new Vector(1);
-      Vector associatedBeans = null;
-      Vector outputBeans = null;
-      Vector compInfoOutputs = null;
-
+      Vector<BeanInfo> compInfo = new Vector<BeanInfo>(1);
+      Vector<Object> associatedBeans = null;
       if (bc instanceof MetaBean) {
         compInfo = ((MetaBean) bc).getBeanInfoSubFlow();
         associatedBeans = ((MetaBean) bc).getBeansInSubFlow();
 
-        outputBeans = ((MetaBean) bc).getBeansInOutputs();
-        compInfoOutputs = ((MetaBean) bc).getBeanInfoOutputs();
+        ((MetaBean) bc).getBeansInOutputs();
+        ((MetaBean) bc).getBeanInfoOutputs();
       } else {
         compInfo.add(Introspector.getBeanInfo(bc.getClass()));
-        compInfoOutputs = compInfo;
       }
 
-      final Vector tempAssociatedBeans = associatedBeans;
+      final Vector<Object> tempAssociatedBeans = associatedBeans;
 
       if (compInfo == null) {
         System.err.println("[KnowledgeFlow] Error in doPopup()");
@@ -4701,8 +4832,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // System.err.println("Got bean info");
         for (int zz = 0; zz < compInfo.size(); zz++) {
           final int tt = zz;
-          final Class custClass = ((BeanInfo) compInfo.elementAt(zz))
-              .getBeanDescriptor().getCustomizerClass();
+          final Class<?> custClass = compInfo.elementAt(zz).getBeanDescriptor()
+            .getCustomizerClass();
 
           if (custClass != null) {
             // System.err.println("Got customizer class");
@@ -4716,7 +4847,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               custItem = new MenuItem("Configure...");
               if (bc instanceof BeanCommon) {
                 customizationEnabled = (!executing && !((BeanCommon) bc)
-                    .isBusy());
+                  .isBusy());
               }
             } else {
               String custName = custClass.getName();
@@ -4726,20 +4857,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               } else {
                 if (tbi.getBean() instanceof WekaWrapper) {
                   custName = ((WekaWrapper) tbi.getBean())
-                      .getWrappedAlgorithm().getClass().getName();
+                    .getWrappedAlgorithm().getClass().getName();
                 } else {
                   custName = custName.substring(0,
-                      custName.indexOf("Customizer"));
+                    custName.indexOf("Customizer"));
                 }
 
                 custName = custName.substring(custName.lastIndexOf('.') + 1,
-                    custName.length());
+                  custName.length());
               }
               // custItem = new JMenuItem("Configure: "+ custName);
               custItem = new MenuItem("Configure: " + custName);
               if (tbi.getBean() instanceof BeanCommon) {
                 customizationEnabled = (!executing && !((BeanCommon) tbi
-                    .getBean()).isBusy());
+                  .getBean()).isBusy());
               }
             }
 
@@ -4748,8 +4879,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               public void actionPerformed(ActionEvent e) {
                 if (bc instanceof MetaBean) {
                   popupCustomizer(custClass,
-                      (JComponent) ((BeanInstance) tempAssociatedBeans
-                          .elementAt(tt)).getBean());
+                    (JComponent) ((BeanInstance) tempAssociatedBeans
+                      .elementAt(tt)).getBean());
                 } else {
                   popupCustomizer(custClass, bc);
                 }
@@ -4765,13 +4896,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
         }
 
-        Vector esdV = new Vector();
+        Vector<EventSetDescriptor[]> esdV = new Vector<EventSetDescriptor[]>();
 
         // for (int i = 0; i < compInfoOutputs.size(); i++) {
         for (int i = 0; i < compInfo.size(); i++) {
           EventSetDescriptor[] temp =
           // ((BeanInfo) compInfoOutputs.elementAt(i)).getEventSetDescriptors();
-          ((BeanInfo) compInfo.elementAt(i)).getEventSetDescriptors();
+          compInfo.elementAt(i).getEventSetDescriptors();
 
           if ((temp != null) && (temp.length > 0)) {
             esdV.add(temp);
@@ -4791,7 +4922,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
 
         // final Vector finalOutputs = outputBeans;
-        final Vector finalOutputs = associatedBeans;
+        final Vector<Object> finalOutputs = associatedBeans;
 
         for (int j = 0; j < esdV.size(); j++) {
           final int fj = j;
@@ -4801,33 +4932,31 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             // Object sourceBean = ((BeanInstance)
             // outputBeans.elementAt(j)).getBean();
             Object sourceBean = ((BeanInstance) associatedBeans.elementAt(j))
-                .getBean();
+              .getBean();
             if (sourceBean instanceof BeanCommon) {
               sourceBeanName = ((BeanCommon) sourceBean).getCustomName();
             } else {
               if (sourceBean instanceof WekaWrapper) {
                 sourceBeanName = ((WekaWrapper) sourceBean)
-                    .getWrappedAlgorithm().getClass().getName();
+                  .getWrappedAlgorithm().getClass().getName();
               } else {
                 sourceBeanName = sourceBean.getClass().getName();
               }
 
               sourceBeanName = sourceBeanName.substring(
-                  sourceBeanName.lastIndexOf('.') + 1, sourceBeanName.length());
+                sourceBeanName.lastIndexOf('.') + 1, sourceBeanName.length());
             }
             sourceBeanName += ": ";
           }
 
-          EventSetDescriptor[] esds = (EventSetDescriptor[]) esdV.elementAt(j);
+          EventSetDescriptor[] esds = esdV.elementAt(j);
 
-          for (int i = 0; i < esds.length; i++) {
+          for (final EventSetDescriptor esd : esds) {
             // System.err.println(esds[i].getName());
             // add each event name to the menu
             // JMenuItem evntItem = new JMenuItem(sourceBeanName
             // +esds[i].getName());
-            MenuItem evntItem = new MenuItem(sourceBeanName + esds[i].getName());
-            final EventSetDescriptor esd = esds[i];
-
+            MenuItem evntItem = new MenuItem(sourceBeanName + esd.getName());
             // Check EventConstraints (if any) here
             boolean ok = true;
             evntItem.setEnabled(!executing);
@@ -4841,9 +4970,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 @Override
                 public void actionPerformed(ActionEvent e) {
                   connectComponents(
-                      esd,
-                      (bc instanceof MetaBean) ? ((BeanInstance) finalOutputs
-                          .elementAt(fj)) : bi, xx, yy);
+                    esd,
+                    (bc instanceof MetaBean) ? ((BeanInstance) finalOutputs
+                      .elementAt(fj)) : bi, xx, yy);
                   notifyIsDirty();
                 }
               });
@@ -4863,14 +4992,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     // System.err.println("Just before look for other options");
     // now look for other options for this bean
     if (bc instanceof UserRequestAcceptor || bc instanceof Startable) {
-      Enumeration req = null;
+      Enumeration<String> req = null;
 
       if (bc instanceof UserRequestAcceptor) {
         req = ((UserRequestAcceptor) bc).enumerateRequests();
       }
 
       if (/* (bc instanceof Startable) || */(req != null && req
-          .hasMoreElements())) {
+        .hasMoreElements())) {
         // beanContextMenu.insert(new JLabel("Actions",
         // SwingConstants.CENTER),
         // menuItemCount);
@@ -4887,7 +5016,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
        */
 
       while (req != null && req.hasMoreElements()) {
-        String tempS = (String) req.nextElement();
+        String tempS = req.nextElement();
         insertUserOrStartableMenuItem(bc, false, tempS, beanContextMenu);
         menuItemCount++;
       }
@@ -4895,14 +5024,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     // Send to perspective menu item?
     if (bc instanceof weka.gui.beans.Loader && m_perspectives.size() > 1
-        && m_perspectiveDataLoadThread == null) {
+      && m_perspectiveDataLoadThread == null) {
       final weka.core.converters.Loader theLoader = ((weka.gui.beans.Loader) bc)
-          .getLoader();
+        .getLoader();
 
       boolean ok = true;
       if (theLoader instanceof FileSourcedConverter) {
         String fileName = ((FileSourcedConverter) theLoader).retrieveFile()
-            .getPath();
+          .getPath();
         Environment env = m_mainKFPerspective.getEnvironmentSettings();
         try {
           fileName = env.substitute(fileName);
@@ -4912,8 +5041,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         File tempF = new File(fileName);
         String fileNameFixedPathSep = fileName.replace(File.separatorChar, '/');
         if (!tempF.isFile()
-            && this.getClass().getClassLoader()
-                .getResource(fileNameFixedPathSep) == null) {
+          && this.getClass().getClassLoader().getResource(fileNameFixedPathSep) == null) {
           ok = false;
         }
       }
@@ -4923,7 +5051,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         menuItemCount++;
         if (m_perspectives.size() > 2) {
           MenuItem sendToAllPerspectives = new MenuItem(
-              "Send to all perspectives");
+            "Send to all perspectives");
           menuItemCount++;
           sendToAllPerspectives.addActionListener(new ActionListener() {
             @Override
@@ -4969,8 +5097,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private synchronized void loadDataAndSendToPerspective(
-      final weka.core.converters.Loader loader, final int perspectiveIndex,
-      final boolean sendToAll) {
+    final weka.core.converters.Loader loader, final int perspectiveIndex,
+    final boolean sendToAll) {
     if (m_perspectiveDataLoadThread == null) {
       m_perspectiveDataLoadThread = new Thread() {
         @Override
@@ -4983,13 +5111,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
             loader.reset();
             m_logPanel
-                .statusMessage("@!@[KnowledgeFlow]|Sending data to perspective(s)...");
+              .statusMessage("@!@[KnowledgeFlow]|Sending data to perspective(s)...");
             Instances data = loader.getDataSet();
             if (data != null) {
               // make sure the perspective toolbar is visible!!
               if (!m_configAndPerspectivesVisible) {
                 KnowledgeFlowApp.this.add(m_configAndPerspectives,
-                    BorderLayout.NORTH);
+                  BorderLayout.NORTH);
                 m_configAndPerspectivesVisible = true;
               }
 
@@ -5006,17 +5134,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 }
               } else {
                 KFPerspective currentP = (KFPerspective) m_perspectiveHolder
-                    .getComponent(0);
+                  .getComponent(0);
                 if (currentP != m_perspectives.get(perspectiveIndex)) {
                   m_perspectives.get(perspectiveIndex).setInstances(data);
                   currentP.setActive(false);
                   m_perspectiveHolder.remove(0);
                   m_perspectiveHolder.add(
-                      (JComponent) m_perspectives.get(perspectiveIndex),
-                      BorderLayout.CENTER);
+                    (JComponent) m_perspectives.get(perspectiveIndex),
+                    BorderLayout.CENTER);
                   m_perspectives.get(perspectiveIndex).setActive(true);
                   ((JToggleButton) m_perspectiveToolBar
-                      .getComponent(perspectiveIndex)).setSelected(true);
+                    .getComponent(perspectiveIndex)).setSelected(true);
                   // KnowledgeFlowApp.this.invalidate();
                   KnowledgeFlowApp.this.revalidate();
                   KnowledgeFlowApp.this.repaint();
@@ -5026,7 +5154,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             }
           } catch (Exception ex) {
             System.err.println("[KnowledgeFlow] problem loading data for "
-                + "perspective(s) : " + ex.getMessage());
+              + "perspective(s) : " + ex.getMessage());
             ex.printStackTrace();
           } finally {
             // re-enable all the perspective buttons
@@ -5044,7 +5172,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private void insertUserOrStartableMenuItem(final JComponent bc,
-      final boolean startable, String tempS, PopupMenu beanContextMenu) {
+    final boolean startable, String tempS, PopupMenu beanContextMenu) {
 
     boolean disabled = false;
     boolean confirmRequest = false;
@@ -5071,7 +5199,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         public void actionPerformed(ActionEvent e) {
           //
           int result = JOptionPane.showConfirmDialog(KnowledgeFlowApp.this,
-              tempS2, "Confirm action", JOptionPane.YES_NO_OPTION);
+            tempS2, "Confirm action", JOptionPane.YES_NO_OPTION);
           if (result == JOptionPane.YES_OPTION) {
             Thread startPointThread = new Thread() {
               @Override
@@ -5143,7 +5271,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @param custClass the class of the customizer
    * @param bc the bean to be customized
    */
-  private void popupCustomizer(Class custClass, JComponent bc) {
+  private void popupCustomizer(Class<?> custClass, JComponent bc) {
     try {
       // instantiate
       final Object customizer = custClass.newInstance();
@@ -5159,8 +5287,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       ((Customizer) customizer).setObject(bc);
       // final javax.swing.JFrame jf = new javax.swing.JFrame();
       final JDialog d = new JDialog(
-          (java.awt.Frame) KnowledgeFlowApp.this.getTopLevelAncestor(),
-          ModalityType.DOCUMENT_MODAL);
+        (java.awt.Frame) KnowledgeFlowApp.this.getTopLevelAncestor(),
+        ModalityType.DOCUMENT_MODAL);
       d.setLayout(new BorderLayout());
       d.getContentPane().add((JComponent) customizer, BorderLayout.CENTER);
 
@@ -5196,7 +5324,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       model.insertNodeInto(m_userCompNode, root, 0);
     }
 
-    Vector beanHolder = new Vector();
+    Vector<Object> beanHolder = new Vector<Object>();
     beanHolder.add(meta);
 
     try {
@@ -5208,19 +5336,20 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       if (meta.getBean() instanceof Visible) {
         // ((Visible)copy).getVisual().scale(3);
         scaledIcon = new ImageIcon(((Visible) meta.getBean()).getVisual()
-            .scale(0.33));
+          .scale(0.33));
         displayName = ((Visible) meta.getBean()).getVisual().getText();
       }
 
-      Vector metaDetails = new Vector();
+      Vector<Object> metaDetails = new Vector<Object>();
       metaDetails.add(displayName);
       metaDetails.add(serialized);
       metaDetails.add(scaledIcon);
       SerializedObject so = new SerializedObject(metaDetails);
-      Vector copy = (Vector) so.getObject();
+      @SuppressWarnings("unchecked")
+      Vector<Object> copy = (Vector<Object>) so.getObject();
 
       JTreeLeafDetails metaLeaf = new JTreeLeafDetails(displayName, copy,
-          scaledIcon);
+        scaledIcon);
 
       DefaultMutableTreeNode newUserComp = new InvisibleNode(metaLeaf);
       model.insertNodeInto(newUserComp, m_userCompNode, 0);
@@ -5347,10 +5476,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @return a StringBuffer containing the serialized vector
    * @throws Exception if a problem occurs
    */
-  public StringBuffer copyToBuffer(Vector selectedBeans) throws Exception {
+  public StringBuffer copyToBuffer(Vector<Object> selectedBeans)
+    throws Exception {
 
-    Vector associatedConnections = BeanConnection
-        .getConnections(m_mainKFPerspective.getCurrentTabIndex());
+    Vector<BeanConnection> associatedConnections = BeanConnection
+      .getConnections(m_mainKFPerspective.getCurrentTabIndex());
     /*
      * BeanConnection.associatedConnections(selectedBeans,
      * m_mainKFPerspective.getCurrentTabIndex());
@@ -5358,13 +5488,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     // xml serialize to a string and store in the
     // clipboard variable
-    Vector v = new Vector();
+    Vector<Vector<?>> v = new Vector<Vector<?>>();
     v.setSize(2);
     v.set(XMLBeans.INDEX_BEANINSTANCES, selectedBeans);
     v.set(XMLBeans.INDEX_BEANCONNECTIONS, associatedConnections);
 
     XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport,
-        m_mainKFPerspective.getCurrentTabIndex());
+      m_mainKFPerspective.getCurrentTabIndex());
     java.io.StringWriter sw = new java.io.StringWriter();
     xml.write(sw, v);
 
@@ -5374,7 +5504,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private boolean copyToClipboard() {
-    Vector selectedBeans = m_mainKFPerspective.getSelectedBeans();
+    Vector<Object> selectedBeans = m_mainKFPerspective.getSelectedBeans();
     if (selectedBeans == null || selectedBeans.size() == 0) {
       return false;
     }
@@ -5384,7 +5514,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_pasteBuffer = copyToBuffer(selectedBeans);
     } catch (Exception ex) {
       m_logPanel.logMessage("[KnowledgeFlow] problem copying beans: "
-          + ex.getMessage());
+        + ex.getMessage());
       ex.printStackTrace();
       return false;
     }
@@ -5398,7 +5528,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   protected boolean pasteFromBuffer(int x, int y, StringBuffer pasteBuffer,
-      boolean addUndoPoint) {
+    boolean addUndoPoint) {
 
     if (addUndoPoint) {
       addUndoPoint();
@@ -5407,22 +5537,27 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     java.io.StringReader sr = new java.io.StringReader(pasteBuffer.toString());
     try {
       XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport,
-          m_mainKFPerspective.getCurrentTabIndex());
-      Vector v = (Vector) xml.read(sr);
-      Vector beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-      Vector connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+        m_mainKFPerspective.getCurrentTabIndex());
+      @SuppressWarnings("unchecked")
+      Vector<Vector<?>> v = (Vector<Vector<?>>) xml.read(sr);
+      @SuppressWarnings("unchecked")
+      Vector<Object> beans = (Vector<Object>) v
+        .get(XMLBeans.INDEX_BEANINSTANCES);
+      @SuppressWarnings("unchecked")
+      Vector<BeanConnection> connections = (Vector<BeanConnection>) v
+        .get(XMLBeans.INDEX_BEANCONNECTIONS);
 
       for (int i = 0; i < beans.size(); i++) {
         BeanInstance b = (BeanInstance) beans.get(i);
         if (b.getBean() instanceof MetaBean) {
-          Vector subFlow = ((MetaBean) b.getBean()).getSubFlow();
+          Vector<Object> subFlow = ((MetaBean) b.getBean()).getSubFlow();
           for (int j = 0; j < subFlow.size(); j++) {
             BeanInstance subB = (BeanInstance) subFlow.get(j);
             subB.removeBean(m_beanLayout,
-                m_mainKFPerspective.getCurrentTabIndex());
+              m_mainKFPerspective.getCurrentTabIndex());
             if (subB.getBean() instanceof Visible) {
               ((Visible) subB.getBean()).getVisual()
-                  .removePropertyChangeListener(this);
+                .removePropertyChangeListener(this);
             }
           }
         }
@@ -5467,7 +5602,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_mainKFPerspective.setSelectedBeans(beans);
     } catch (Exception e) {
       m_logPanel.logMessage("[KnowledgeFlow] problem pasting beans: "
-          + e.getMessage());
+        + e.getMessage());
       e.printStackTrace();
     }
 
@@ -5478,16 +5613,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   private boolean pasteFromClipboard(int x, int y, StringBuffer pasteBuffer,
-      boolean addUndoPoint) {
+    boolean addUndoPoint) {
 
     return pasteFromBuffer(x, y, pasteBuffer, addUndoPoint);
   }
 
   private void deleteSelectedBeans() {
 
-    Vector v = m_mainKFPerspective.getSelectedBeans();
+    Vector<Object> v = m_mainKFPerspective.getSelectedBeans();
     if (v.size() > 0) {
-      m_mainKFPerspective.setSelectedBeans(new Vector());
+      m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
     }
     addUndoPoint();
 
@@ -5495,24 +5630,24 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       BeanInstance b = (BeanInstance) v.get(i);
 
       BeanConnection.removeConnections(b,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
       b.removeBean(m_beanLayout, m_mainKFPerspective.getCurrentTabIndex());
       if (b instanceof BeanCommon) {
         String key = ((BeanCommon) b).getCustomName() + "$" + b.hashCode();
         m_logPanel.statusMessage(key + "|remove");
       }
     }
-    m_mainKFPerspective.setSelectedBeans(new Vector());
+    m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
     revalidate();
     notifyIsDirty();
 
     m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-        m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
+      m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
   }
 
   private void addUndoPoint() {
     try {
-      Stack undo = m_mainKFPerspective.getUndoBuffer();
+      Stack<File> undo = m_mainKFPerspective.getUndoBuffer();
       File tempFile = File.createTempFile("knowledgeFlow", FILE_EXTENSION_XML);
       tempFile.deleteOnExit();
 
@@ -5528,12 +5663,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     } catch (Exception ex) {
       m_logPanel
-          .logMessage("[KnowledgeFlow] a problem occurred while trying to "
-              + "create a undo point : " + ex.getMessage());
+        .logMessage("[KnowledgeFlow] a problem occurred while trying to "
+          + "create a undo point : " + ex.getMessage());
     }
   }
 
-  private boolean groupable(Vector selected, Vector inputs, Vector outputs) {
+  private boolean groupable(Vector<Object> selected, Vector<Object> inputs,
+    Vector<Object> outputs) {
     boolean groupable = true;
 
     // screen the inputs and outputs
@@ -5556,7 +5692,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       BeanInstance temp = (BeanInstance) inputs.elementAt(i);
       if (temp.getBean() instanceof Visible) {
         ((Visible) temp.getBean()).getVisual().setDisplayConnectors(true,
-            java.awt.Color.red);
+          java.awt.Color.red);
       }
     }
 
@@ -5565,7 +5701,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       BeanInstance temp = (BeanInstance) outputs.elementAt(i);
       if (temp.getBean() instanceof Visible) {
         ((Visible) temp.getBean()).getVisual().setDisplayConnectors(true,
-            java.awt.Color.green);
+          java.awt.Color.green);
       }
     }
 
@@ -5575,14 +5711,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   // right click over empty canvas (not on a bean)
   private void rightClickCanvasPopup(final int x, final int y) {
 
-    Vector closestConnections = BeanConnection.getClosestConnections(new Point(
-        x, y), 10, m_mainKFPerspective.getCurrentTabIndex());
+    Vector<BeanConnection> closestConnections = BeanConnection
+      .getClosestConnections(new Point(x, y), 10,
+        m_mainKFPerspective.getCurrentTabIndex());
 
     PopupMenu rightClickMenu = new PopupMenu();
     int menuItemCount = 0;
     if (m_mainKFPerspective.getSelectedBeans().size() > 0
-        || closestConnections.size() > 0
-        || (m_pasteBuffer != null && m_pasteBuffer.length() > 0)) {
+      || closestConnections.size() > 0
+      || (m_pasteBuffer != null && m_pasteBuffer.length() > 0)) {
 
       if (m_mainKFPerspective.getSelectedBeans().size() > 0) {
 
@@ -5602,7 +5739,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           public void actionPerformed(ActionEvent e) {
 
             copyToClipboard();
-            m_mainKFPerspective.setSelectedBeans(new Vector());
+            m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
           }
         });
         rightClickMenu.add(copyItem);
@@ -5633,12 +5770,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         menuItemCount++;
 
         // Able to group selected subflow?
-        final Vector selected = m_mainKFPerspective.getSelectedBeans();
+        final Vector<Object> selected = m_mainKFPerspective.getSelectedBeans();
         // check if sub flow is valid
-        final Vector inputs = BeanConnection.inputs(selected,
-            m_mainKFPerspective.getCurrentTabIndex());
-        final Vector outputs = BeanConnection.outputs(selected,
-            m_mainKFPerspective.getCurrentTabIndex());
+        final Vector<Object> inputs = BeanConnection.inputs(selected,
+          m_mainKFPerspective.getCurrentTabIndex());
+        final Vector<Object> outputs = BeanConnection.outputs(selected,
+          m_mainKFPerspective.getCurrentTabIndex());
 
         boolean groupable = groupable(selected, inputs, outputs);
 
@@ -5683,19 +5820,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         menuItemCount++;
 
         for (int i = 0; i < closestConnections.size(); i++) {
-          final BeanConnection bc = (BeanConnection) closestConnections
-              .elementAt(i);
+          final BeanConnection bc = closestConnections.elementAt(i);
           String connName = bc.getSourceEventSetDescriptor().getName();
 
           // JMenuItem deleteItem = new JMenuItem(connName);
           String targetName = "";
           if (bc.getTarget().getBean() instanceof BeanCommon) {
             targetName = ((BeanCommon) bc.getTarget().getBean())
-                .getCustomName();
+              .getCustomName();
           } else {
             targetName = bc.getTarget().getBean().getClass().getName();
             targetName = targetName.substring(targetName.lastIndexOf('.') + 1,
-                targetName.length());
+              targetName.length());
           }
           MenuItem deleteItem = new MenuItem(connName + "-->" + targetName);
           deleteItem.addActionListener(new ActionListener() {
@@ -5708,7 +5844,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               m_beanLayout.repaint();
               m_mainKFPerspective.setEditedStatus(true);
               if (m_mainKFPerspective.getSelectedBeans().size() > 0) {
-                m_mainKFPerspective.setSelectedBeans(new Vector());
+                m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
               }
               notifyIsDirty();
             }
@@ -5733,7 +5869,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         m_toolBarBean = n;
 
         KnowledgeFlowApp.this.setCursor(Cursor
-            .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+          .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         m_mode = ADDING;
       }
     });
@@ -5750,67 +5886,6 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   /**
-   * Popup a menu giving choices for connections to delete (if any)
-   * 
-   * @param closestConnections a vector containing 0 or more BeanConnections
-   * @param x the x coordinate at which to popup the menu
-   * @param y the y coordinate at which to popup the menu
-   * 
-   *          Modified by Zerbetto: javax.swing.JPopupMenu transformed into
-   *          java.awt.PopupMenu
-   */
-  private void deleteConnectionPopup(Vector closestConnections, int x, int y) {
-    if (closestConnections.size() > 0) {
-      int menuItemCount = 0;
-
-      // modifications by Zerbetto
-      // JPopupMenu deleteConnectionMenu = new JPopupMenu();
-      PopupMenu deleteConnectionMenu = new PopupMenu();
-
-      // deleteConnectionMenu.insert(new JLabel("Delete Connection",
-      // SwingConstants.CENTER),
-      // menuItemCount);
-      MenuItem deleteConnection = new MenuItem("Delete Connection:");
-      deleteConnection.setEnabled(false);
-      deleteConnectionMenu.insert(deleteConnection, menuItemCount);
-      menuItemCount++;
-
-      for (int i = 0; i < closestConnections.size(); i++) {
-        final BeanConnection bc = (BeanConnection) closestConnections
-            .elementAt(i);
-        String connName = bc.getSourceEventSetDescriptor().getName();
-
-        // JMenuItem deleteItem = new JMenuItem(connName);
-        String targetName = "";
-        if (bc.getTarget().getBean() instanceof BeanCommon) {
-          targetName = ((BeanCommon) bc.getTarget().getBean()).getCustomName();
-        } else {
-          targetName = bc.getTarget().getBean().getClass().getName();
-          targetName = targetName.substring(targetName.lastIndexOf('.') + 1,
-              targetName.length());
-        }
-        MenuItem deleteItem = new MenuItem(connName + "-->" + targetName);
-        deleteItem.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            bc.remove(m_mainKFPerspective.getCurrentTabIndex());
-            m_beanLayout.revalidate();
-            m_beanLayout.repaint();
-            m_mainKFPerspective.setEditedStatus(true);
-            notifyIsDirty();
-          }
-        });
-        deleteConnectionMenu.add(deleteItem);
-        menuItemCount++;
-      }
-
-      // deleteConnectionMenu.show(m_beanLayout, x, y);
-      m_beanLayout.add(deleteConnectionMenu);
-      deleteConnectionMenu.show(m_beanLayout, x, y);
-    }
-  }
-
-  /**
    * Initiates the connection process for two beans
    * 
    * @param esd the EventSetDescriptor for the source bean
@@ -5819,27 +5894,27 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @param y the y coordinate to start connecting from
    */
   private void connectComponents(EventSetDescriptor esd, BeanInstance bi,
-      int x, int y) {
+    int x, int y) {
     // unselect any selected beans on the canvas
     if (m_mainKFPerspective.getSelectedBeans(
-        m_mainKFPerspective.getCurrentTabIndex()).size() > 0) {
+      m_mainKFPerspective.getCurrentTabIndex()).size() > 0) {
       m_mainKFPerspective.setSelectedBeans(
-          m_mainKFPerspective.getCurrentTabIndex(), new Vector());
+        m_mainKFPerspective.getCurrentTabIndex(), new Vector<Object>());
     }
 
     // record the event set descriptior for this event
     m_sourceEventSetDescriptor = esd;
 
-    Class listenerClass = esd.getListenerType(); // class of the listener
+    Class<?> listenerClass = esd.getListenerType(); // class of the listener
     JComponent source = (JComponent) bi.getBean();
     // now determine which (if any) of the other beans implement this
     // listener
     int targetCount = 0;
-    Vector beanInstances = BeanInstance.getBeanInstances(m_mainKFPerspective
-        .getCurrentTabIndex());
+    Vector<Object> beanInstances = BeanInstance
+      .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
     for (int i = 0; i < beanInstances.size(); i++) {
       JComponent bean = (JComponent) ((BeanInstance) beanInstances.elementAt(i))
-          .getBean();
+        .getBean();
       boolean connectable = false;
       boolean canContinue = false;
       if (bean != source) {
@@ -5860,7 +5935,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           // the listener interface
           if (((BeanCommon) bean).
           // connectionAllowed(esd.getName())) {
-              connectionAllowed(esd)) {
+            connectionAllowed(esd)) {
             connectable = true;
           }
         }
@@ -5881,7 +5956,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         m_editElement = bi;
         Point closest = ((Visible) source).getVisual()
-            .getClosestConnectorPoint(new Point(x, y));
+          .getClosestConnectorPoint(new Point(x, y));
 
         m_startX = (int) closest.getX();
         m_startY = (int) closest.getY();
@@ -5905,8 +5980,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     if (comp.getBean() instanceof BeanCommon) {
       String currentName = ((BeanCommon) comp.getBean()).getCustomName();
       if (currentName != null && currentName.length() > 0) {
-        Vector layoutBeans = BeanInstance.getBeanInstances(m_mainKFPerspective
-            .getCurrentTabIndex());
+        Vector<Object> layoutBeans = BeanInstance
+          .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
 
         boolean exactMatch = false;
         int maxCopyNum = 1;
@@ -5950,7 +6025,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
     if (comp.getBean() instanceof MetaBean) {
       // re-align sub-beans
-      Vector list;
+      Vector<Object> list;
 
       list = ((MetaBean) comp.getBean()).getInputs();
       for (int i = 0; i < list.size(); i++) {
@@ -5973,7 +6048,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     checkForDuplicateName(comp);
 
     KnowledgeFlowApp.this.setCursor(Cursor
-        .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      .getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     if (repaint) {
       m_beanLayout.repaint();
     }
@@ -5981,29 +6056,29 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     m_mode = NONE;
 
     m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-        m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
+      m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
   }
 
   private void addComponent(int x, int y) {
     if (m_toolBarBean instanceof MetaBean) {
       // need to add the MetaBean's internal connections
       // to BeanConnection's vector
-      Vector associatedConnections = ((MetaBean) m_toolBarBean)
-          .getAssociatedConnections();
+      Vector<BeanConnection> associatedConnections = ((MetaBean) m_toolBarBean)
+        .getAssociatedConnections();
       BeanConnection.getConnections(m_mainKFPerspective.getCurrentTabIndex())
-          .addAll(associatedConnections);
+        .addAll(associatedConnections);
 
       // ((MetaBean)m_toolBarBean).setXDrop(x);
       // ((MetaBean)m_toolBarBean).setYDrop(y);
       ((MetaBean) m_toolBarBean)
-          .addPropertyChangeListenersSubFlow(KnowledgeFlowApp.this);
+        .addPropertyChangeListenersSubFlow(KnowledgeFlowApp.this);
     }
 
     if (m_toolBarBean instanceof BeanContextChild) {
       m_bcSupport.add(m_toolBarBean);
     }
     BeanInstance bi = new BeanInstance(m_beanLayout, m_toolBarBean, x, y,
-        m_mainKFPerspective.getCurrentTabIndex());
+      m_mainKFPerspective.getCurrentTabIndex());
     // addBean((JComponent)bi.getBean());
     m_toolBarBean = null;
     addComponent(bi, true);
@@ -6011,11 +6086,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   private void highlightSubFlow(int startX, int startY, int endX, int endY) {
     java.awt.Rectangle r = new java.awt.Rectangle((startX < endX) ? startX
-        : endX, (startY < endY) ? startY : endY, Math.abs(startX - endX),
-        Math.abs(startY - endY));
+      : endX, (startY < endY) ? startY : endY, Math.abs(startX - endX),
+      Math.abs(startY - endY));
     // System.err.println(r);
-    Vector selected = BeanInstance.findInstances(r,
-        m_mainKFPerspective.getCurrentTabIndex());
+    Vector<Object> selected = BeanInstance.findInstances(r,
+      m_mainKFPerspective.getCurrentTabIndex());
 
     // show connector dots for selected beans
     /*
@@ -6028,7 +6103,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     m_mainKFPerspective.setSelectedBeans(selected);
   }
 
-  private void groupSubFlow(Vector selected, Vector inputs, Vector outputs) {
+  private void groupSubFlow(Vector<Object> selected, Vector<Object> inputs,
+    Vector<Object> outputs) {
 
     int upperLeftX = Integer.MAX_VALUE;
     int upperLeftY = Integer.MAX_VALUE;
@@ -6061,8 +6137,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     int bx = upperLeftX + ((lowerRightX - upperLeftX) / 2);
     int by = upperLeftY + ((lowerRightY - upperLeftY) / 2);
 
-    java.awt.Rectangle r = new java.awt.Rectangle(upperLeftX, upperLeftY,
-        lowerRightX, lowerRightY);
+    new java.awt.Rectangle(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
 
     /*
      * BufferedImage subFlowPreview = null; try { subFlowPreview =
@@ -6072,13 +6147,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     // Confirmation pop-up
     int result = JOptionPane.showConfirmDialog(KnowledgeFlowApp.this,
-        "Group this sub-flow?", "Group Components", JOptionPane.YES_NO_OPTION);
+      "Group this sub-flow?", "Group Components", JOptionPane.YES_NO_OPTION);
     if (result == JOptionPane.YES_OPTION) {
-      Vector associatedConnections = BeanConnection.associatedConnections(
-          selected, m_mainKFPerspective.getCurrentTabIndex());
+      Vector<BeanConnection> associatedConnections = BeanConnection
+        .associatedConnections(selected,
+          m_mainKFPerspective.getCurrentTabIndex());
 
       String name = JOptionPane.showInputDialog(KnowledgeFlowApp.this,
-          "Enter a name for this group", "MyGroup");
+        "Enter a name for this group", "MyGroup");
       if (name != null) {
         MetaBean group = new MetaBean();
         // group.setXCreate(bx); group.setYCreate(by);
@@ -6114,20 +6190,19 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         int dy = (int) (d.getHeight() / 2);
 
         BeanInstance bi = new BeanInstance(m_beanLayout, group, bx + dx, by
-            + dy, m_mainKFPerspective.getCurrentTabIndex());
+          + dy, m_mainKFPerspective.getCurrentTabIndex());
 
         for (int i = 0; i < selected.size(); i++) {
           BeanInstance temp = (BeanInstance) selected.elementAt(i);
           temp.removeBean(m_beanLayout,
-              m_mainKFPerspective.getCurrentTabIndex());
+            m_mainKFPerspective.getCurrentTabIndex());
           if (temp.getBean() instanceof Visible) {
             ((Visible) temp.getBean()).getVisual()
-                .removePropertyChangeListener(this);
+              .removePropertyChangeListener(this);
           }
         }
         for (int i = 0; i < associatedConnections.size(); i++) {
-          BeanConnection temp = (BeanConnection) associatedConnections
-              .elementAt(i);
+          BeanConnection temp = associatedConnections.elementAt(i);
           temp.setHidden(true);
         }
         group.shiftBeans(bi, true);
@@ -6143,7 +6218,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     }
 
-    m_mainKFPerspective.setSelectedBeans(new Vector());
+    m_mainKFPerspective.setSelectedBeans(new Vector<Object>());
 
     revalidate();
     notifyIsDirty();
@@ -6185,18 +6260,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       } else if (m_FileChooser.getFileFilter() == m_KOMLFilter) {
         if (!oFile.getName().toLowerCase().endsWith(KOML.FILE_EXTENSION + "kf")) {
           oFile = new File(oFile.getParent(), oFile.getName()
-              + KOML.FILE_EXTENSION + "kf");
+            + KOML.FILE_EXTENSION + "kf");
         }
       } else if (m_FileChooser.getFileFilter() == m_XMLFilter) {
         if (!oFile.getName().toLowerCase().endsWith(FILE_EXTENSION_XML)) {
           oFile = new File(oFile.getParent(), oFile.getName()
-              + FILE_EXTENSION_XML);
+            + FILE_EXTENSION_XML);
         }
       } else if (m_FileChooser.getFileFilter() == m_XStreamFilter) {
         if (!oFile.getName().toLowerCase()
-            .endsWith(XStream.FILE_EXTENSION + "kf")) {
+          .endsWith(XStream.FILE_EXTENSION + "kf")) {
           oFile = new File(oFile.getParent(), oFile.getName()
-              + XStream.FILE_EXTENSION + "kf");
+            + XStream.FILE_EXTENSION + "kf");
         }
       }
 
@@ -6231,6 +6306,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @param newTab true if the loaded layout should be displayed in a new tab
    * @param isUndo is this file an "undo" file?
    */
+  @SuppressWarnings("unchecked")
   protected void loadLayout(File oFile, boolean newTab, boolean isUndo) {
 
     // stop any running flow first (if we are loading into this tab)
@@ -6259,39 +6335,44 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // m_flowEnvironment.addVariable("Internal.knowledgeflow.directory",
       // absolute.getParent());
       m_mainKFPerspective.getEnvironmentSettings().addVariable(
-          "Internal.knowledgeflow.directory", absolute.getParent());
+        "Internal.knowledgeflow.directory", absolute.getParent());
     }
 
     try {
-      Vector beans = new Vector();
-      Vector connections = new Vector();
+      Vector<Object> beans = new Vector<Object>();
+      Vector<BeanConnection> connections = new Vector<BeanConnection>();
 
       // KOML?
       if ((KOML.isPresent())
-          && (oFile.getAbsolutePath().toLowerCase()
-              .endsWith(KOML.FILE_EXTENSION + "kf"))) {
-        Vector v = (Vector) KOML.read(oFile.getAbsolutePath());
-        beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-        connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+        && (oFile.getAbsolutePath().toLowerCase().endsWith(KOML.FILE_EXTENSION
+          + "kf"))) {
+        Vector<Vector<?>> v = (Vector<Vector<?>>) KOML.read(oFile
+          .getAbsolutePath());
+        beans = (Vector<Object>) v.get(XMLBeans.INDEX_BEANINSTANCES);
+        connections = (Vector<BeanConnection>) v
+          .get(XMLBeans.INDEX_BEANCONNECTIONS);
       } /* XStream */else if ((XStream.isPresent())
-          && (oFile.getAbsolutePath().toLowerCase()
-              .endsWith(XStream.FILE_EXTENSION + "kf"))) {
-        Vector v = (Vector) XStream.read(oFile.getAbsolutePath());
-        beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-        connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+        && (oFile.getAbsolutePath().toLowerCase()
+          .endsWith(XStream.FILE_EXTENSION + "kf"))) {
+        Vector<Vector<?>> v = (Vector<Vector<?>>) XStream.read(oFile
+          .getAbsolutePath());
+        beans = (Vector<Object>) v.get(XMLBeans.INDEX_BEANINSTANCES);
+        connections = (Vector<BeanConnection>) v
+          .get(XMLBeans.INDEX_BEANCONNECTIONS);
       } /* XML? */else if (oFile.getAbsolutePath().toLowerCase()
-          .endsWith(FILE_EXTENSION_XML)) {
+        .endsWith(FILE_EXTENSION_XML)) {
         XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport,
-            m_mainKFPerspective.getCurrentTabIndex());
-        Vector v = (Vector) xml.read(oFile);
-        beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-        connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+          m_mainKFPerspective.getCurrentTabIndex());
+        Vector<Vector<?>> v = (Vector<Vector<?>>) xml.read(oFile);
+        beans = (Vector<Object>) v.get(XMLBeans.INDEX_BEANINSTANCES);
+        connections = (Vector<BeanConnection>) v
+          .get(XMLBeans.INDEX_BEANCONNECTIONS);
         // connections = new Vector();
       } /* binary */else {
         InputStream is = new FileInputStream(oFile);
         ObjectInputStream ois = new ObjectInputStream(is);
-        beans = (Vector) ois.readObject();
-        connections = (Vector) ois.readObject();
+        beans = (Vector<Object>) ois.readObject();
+        connections = (Vector<BeanConnection>) ois.readObject();
         ois.close();
       }
 
@@ -6303,9 +6384,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     } catch (Exception ex) {
       m_logPanel
-          .statusMessage("@!@[KnowledgeFlow]|Unable to load flow (see log).");
+        .statusMessage("@!@[KnowledgeFlow]|Unable to load flow (see log).");
       m_logPanel.logMessage("[KnowledgeFlow] Unable to load flow ("
-          + ex.getMessage() + ").");
+        + ex.getMessage() + ").");
       ex.printStackTrace();
     }
     m_loadB.setEnabled(true);
@@ -6323,7 +6404,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @throws Exception if a problem occurs during de-serialization
    */
   public void loadLayout(InputStream is, boolean newTab, String flowName)
-      throws Exception {
+    throws Exception {
     InputStreamReader isr = new InputStreamReader(is);
     loadLayout(isr, newTab, flowName);
   }
@@ -6336,8 +6417,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @param flowName the name of the flow
    * @throws Exception if a problem occurs during de-serialization
    */
+  @SuppressWarnings("unchecked")
   public void loadLayout(Reader reader, boolean newTab, String flowName)
-      throws Exception {
+    throws Exception {
 
     // stop any running flow first (if we are loading into this tab)
     if (!newTab) {
@@ -6355,10 +6437,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     }
 
     XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport,
-        m_mainKFPerspective.getCurrentTabIndex());
-    Vector v = (Vector) xml.read(reader);
-    Vector beans = (Vector) v.get(XMLBeans.INDEX_BEANINSTANCES);
-    Vector connections = (Vector) v.get(XMLBeans.INDEX_BEANCONNECTIONS);
+      m_mainKFPerspective.getCurrentTabIndex());
+    Vector<Vector<?>> v = (Vector<Vector<?>>) xml.read(reader);
+    Vector<Object> beans = (Vector<Object>) v.get(XMLBeans.INDEX_BEANINSTANCES);
+    Vector<BeanConnection> connections = (Vector<BeanConnection>) v
+      .get(XMLBeans.INDEX_BEANCONNECTIONS);
 
     integrateFlow(beans, connections, true, false);
     setEnvironment();
@@ -6374,8 +6457,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   }
 
   // Link the supplied beans into the KnowledgeFlow gui
-  protected void integrateFlow(Vector beans, Vector connections,
-      boolean replace, boolean notReplaceAndSourcedFromBinary) {
+  protected void integrateFlow(Vector<Object> beans,
+    Vector<BeanConnection> connections, boolean replace,
+    boolean notReplaceAndSourcedFromBinary) {
     java.awt.Color bckC = getBackground();
     m_bcSupport = new BeanContextSupport();
     m_bcSupport.setDesignTime(true);
@@ -6386,7 +6470,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       BeanInstance tempB = (BeanInstance) beans.elementAt(i);
       if (tempB.getBean() instanceof Visible) {
         ((Visible) (tempB.getBean())).getVisual().addPropertyChangeListener(
-            this);
+          this);
 
         // A workaround to account for JPanel's with their default
         // background colour not being serializable in Apple's JRE
@@ -6403,14 +6487,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     if (replace) {
       BeanInstance.setBeanInstances(beans, m_beanLayout,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
       BeanConnection.setConnections(connections,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
     } else if (notReplaceAndSourcedFromBinary) {
       BeanInstance.appendBeans(m_beanLayout, beans,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
       BeanConnection.appendConnections(connections,
-          m_mainKFPerspective.getCurrentTabIndex());
+        m_mainKFPerspective.getCurrentTabIndex());
     }
     revalidate();
     m_beanLayout.revalidate();
@@ -6418,7 +6502,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     notifyIsDirty();
 
     m_selectAllB.setEnabled(BeanInstance.getBeanInstances(
-        m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
+      m_mainKFPerspective.getCurrentTabIndex()).size() > 0);
   }
 
   /**
@@ -6430,12 +6514,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @param v a Vector containing a Vector of beans and a Vector of connections
    * @exception Exception if something goes wrong
    */
-  public void setFlow(Vector v) throws Exception {
+  @SuppressWarnings("unchecked")
+  public void setFlow(Vector<Vector<?>> v) throws Exception {
     // Vector beansCopy = null, connectionsCopy = null;
     // clearLayout();
     if (getAllowMultipleTabs()) {
       throw new Exception("[KnowledgeFlow] setFlow() - can only set a flow in "
-          + "singe tab only mode");
+        + "singe tab only mode");
     }
 
     /*
@@ -6454,10 +6539,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     BeanConnection.init();
 
     SerializedObject so = new SerializedObject(v);
-    Vector copy = (Vector) so.getObject();
+    Vector<Vector<?>> copy = (Vector<Vector<?>>) so.getObject();
 
-    Vector beans = (Vector) copy.elementAt(0);
-    Vector connections = (Vector) copy.elementAt(1);
+    Vector<Object> beans = (Vector<Object>) copy.elementAt(0);
+    Vector<BeanConnection> connections = (Vector<BeanConnection>) copy
+      .elementAt(1);
 
     // reset environment variables
     m_flowEnvironment = new Environment();
@@ -6474,18 +6560,19 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @return the current flow being edited
    * @throws Exception if a problem occurs
    */
-  public Vector getFlow() throws Exception {
-    Vector v = new Vector();
-    Vector beans = BeanInstance.getBeanInstances(m_mainKFPerspective
-        .getCurrentTabIndex());
-    Vector connections = BeanConnection.getConnections(m_mainKFPerspective
-        .getCurrentTabIndex());
+  public Vector<Vector<?>> getFlow() throws Exception {
+    Vector<Vector<?>> v = new Vector<Vector<?>>();
+    Vector<Object> beans = BeanInstance.getBeanInstances(m_mainKFPerspective
+      .getCurrentTabIndex());
+    Vector<BeanConnection> connections = BeanConnection
+      .getConnections(m_mainKFPerspective.getCurrentTabIndex());
     detachFromLayout(beans);
     v.add(beans);
     v.add(connections);
 
     SerializedObject so = new SerializedObject(v);
-    Vector copy = (Vector) so.getObject();
+    @SuppressWarnings("unchecked")
+    Vector<Vector<?>> copy = (Vector<Vector<?>>) so.getObject();
 
     // tempWrite(beans, connections);
 
@@ -6500,8 +6587,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @throws Exception if a problem occurs
    */
   public String getFlowXML() throws Exception {
-    Vector beans = BeanInstance.getBeanInstances(m_mainKFPerspective
-        .getCurrentTabIndex());
+    Vector<Object> beans = BeanInstance.getBeanInstances(m_mainKFPerspective
+      .getCurrentTabIndex());
 
     StringBuffer buff = copyToBuffer(beans);
 
@@ -6517,11 +6604,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @throws IOException
    */
   protected static BufferedImage createImage(JComponent component,
-      Rectangle region) throws IOException {
+    Rectangle region) throws IOException {
     boolean opaqueValue = component.isOpaque();
     component.setOpaque(true);
     BufferedImage image = new BufferedImage(region.width, region.height,
-        BufferedImage.TYPE_INT_RGB);
+      BufferedImage.TYPE_INT_RGB);
     Graphics2D g2d = image.createGraphics();
     g2d.translate(-region.getX(), -region.getY());
     // g2d.setClip( region );
@@ -6534,16 +6621,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   // Remove this panel as a property changle listener from
   // each bean
-  private void detachFromLayout(Vector beans) {
+  private void detachFromLayout(Vector<Object> beans) {
     for (int i = 0; i < beans.size(); i++) {
       BeanInstance tempB = (BeanInstance) beans.elementAt(i);
       if (tempB.getBean() instanceof Visible) {
         ((Visible) (tempB.getBean())).getVisual().removePropertyChangeListener(
-            this);
+          this);
 
         if (tempB.getBean() instanceof MetaBean) {
           ((MetaBean) tempB.getBean())
-              .removePropertyChangeListenersSubFlow(this);
+            .removePropertyChangeListenersSubFlow(this);
         }
 
         // A workaround to account for JPanel's with their default
@@ -6552,7 +6639,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // under OS X using java.awt.TexturePaint - unfortunately
         // TexturePaint doesn't implement Serializable.
         ((Visible) (tempB.getBean())).getVisual().setBackground(
-            java.awt.Color.white);
+          java.awt.Color.white);
         ((JComponent) (tempB.getBean())).setBackground(java.awt.Color.white);
       }
     }
@@ -6565,7 +6652,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   protected boolean saveLayout(File sFile, int tabIndex, boolean isUndoPoint) {
     java.awt.Color bckC = getBackground();
 
-    Vector beans = BeanInstance.getBeanInstances(tabIndex);
+    Vector<Object> beans = BeanInstance.getBeanInstances(tabIndex);
     detachFromLayout(beans);
     detachFromLayout(beans);
 
@@ -6573,34 +6660,34 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     try {
       // KOML?
       if ((KOML.isPresent())
-          && (sFile.getAbsolutePath().toLowerCase()
-              .endsWith(KOML.FILE_EXTENSION + "kf"))) {
-        Vector v = new Vector();
+        && (sFile.getAbsolutePath().toLowerCase().endsWith(KOML.FILE_EXTENSION
+          + "kf"))) {
+        Vector<Vector<?>> v = new Vector<Vector<?>>();
         v.setSize(2);
         v.set(XMLBeans.INDEX_BEANINSTANCES, beans);
         v.set(XMLBeans.INDEX_BEANCONNECTIONS,
-            BeanConnection.getConnections(tabIndex));
+          BeanConnection.getConnections(tabIndex));
         KOML.write(sFile.getAbsolutePath(), v);
       } /* XStream */else if ((XStream.isPresent())
-          && (sFile.getAbsolutePath().toLowerCase()
-              .endsWith(XStream.FILE_EXTENSION + "kf"))) {
-        Vector v = new Vector();
+        && (sFile.getAbsolutePath().toLowerCase()
+          .endsWith(XStream.FILE_EXTENSION + "kf"))) {
+        Vector<Vector<?>> v = new Vector<Vector<?>>();
         v.setSize(2);
         v.set(XMLBeans.INDEX_BEANINSTANCES, beans);
         v.set(XMLBeans.INDEX_BEANCONNECTIONS,
-            BeanConnection.getConnections(tabIndex));
+          BeanConnection.getConnections(tabIndex));
         XStream.write(sFile.getAbsolutePath(), v);
       } /* XML? */else if (sFile.getAbsolutePath().toLowerCase()
-          .endsWith(FILE_EXTENSION_XML)) {
-        Vector v = new Vector();
+        .endsWith(FILE_EXTENSION_XML)) {
+        Vector<Vector<?>> v = new Vector<Vector<?>>();
         v.setSize(2);
         v.set(XMLBeans.INDEX_BEANINSTANCES, beans);
         v.set(XMLBeans.INDEX_BEANCONNECTIONS,
-            BeanConnection.getConnections(tabIndex));
+          BeanConnection.getConnections(tabIndex));
         XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport, tabIndex);
         // XML flows are tagged as encoded with UTF-8
         BufferedWriter br = new BufferedWriter(new OutputStreamWriter(
-            new FileOutputStream(sFile), "UTF-8"));
+          new FileOutputStream(sFile), "UTF-8"));
         xml.write(br, v);
       } /* binary */else {
         OutputStream os = new FileOutputStream(sFile);
@@ -6612,9 +6699,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     } catch (Exception ex) {
       m_logPanel
-          .statusMessage("@!@[KnowledgeFlow]|Unable to save flow (see log).");
+        .statusMessage("@!@[KnowledgeFlow]|Unable to save flow (see log).");
       m_logPanel.logMessage("[KnowledgeFlow] Unable to save flow ("
-          + ex.getMessage() + ").");
+        + ex.getMessage() + ").");
       ex.printStackTrace();
       return false;
     } finally {
@@ -6623,11 +6710,11 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         BeanInstance tempB = (BeanInstance) beans.elementAt(i);
         if (tempB.getBean() instanceof Visible) {
           ((Visible) (tempB.getBean())).getVisual().addPropertyChangeListener(
-              this);
+            this);
 
           if (tempB.getBean() instanceof MetaBean) {
             ((MetaBean) tempB.getBean())
-                .addPropertyChangeListenersSubFlow(this);
+              .addPropertyChangeListenersSubFlow(this);
           }
           // Restore the default background colour
           ((Visible) (tempB.getBean())).getVisual().setBackground(bckC);
@@ -6639,7 +6726,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         Environment e = m_mainKFPerspective.getEnvironmentSettings(tabIndex);
 
         e.addVariable("Internal.knowledgeflow.directory",
-            new File(sFile.getAbsolutePath()).getParent());
+          new File(sFile.getAbsolutePath()).getParent());
         m_mainKFPerspective.setEditedStatus(tabIndex, false);
         String tabTitle = sFile.getName();
         tabTitle = tabTitle.substring(0, tabTitle.lastIndexOf('.'));
@@ -6653,9 +6740,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * Serialize the layout to a file
    */
   private void saveLayout(int tabIndex, boolean showDialog) {
-    // m_loadB.setEnabled(false);
-    // m_saveB.setEnabled(false);
-    java.awt.Color bckC = getBackground();
+    getBackground();
 
     File sFile = m_mainKFPerspective.getFlowFile(tabIndex);
     int returnVal = JFileChooser.APPROVE_OPTION;
@@ -6670,7 +6755,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       // temporarily remove this panel as a property changle listener from
       // each bean
 
-      Vector beans = BeanInstance.getBeanInstances(tabIndex);
+      Vector<Object> beans = BeanInstance.getBeanInstances(tabIndex);
       detachFromLayout(beans);
 
       // determine filename (if necessary)
@@ -6686,18 +6771,18 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       } else if (m_FileChooser.getFileFilter() == m_KOMLFilter) {
         if (!sFile.getName().toLowerCase().endsWith(KOML.FILE_EXTENSION + "kf")) {
           sFile = new File(sFile.getParent(), sFile.getName()
-              + KOML.FILE_EXTENSION + "kf");
+            + KOML.FILE_EXTENSION + "kf");
         }
       } else if (m_FileChooser.getFileFilter() == m_XStreamFilter) {
         if (!sFile.getName().toLowerCase()
-            .endsWith(XStream.FILE_EXTENSION + "kf")) {
+          .endsWith(XStream.FILE_EXTENSION + "kf")) {
           sFile = new File(sFile.getParent(), sFile.getName()
-              + XStream.FILE_EXTENSION + "kf");
+            + XStream.FILE_EXTENSION + "kf");
         }
       } else if (m_FileChooser.getFileFilter() == m_XMLFilter) {
         if (!sFile.getName().toLowerCase().endsWith(FILE_EXTENSION_XML)) {
           sFile = new File(sFile.getParent(), sFile.getName()
-              + FILE_EXTENSION_XML);
+            + FILE_EXTENSION_XML);
         }
       }
 
@@ -6715,29 +6800,29 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   public void saveLayout(OutputStream out, int tabIndex) {
     // temporarily remove this panel as a property changle listener from
     // each bean
-    Vector beans = BeanInstance.getBeanInstances(tabIndex);
+    Vector<Object> beans = BeanInstance.getBeanInstances(tabIndex);
 
     for (int i = 0; i < beans.size(); i++) {
       BeanInstance tempB = (BeanInstance) beans.elementAt(i);
 
       if (tempB.getBean() instanceof Visible) {
         ((Visible) (tempB.getBean())).getVisual().removePropertyChangeListener(
-            this);
+          this);
 
         if (tempB.getBean() instanceof MetaBean) {
           ((MetaBean) tempB.getBean())
-              .removePropertyChangeListenersSubFlow(this);
+            .removePropertyChangeListenersSubFlow(this);
         }
       }
     }
 
     // now serialize components vector and connections vector
     try {
-      Vector v = new Vector();
+      Vector<Vector<?>> v = new Vector<Vector<?>>();
       v.setSize(2);
       v.set(XMLBeans.INDEX_BEANINSTANCES, beans);
       v.set(XMLBeans.INDEX_BEANCONNECTIONS,
-          BeanConnection.getConnections(tabIndex));
+        BeanConnection.getConnections(tabIndex));
 
       XMLBeans xml = new XMLBeans(m_beanLayout, m_bcSupport, tabIndex);
       xml.write(out, v);
@@ -6750,25 +6835,26 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         if (tempB.getBean() instanceof Visible) {
           ((Visible) (tempB.getBean())).getVisual().addPropertyChangeListener(
-              this);
+            this);
 
           if (tempB.getBean() instanceof MetaBean) {
             ((MetaBean) tempB.getBean())
-                .addPropertyChangeListenersSubFlow(this);
+              .addPropertyChangeListenersSubFlow(this);
           }
         }
       }
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void loadUserComponents() {
-    Vector tempV = null;
+    Vector<Vector<Object>> tempV = null;
     // String ext = "";
     /*
      * if (m_UserComponentsInXML) ext = USERCOMPONENTS_XML_EXTENSION;
      */
     File sFile = new File(weka.core.WekaPackageManager.WEKA_HOME.getPath()
-        + File.separator + "knowledgeFlow" + File.separator + "userComponents");
+      + File.separator + "knowledgeFlow" + File.separator + "userComponents");
     /*
      * new File(System.getProperty("user.home") +File.separator +
      * ".knowledgeFlow" +File.separator + "userComponents" +ext);
@@ -6782,7 +6868,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
          */
         InputStream is = new FileInputStream(sFile);
         ObjectInputStream ois = new ObjectInputStream(is);
-        tempV = (Vector) ois.readObject();
+        tempV = (Vector<Vector<Object>>) ois.readObject();
         ois.close();
         // }
       } catch (Exception ex) {
@@ -6800,12 +6886,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         // add the components
         for (int i = 0; i < tempV.size(); i++) {
-          Vector tempB = (Vector) tempV.elementAt(i);
+          Vector<Object> tempB = tempV.elementAt(i);
           String displayName = (String) tempB.get(0);
-          StringBuffer serialized = (StringBuffer) tempB.get(1);
+          tempB.get(1);
           ImageIcon scaledIcon = (ImageIcon) tempB.get(2);
           JTreeLeafDetails treeLeaf = new JTreeLeafDetails(displayName, tempB,
-              scaledIcon);
+            scaledIcon);
           DefaultMutableTreeNode newUserComp = new InvisibleNode(treeLeaf);
           model.insertNodeInto(newUserComp, m_userCompNode, 0);
 
@@ -6821,78 +6907,77 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   private void installWindowListenerForSavingUserStuff() {
     ((java.awt.Window) getTopLevelAncestor())
-        .addWindowListener(new java.awt.event.WindowAdapter() {
-          @Override
-          public void windowClosing(java.awt.event.WindowEvent e) {
+      .addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosing(java.awt.event.WindowEvent e) {
 
-            System.out.println("[KnowledgeFlow] Saving user components....");
-            File sFile = new File(WekaPackageManager.WEKA_HOME.getPath()
-                + File.separator + "knowledgeFlow");
+          System.out.println("[KnowledgeFlow] Saving user components....");
+          File sFile = new File(WekaPackageManager.WEKA_HOME.getPath()
+            + File.separator + "knowledgeFlow");
 
-            if (!sFile.exists()) {
-              if (!sFile.mkdir()) {
-                System.err.println("[KnowledgeFlow] Unable to create \""
-                    + sFile.getPath() + "\" directory");
-              }
+          if (!sFile.exists()) {
+            if (!sFile.mkdir()) {
+              System.err.println("[KnowledgeFlow] Unable to create \""
+                + sFile.getPath() + "\" directory");
             }
-            try {
-              String ext = "";
-              /*
-               * if (m_UserComponentsInXML) ext = USERCOMPONENTS_XML_EXTENSION;
-               */
-              File sFile2 = new File(sFile.getAbsolutePath() + File.separator
-                  + "userComponents" + ext);
-
-              /*
-               * if (m_UserComponentsInXML) { XMLBeans xml = new
-               * XMLBeans(m_beanLayout, m_bcSupport,
-               * XMLBeans.DATATYPE_USERCOMPONENTS,
-               * m_mainKFPerspective.getCurrentTabIndex()); xml.write(sFile2,
-               * m_userComponents); } else {
-               */
-              OutputStream os = new FileOutputStream(sFile2);
-              ObjectOutputStream oos = new ObjectOutputStream(os);
-              oos.writeObject(m_userComponents);
-              oos.flush();
-              oos.close();
-              // }
-            } catch (Exception ex) {
-              System.err
-                  .println("[KnowledgeFlow] Unable to save user components");
-              ex.printStackTrace();
-            }
-
-            // if (VISIBLE_PERSPECTIVES.size() > 0) {
-            System.out
-                .println("Saving preferences for selected perspectives...");
-            sFile = new File(weka.core.WekaPackageManager.PROPERTIES_DIR
-                .toString() + File.separator + "VisiblePerspectives.props");
-            try {
-              FileWriter f = new FileWriter(sFile);
-              f.write("weka.gui.beans.KnowledgeFlow.SelectedPerspectives=");
-              int i = 0;
-              for (String p : VISIBLE_PERSPECTIVES) {
-                if (i > 0) {
-                  f.write(",");
-                }
-                f.write(p);
-                i++;
-              }
-              f.write("\n");
-
-              f.write("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble="
-                  + ((m_configAndPerspectivesVisible) ? "yes" : "no"));
-              f.write("\n");
-              f.close();
-            } catch (Exception ex) {
-              System.err
-                  .println("[KnowledgeFlow] Unable to save user perspectives preferences");
-              ex.printStackTrace();
-            }
-            // }
-
           }
-        });
+          try {
+            String ext = "";
+            /*
+             * if (m_UserComponentsInXML) ext = USERCOMPONENTS_XML_EXTENSION;
+             */
+            File sFile2 = new File(sFile.getAbsolutePath() + File.separator
+              + "userComponents" + ext);
+
+            /*
+             * if (m_UserComponentsInXML) { XMLBeans xml = new
+             * XMLBeans(m_beanLayout, m_bcSupport,
+             * XMLBeans.DATATYPE_USERCOMPONENTS,
+             * m_mainKFPerspective.getCurrentTabIndex()); xml.write(sFile2,
+             * m_userComponents); } else {
+             */
+            OutputStream os = new FileOutputStream(sFile2);
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(m_userComponents);
+            oos.flush();
+            oos.close();
+            // }
+          } catch (Exception ex) {
+            System.err
+              .println("[KnowledgeFlow] Unable to save user components");
+            ex.printStackTrace();
+          }
+
+          // if (VISIBLE_PERSPECTIVES.size() > 0) {
+          System.out.println("Saving preferences for selected perspectives...");
+          sFile = new File(weka.core.WekaPackageManager.PROPERTIES_DIR
+            .toString() + File.separator + "VisiblePerspectives.props");
+          try {
+            FileWriter f = new FileWriter(sFile);
+            f.write("weka.gui.beans.KnowledgeFlow.SelectedPerspectives=");
+            int i = 0;
+            for (String p : VISIBLE_PERSPECTIVES) {
+              if (i > 0) {
+                f.write(",");
+              }
+              f.write(p);
+              i++;
+            }
+            f.write("\n");
+
+            f.write("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble="
+              + ((m_configAndPerspectivesVisible) ? "yes" : "no"));
+            f.write("\n");
+            f.close();
+          } catch (Exception ex) {
+            System.err
+              .println("[KnowledgeFlow] Unable to save user perspectives preferences");
+            ex.printStackTrace();
+          }
+          // }
+
+        }
+      });
   }
 
   /**
@@ -6908,9 +6993,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     try {
       BeanInfo bi = Introspector.getBeanInfo(tempBean.getClass());
       MethodDescriptor[] methods = bi.getMethodDescriptors();
-      for (int i = 0; i < methods.length; i++) {
-        String name = methods[i].getDisplayName();
-        Method meth = methods[i].getMethod();
+      for (MethodDescriptor method : methods) {
+        String name = method.getDisplayName();
+        Method meth = method.getMethod();
         if (name.equals("globalInfo")) {
           if (meth.getReturnType().equals(String.class)) {
             Object args[] = {};
@@ -6980,7 +7065,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   // list of things to be notified when the startup process of
   // the KnowledgeFlow is complete
-  public static Vector s_startupListeners = new Vector();
+  public static Vector<StartUpListener> s_startupListeners = new Vector<StartUpListener>();
 
   // modifications by Zerbetto
   // If showFileMenu is true, the file menu (open file, new file, save file
@@ -7000,14 +7085,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     boolean showFileMenu = true;
 
     if ((args != null) && (args.length > 0)) {
-      for (int i = 0; i < args.length; i++) {
-        String arg = args[i];
-
+      for (String arg : args) {
         if (arg.startsWith("file=")) {
           fileName = arg.substring("file=".length());
         } else if (arg.startsWith("showFileMenu=")) {
           showFileMenu = Boolean.parseBoolean(arg.substring("showFileMenu="
-              .length()));
+            .length()));
         }
       }
     }
@@ -7020,7 +7103,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     // notify listeners (if any)
     for (int i = 0; i < s_startupListeners.size(); i++) {
-      ((StartUpListener) s_startupListeners.elementAt(i)).startUpComplete();
+      s_startupListeners.elementAt(i).startUpComplete();
     }
 
     // modifications by Zerbetto 05-12-2007
@@ -7078,7 +7161,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       }
     } else {
       System.err.println("[KnowledgeFlow] File '" + fileName
-          + "' does not exists.");
+        + "' does not exists.");
     }
 
     loadLayout(oFile, true);
@@ -7133,7 +7216,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
       for (int i = 0; i < args.length; i++) {
         if (args[i].toLowerCase().endsWith(".kf")
-            || args[i].toLowerCase().endsWith(".kfml")) {
+          || args[i].toLowerCase().endsWith(".kfml")) {
           args[i] = "file=" + args[i];
         }
       }
@@ -7141,8 +7224,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       KnowledgeFlowApp.createSingleton(args);
 
       Image icon = Toolkit.getDefaultToolkit().getImage(
-          m_knowledgeFlow.getClass().getClassLoader()
-              .getResource("weka/gui/weka_icon_new_48.png"));
+        m_knowledgeFlow.getClass().getClassLoader()
+          .getResource("weka/gui/weka_icon_new_48.png"));
       jf.setIconImage(icon);
 
       jf.getContentPane().add(m_knowledgeFlow, java.awt.BorderLayout.CENTER);
@@ -7152,6 +7235,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       jf.setVisible(true);
 
       Thread memMonitor = new Thread() {
+        @SuppressWarnings("static-access")
         @Override
         public void run() {
           while (true) {

@@ -15,7 +15,7 @@
 
 /*
  *    ModelPerformanceChart.java
- *    Copyright (C) 2004 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2004-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -44,7 +44,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Environment;
 import weka.core.EnvironmentHandler;
-import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.gui.Logger;
@@ -59,16 +58,16 @@ import weka.gui.visualize.VisualizePanel;
  * @version $Revision$
  */
 public class ModelPerformanceChart extends JPanel implements
-    ThresholdDataListener, VisualizableErrorListener, Visible,
-    UserRequestAcceptor, EventConstraints, Serializable, BeanContextChild,
-    HeadlessEventCollector, BeanCommon, EnvironmentHandler {
+  ThresholdDataListener, VisualizableErrorListener, Visible,
+  UserRequestAcceptor, EventConstraints, Serializable, BeanContextChild,
+  HeadlessEventCollector, BeanCommon, EnvironmentHandler {
 
   /** for serialization */
   private static final long serialVersionUID = -4602034200071195924L;
 
   protected BeanVisual m_visual = new BeanVisual("ModelPerformanceChart",
-      BeanVisual.ICON_PATH + "ModelPerformanceChart.gif", BeanVisual.ICON_PATH
-          + "ModelPerformanceChart_animated.gif");
+    BeanVisual.ICON_PATH + "ModelPerformanceChart.gif", BeanVisual.ICON_PATH
+      + "ModelPerformanceChart_animated.gif");
 
   protected transient PlotData2D m_masterPlot;
 
@@ -142,14 +141,12 @@ public class ModelPerformanceChart extends JPanel implements
    * BeanContextChild support
    */
   protected BeanContextChildSupport m_bcSupport = new BeanContextChildSupport(
-      this);
+    this);
 
   public ModelPerformanceChart() {
     useDefaultVisual();
 
-    java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment
-        .getLocalGraphicsEnvironment();
-    if (!ge.isHeadless()) {
+    if (!GraphicsEnvironment.isHeadless()) {
       appearanceFinal();
     } else {
       m_headlessEvents = new ArrayList<EventObject>();
@@ -188,7 +185,7 @@ public class ModelPerformanceChart extends JPanel implements
   protected void setupOffscreenRenderer() {
     if (m_offscreenRenderer == null) {
       if (m_offscreenRendererName == null
-          || m_offscreenRendererName.length() == 0) {
+        || m_offscreenRendererName.length() == 0) {
         m_offscreenRenderer = new WekaOffscreenChartRenderer();
         return;
       }
@@ -198,7 +195,7 @@ public class ModelPerformanceChart extends JPanel implements
       } else {
         try {
           Object r = PluginManager.getPluginInstance(
-              "weka.gui.beans.OffscreenChartRenderer", m_offscreenRendererName);
+            "weka.gui.beans.OffscreenChartRenderer", m_offscreenRendererName);
           if (r != null && r instanceof weka.gui.beans.OffscreenChartRenderer) {
             m_offscreenRenderer = (OffscreenChartRenderer) r;
           } else {
@@ -218,6 +215,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param e a ThresholdDataEvent
    */
+  @Override
   public synchronized void acceptDataSet(ThresholdDataEvent e) {
     if (m_env == null) {
       m_env = Environment.getSystemWide();
@@ -233,7 +231,7 @@ public class ModelPerformanceChart extends JPanel implements
       try {
         // check for compatable data sets
         if (!m_masterPlot.getPlotInstances().relationName()
-            .equals(e.getDataSet().getPlotInstances().relationName())) {
+          .equals(e.getDataSet().getPlotInstances().relationName())) {
 
           // if not equal then remove all plots and set as new master plot
           m_masterPlot = e.getDataSet();
@@ -250,7 +248,7 @@ public class ModelPerformanceChart extends JPanel implements
         m_visPanel.setYIndex(5);
       } catch (Exception ex) {
         System.err
-            .println("Problem setting up visualization (ModelPerformanceChart)");
+          .println("Problem setting up visualization (ModelPerformanceChart)");
         ex.printStackTrace();
       }
     } else {
@@ -262,8 +260,8 @@ public class ModelPerformanceChart extends JPanel implements
       setupOffscreenRenderer();
 
       if (m_offscreenPlotData == null
-          || !m_offscreenPlotData.get(0).relationName()
-              .equals(e.getDataSet().getPlotInstances().relationName())) {
+        || !m_offscreenPlotData.get(0).relationName()
+          .equals(e.getDataSet().getPlotInstances().relationName())) {
         m_offscreenPlotData = new ArrayList<Instances>();
         m_thresholdSeriesTitles = new ArrayList<String>();
       }
@@ -324,7 +322,7 @@ public class ModelPerformanceChart extends JPanel implements
           series.add(temp);
         }
         BufferedImage osi = m_offscreenRenderer.renderXYLineChart(defWidth,
-            defHeight, series, xAxis, yAxis, options);
+          defHeight, series, xAxis, yAxis, options);
 
         ImageEvent ie = new ImageEvent(this, osi);
         notifyImageListeners(ie);
@@ -339,6 +337,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param e a VisualizableErrorEvent
    */
+  @Override
   public synchronized void acceptDataSet(VisualizableErrorEvent e) {
     if (m_env == null) {
       m_env = Environment.getSystemWide();
@@ -355,7 +354,7 @@ public class ModelPerformanceChart extends JPanel implements
         m_visPanel.setMasterPlot(m_masterPlot);
       } catch (Exception ex) {
         System.err
-            .println("Problem setting up visualization (ModelPerformanceChart)");
+          .println("Problem setting up visualization (ModelPerformanceChart)");
         ex.printStackTrace();
       }
       m_visPanel.validate();
@@ -380,13 +379,13 @@ public class ModelPerformanceChart extends JPanel implements
         // WekaOffscreenChartRenderer can take advantage of this
         // information - other plugin renderers may or may not
         // be able to use it
-        FastVector atts = new FastVector();
+        ArrayList<Attribute> atts = new ArrayList<Attribute>();
         for (int i = 0; i < predictedI.numAttributes(); i++) {
-          atts.add(predictedI.attribute(i).copy());
+          atts.add((Attribute) predictedI.attribute(i).copy());
         }
         atts.add(new Attribute("@@size@@"));
         Instances newInsts = new Instances(predictedI.relationName(), atts,
-            predictedI.numInstances());
+          predictedI.numInstances());
         newInsts.setClassIndex(predictedI.classIndex());
 
         for (int i = 0; i < predictedI.numInstances(); i++) {
@@ -432,20 +431,20 @@ public class ModelPerformanceChart extends JPanel implements
         errors.setRelationName("Errors");
         m_offscreenPlotData.add(errors);
 
-        for (int i = 0; i < classes.length; i++) {
-          m_offscreenPlotData.add(classes[i]);
+        for (Instances classe : classes) {
+          m_offscreenPlotData.add(classe);
         }
 
       } else {
         // numeric class - have to make a new set of instances
         // with the point sizes added as an additional attribute
-        FastVector atts = new FastVector();
+        ArrayList<Attribute> atts = new ArrayList<Attribute>();
         for (int i = 0; i < predictedI.numAttributes(); i++) {
-          atts.add(predictedI.attribute(i).copy());
+          atts.add((Attribute) predictedI.attribute(i).copy());
         }
         atts.add(new Attribute("@@size@@"));
         Instances newInsts = new Instances(predictedI.relationName(), atts,
-            predictedI.numInstances());
+          predictedI.numInstances());
 
         int[] shapeSizes = e.getDataSet().getShapeSize();
 
@@ -465,7 +464,7 @@ public class ModelPerformanceChart extends JPanel implements
       List<String> options = new ArrayList<String>();
 
       String additional = "-color=" + predictedI.classAttribute().name()
-          + ",-hasErrors";
+        + ",-hasErrors";
       if (m_additionalOptions != null && m_additionalOptions.length() > 0) {
         additional += "," + m_additionalOptions;
         try {
@@ -509,7 +508,7 @@ public class ModelPerformanceChart extends JPanel implements
 
       try {
         BufferedImage osi = m_offscreenRenderer.renderXYScatterPlot(defWidth,
-            defHeight, m_offscreenPlotData, xAxis, yAxis, options);
+          defHeight, m_offscreenPlotData, xAxis, yAxis, options);
 
         ImageEvent ie = new ImageEvent(this, osi);
         notifyImageListeners(ie);
@@ -543,6 +542,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @return a list of EventObjects or null.
    */
+  @Override
   public List<EventObject> retrieveHeadlessEvents() {
     return m_headlessEvents;
   }
@@ -553,6 +553,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param headless a list of EventObjects to process.
    */
+  @Override
   public void processHeadlessEvents(List<EventObject> headless) {
 
     // only process if we're not headless
@@ -574,6 +575,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param newVisual a <code>BeanVisual</code> value
    */
+  @Override
   public void setVisual(BeanVisual newVisual) {
     m_visual = newVisual;
   }
@@ -581,6 +583,7 @@ public class ModelPerformanceChart extends JPanel implements
   /**
    * Return the visual appearance of this bean
    */
+  @Override
   public BeanVisual getVisual() {
     return m_visual;
   }
@@ -588,9 +591,10 @@ public class ModelPerformanceChart extends JPanel implements
   /**
    * Use the default appearance for this bean
    */
+  @Override
   public void useDefaultVisual() {
     m_visual.loadIcons(BeanVisual.ICON_PATH + "ModelPerformanceChart.gif",
-        BeanVisual.ICON_PATH + "ModelPerformanceChart_animated.gif");
+      BeanVisual.ICON_PATH + "ModelPerformanceChart_animated.gif");
   }
 
   /**
@@ -598,8 +602,9 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @return an <code>Enumeration</code> value
    */
-  public Enumeration enumerateRequests() {
-    Vector newVector = new Vector(0);
+  @Override
+  public Enumeration<String> enumerateRequests() {
+    Vector<String> newVector = new Vector<String>(0);
     if (m_masterPlot != null) {
       newVector.addElement("Show chart");
       newVector.addElement("?Clear all plots");
@@ -626,7 +631,7 @@ public class ModelPerformanceChart extends JPanel implements
    */
   @Override
   public void removePropertyChangeListener(String name,
-      PropertyChangeListener pcl) {
+    PropertyChangeListener pcl) {
     m_bcSupport.removePropertyChangeListener(name, pcl);
   }
 
@@ -636,6 +641,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param name the name of the property of interest
    * @param vcl a <code>VetoableChangeListener</code> value
    */
+  @Override
   public void addVetoableChangeListener(String name, VetoableChangeListener vcl) {
     m_bcSupport.addVetoableChangeListener(name, vcl);
   }
@@ -646,8 +652,9 @@ public class ModelPerformanceChart extends JPanel implements
    * @param name the name of the property of interest
    * @param vcl a <code>VetoableChangeListener</code> value
    */
+  @Override
   public void removeVetoableChangeListener(String name,
-      VetoableChangeListener vcl) {
+    VetoableChangeListener vcl) {
     m_bcSupport.removeVetoableChangeListener(name, vcl);
   }
 
@@ -656,15 +663,14 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param bc a <code>BeanContext</code> value
    */
+  @Override
   public void setBeanContext(BeanContext bc) {
     m_beanContext = bc;
     m_design = m_beanContext.isDesignTime();
     if (m_design) {
       appearanceDesign();
     } else {
-      java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment
-          .getLocalGraphicsEnvironment();
-      if (!ge.isHeadless()) {
+      if (!GraphicsEnvironment.isHeadless()) {
         appearanceFinal();
       }
     }
@@ -675,6 +681,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @return a <code>BeanContext</code> value
    */
+  @Override
   public BeanContext getBeanContext() {
     return m_beanContext;
   }
@@ -685,6 +692,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param request a <code>String</code> value
    * @exception IllegalArgumentException if an error occurs
    */
+  @Override
   public void performRequest(String request) {
     if (request.compareTo("Show chart") == 0) {
       try {
@@ -693,7 +701,7 @@ public class ModelPerformanceChart extends JPanel implements
           m_framePoppedUp = true;
 
           final javax.swing.JFrame jf = new javax.swing.JFrame(
-              "Model Performance Chart");
+            "Model Performance Chart");
           jf.setSize(800, 600);
           jf.getContentPane().setLayout(new BorderLayout());
           jf.getContentPane().add(m_visPanel, BorderLayout.CENTER);
@@ -722,7 +730,7 @@ public class ModelPerformanceChart extends JPanel implements
       m_offscreenPlotData = null;
     } else {
       throw new IllegalArgumentException(request
-          + " not supported (Model Performance Chart)");
+        + " not supported (Model Performance Chart)");
     }
   }
 
@@ -733,7 +741,7 @@ public class ModelPerformanceChart extends JPanel implements
         System.exit(1);
       }
       java.io.Reader r = new java.io.BufferedReader(new java.io.FileReader(
-          args[0]));
+        args[0]));
       Instances inst = new Instances(r);
       final javax.swing.JFrame jf = new javax.swing.JFrame();
       jf.getContentPane().setLayout(new java.awt.BorderLayout());
@@ -764,6 +772,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param name the name to use
    */
+  @Override
   public void setCustomName(String name) {
     m_visual.setText(name);
   }
@@ -773,6 +782,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @return the custom name (or the default name)
    */
+  @Override
   public String getCustomName() {
     return m_visual.getText();
   }
@@ -780,6 +790,7 @@ public class ModelPerformanceChart extends JPanel implements
   /**
    * Stop any processing that the bean might be doing.
    */
+  @Override
   public void stop() {
   }
 
@@ -789,6 +800,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @return true if the bean is busy.
    */
+  @Override
   public boolean isBusy() {
     return false;
   }
@@ -816,6 +828,7 @@ public class ModelPerformanceChart extends JPanel implements
    * 
    * @param logger a <code>Logger</code> value
    */
+  @Override
   public void setLog(Logger logger) {
   }
 
@@ -826,6 +839,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param esd the EventSetDescriptor
    * @return true if the object will accept a connection
    */
+  @Override
   public boolean connectionAllowed(EventSetDescriptor esd) {
     return connectionAllowed(esd.getName());
   }
@@ -837,9 +851,10 @@ public class ModelPerformanceChart extends JPanel implements
    * @param eventName the name of the event
    * @return true if the object will accept a connection
    */
+  @Override
   public boolean connectionAllowed(String eventName) {
     return eventName.equals("thresholdData")
-        || eventName.equals("visualizableError");
+      || eventName.equals("visualizableError");
   }
 
   /**
@@ -851,6 +866,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param source the source with which this object has been registered as a
    *          listener
    */
+  @Override
   public void connectionNotification(String eventName, Object source) {
     if (connectionAllowed(eventName)) {
       m_listenees.add(source);
@@ -865,6 +881,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param source the source with which this object has been registered as a
    *          listener
    */
+  @Override
   public void disconnectionNotification(String eventName, Object source) {
     m_listenees.remove(source);
   }
@@ -877,6 +894,7 @@ public class ModelPerformanceChart extends JPanel implements
    * @param eventName the name of the event in question
    * @return true if the named event could be generated at this point in time
    */
+  @Override
   public boolean eventGeneratable(String eventName) {
     if (m_listenees.size() == 0) {
       return false;
@@ -886,7 +904,7 @@ public class ModelPerformanceChart extends JPanel implements
     for (Object o : m_listenees) {
       if (o instanceof EventConstraints) {
         if (((EventConstraints) o).eventGeneratable("thresholdData")
-            || ((EventConstraints) o).eventGeneratable("visualizableError")) {
+          || ((EventConstraints) o).eventGeneratable("visualizableError")) {
           ok = true;
           break;
         }

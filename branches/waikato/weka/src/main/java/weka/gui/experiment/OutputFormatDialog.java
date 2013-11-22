@@ -15,16 +15,11 @@
 
 /*
  *    OutputFormatDialog.java
- *    Copyright (C) 2005 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2005-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.gui.experiment;
-
-import weka.experiment.ResultMatrix;
-import weka.experiment.ResultMatrixPlainText;
-import weka.gui.GenericObjectEditor;
-import weka.gui.PropertyPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -49,14 +44,18 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import weka.experiment.ResultMatrix;
+import weka.experiment.ResultMatrixPlainText;
+import weka.gui.GenericObjectEditor;
+import weka.gui.PropertyPanel;
+
 /**
  * A dialog for setting various output format parameters.
- *
+ * 
  * @author FracPete (fracpete at waikato dot ac dot nz)
  * @version $Revision$
  */
-public class OutputFormatDialog
-  extends JDialog {
+public class OutputFormatDialog extends JDialog {
 
   /** for serialization. */
   private static final long serialVersionUID = 2169792738187807378L;
@@ -71,7 +70,7 @@ public class OutputFormatDialog
   protected int m_Result;
 
   /** the different classes for outputting the comparison tables. */
-  protected static Vector<Class> m_OutputFormatClasses;
+  protected static Vector<Class<?>> m_OutputFormatClasses;
 
   /** the different names of matrices for outputting the comparison tables. */
   protected static Vector<String> m_OutputFormatNames;
@@ -129,7 +128,7 @@ public class OutputFormatDialog
 
   /**
    * initializes the dialog with the given parent frame.
-   *
+   * 
    * @param parent the parent of this dialog
    */
   public OutputFormatDialog(Frame parent) {
@@ -147,10 +146,10 @@ public class OutputFormatDialog
    * initializes the member variables.
    */
   protected void initialize() {
-    Vector 		classes;
-    int			i;
-    Class 		cls;
-    ResultMatrix 	matrix;
+    Vector<String> classes;
+    int i;
+    Class<?> cls;
+    ResultMatrix matrix;
 
     m_Result = CANCEL_OPTION;
 
@@ -158,16 +157,15 @@ public class OutputFormatDialog
       classes = GenericObjectEditor.getClassnames(ResultMatrix.class.getName());
 
       // set names and classes
-      m_OutputFormatClasses = new Vector<Class>();
-      m_OutputFormatNames   = new Vector<String>();
+      m_OutputFormatClasses = new Vector<Class<?>>();
+      m_OutputFormatNames = new Vector<String>();
       for (i = 0; i < classes.size(); i++) {
         try {
-          cls    = Class.forName(classes.get(i).toString());
+          cls = Class.forName(classes.get(i).toString());
           matrix = (ResultMatrix) cls.newInstance();
           m_OutputFormatClasses.add(cls);
           m_OutputFormatNames.add(matrix.getDisplayName());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           e.printStackTrace();
         }
       }
@@ -178,9 +176,9 @@ public class OutputFormatDialog
    * performs the creation of the dialog and all its components.
    */
   protected void initGUI() {
-    JPanel              panel;
-    SpinnerNumberModel  model;
-    JPanel		panel2;
+    JPanel panel;
+    SpinnerNumberModel model;
+    JPanel panel2;
 
     getContentPane().setLayout(new BorderLayout());
 
@@ -191,6 +189,7 @@ public class OutputFormatDialog
     // mean precision
     m_MeanPrecSpinner = new JSpinner();
     m_MeanPrecSpinner.addChangeListener(new ChangeListener() {
+      @Override
       public void stateChanged(ChangeEvent e) {
         getData();
       }
@@ -209,6 +208,7 @@ public class OutputFormatDialog
     // stddev precision
     m_StdDevPrecSpinner = new JSpinner();
     m_StdDevPrecSpinner.addChangeListener(new ChangeListener() {
+      @Override
       public void stateChanged(ChangeEvent e) {
         getData();
       }
@@ -227,8 +227,9 @@ public class OutputFormatDialog
     // Format
     m_OutputFormatComboBox = new JComboBox(m_OutputFormatNames);
     m_OutputFormatComboBox.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
-	getData();
+        getData();
       }
     });
     m_OutputFormatLabel = new JLabel("Output Format");
@@ -242,8 +243,9 @@ public class OutputFormatDialog
     // Average
     m_ShowAverageCheckBox = new JCheckBox("");
     m_ShowAverageCheckBox.addChangeListener(new ChangeListener() {
+      @Override
       public void stateChanged(ChangeEvent e) {
-	getData();
+        getData();
       }
     });
     m_ShowAverageLabel = new JLabel("Show Average");
@@ -257,8 +259,9 @@ public class OutputFormatDialog
     // Remove filter classname
     m_RemoveFilterNameCheckBox = new JCheckBox("");
     m_RemoveFilterNameCheckBox.addChangeListener(new ChangeListener() {
+      @Override
       public void stateChanged(ChangeEvent e) {
-	getData();
+        getData();
       }
     });
     m_RemoveFilterNameLabel = new JLabel("Remove filter classnames");
@@ -270,32 +273,39 @@ public class OutputFormatDialog
     panel.add(panel2);
 
     // Advanced setup
-    m_ResultMatrix       = ExperimenterDefaults.getOutputFormat();
+    m_ResultMatrix = ExperimenterDefaults.getOutputFormat();
     m_ResultMatrixEditor = new GenericObjectEditor(true);
     m_ResultMatrixEditor.setClassType(ResultMatrix.class);
     m_ResultMatrixEditor.setValue(m_ResultMatrix);
-    m_ResultMatrixEditor.addPropertyChangeListener(new PropertyChangeListener() {
-	public void propertyChange(PropertyChangeEvent e) {
-	  // user selected different class?
-	  if (!m_ResultMatrix.getClass().equals(m_ResultMatrixEditor.getValue().getClass())) {
-	    // if it's the preferred class, then automaticallly use the Experimenter defaults
-	    if (m_ResultMatrixEditor.getValue().getClass().equals(ExperimenterDefaults.getOutputFormat().getClass())) {
-	      m_ResultMatrix = ExperimenterDefaults.getOutputFormat();
-	      m_ResultMatrixEditor.setValue(ExperimenterDefaults.getOutputFormat());
-	    }
-	    else {
-	      m_ResultMatrix = (ResultMatrix) m_ResultMatrixEditor.getValue();
-	    }
-	    setData();
-	  }
-	  repaint();
-	}
+    m_ResultMatrixEditor
+      .addPropertyChangeListener(new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent e) {
+          // user selected different class?
+          if (!m_ResultMatrix.getClass().equals(
+            m_ResultMatrixEditor.getValue().getClass())) {
+            // if it's the preferred class, then automaticallly use the
+            // Experimenter defaults
+            if (m_ResultMatrixEditor.getValue().getClass()
+              .equals(ExperimenterDefaults.getOutputFormat().getClass())) {
+              m_ResultMatrix = ExperimenterDefaults.getOutputFormat();
+              m_ResultMatrixEditor.setValue(ExperimenterDefaults
+                .getOutputFormat());
+            } else {
+              m_ResultMatrix = (ResultMatrix) m_ResultMatrixEditor.getValue();
+            }
+            setData();
+          }
+          repaint();
+        }
       });
-    ((GenericObjectEditor.GOEPanel) m_ResultMatrixEditor.getCustomEditor()).addOkListener(new ActionListener() {
-	public void actionPerformed(ActionEvent e) {
+    ((GenericObjectEditor.GOEPanel) m_ResultMatrixEditor.getCustomEditor())
+      .addOkListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
           m_ResultMatrix = (ResultMatrix) m_ResultMatrixEditor.getValue();
           setData();
-	}
+        }
       });
     m_ResultMatrixPanel = new PropertyPanel(m_ResultMatrixEditor, false);
     m_ResultMatrixLabel = new JLabel("Advanced setup");
@@ -310,6 +320,7 @@ public class OutputFormatDialog
     m_CancelButton = new JButton("Cancel");
     m_CancelButton.setMnemonic('C');
     m_CancelButton.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         m_Result = CANCEL_OPTION;
         setVisible(false);
@@ -318,6 +329,7 @@ public class OutputFormatDialog
     m_OkButton = new JButton("OK");
     m_OkButton.setMnemonic('O');
     m_OkButton.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         getData();
         m_Result = APPROVE_OPTION;
@@ -334,14 +346,23 @@ public class OutputFormatDialog
     pack();
 
     // adjust dimensions
-    m_MeanPrecLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel.getWidth(), m_MeanPrecLabel.getHeight()));
-    m_MeanPrecSpinner.setPreferredSize(new Dimension(m_MeanPrecSpinner.getWidth() * 3, m_MeanPrecSpinner.getHeight()));
-    m_StdDevPrecLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel.getWidth(), m_StdDevPrecLabel.getHeight()));
-    m_StdDevPrecSpinner.setPreferredSize(new Dimension(m_StdDevPrecSpinner.getWidth() * 3, m_StdDevPrecSpinner.getHeight()));
-    m_OutputFormatLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel.getWidth(), m_OutputFormatLabel.getHeight()));
-    m_ShowAverageLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel.getWidth(), m_ShowAverageLabel.getHeight()));
-    m_ResultMatrixLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel.getWidth(), m_ResultMatrixLabel.getHeight()));
-    m_ResultMatrixPanel.setPreferredSize(new Dimension((int) (m_ResultMatrixPanel.getWidth() * 1.5), m_ResultMatrixPanel.getHeight()));
+    m_MeanPrecLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel
+      .getWidth(), m_MeanPrecLabel.getHeight()));
+    m_MeanPrecSpinner.setPreferredSize(new Dimension(m_MeanPrecSpinner
+      .getWidth() * 3, m_MeanPrecSpinner.getHeight()));
+    m_StdDevPrecLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel
+      .getWidth(), m_StdDevPrecLabel.getHeight()));
+    m_StdDevPrecSpinner.setPreferredSize(new Dimension(m_StdDevPrecSpinner
+      .getWidth() * 3, m_StdDevPrecSpinner.getHeight()));
+    m_OutputFormatLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel
+      .getWidth(), m_OutputFormatLabel.getHeight()));
+    m_ShowAverageLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel
+      .getWidth(), m_ShowAverageLabel.getHeight()));
+    m_ResultMatrixLabel.setPreferredSize(new Dimension(m_RemoveFilterNameLabel
+      .getWidth(), m_ResultMatrixLabel.getHeight()));
+    m_ResultMatrixPanel.setPreferredSize(new Dimension(
+      (int) (m_ResultMatrixPanel.getWidth() * 1.5), m_ResultMatrixPanel
+        .getHeight()));
 
     // final layout
     pack();
@@ -360,7 +381,7 @@ public class OutputFormatDialog
     // format
     for (int i = 0; i < m_OutputFormatClasses.size(); i++) {
       if (m_OutputFormatClasses.get(i).equals(m_ResultMatrix.getClass())) {
-	m_OutputFormatComboBox.setSelectedItem(m_OutputFormatNames.get(i));
+        m_OutputFormatComboBox.setSelectedItem(m_OutputFormatNames.get(i));
         break;
       }
     }
@@ -369,7 +390,8 @@ public class OutputFormatDialog
     m_ShowAverageCheckBox.setSelected(m_ResultMatrix.getShowAverage());
 
     // filter names
-    m_RemoveFilterNameCheckBox.setSelected(m_ResultMatrix.getRemoveFilterName());
+    m_RemoveFilterNameCheckBox
+      .setSelected(m_ResultMatrix.getRemoveFilterName());
 
     // GOE
     m_ResultMatrixEditor.setValue(m_ResultMatrix);
@@ -378,29 +400,36 @@ public class OutputFormatDialog
   }
 
   /**
-   *  gets the data from GUI components.
+   * gets the data from GUI components.
    */
   private void getData() {
-    if (m_IgnoreChanges)
+    if (m_IgnoreChanges) {
       return;
+    }
 
     // format
     try {
-      if (!m_ResultMatrix.getClass().equals(m_OutputFormatClasses.get(m_OutputFormatComboBox.getSelectedIndex()))) {
-	if (m_OutputFormatClasses.get(m_OutputFormatComboBox.getSelectedIndex()).equals(ExperimenterDefaults.getOutputFormat().getClass()))
-	  m_ResultMatrix = ExperimenterDefaults.getOutputFormat();
-	else
-	  m_ResultMatrix = (ResultMatrix) ((Class) m_OutputFormatClasses.get(m_OutputFormatComboBox.getSelectedIndex())).newInstance();
+      if (!m_ResultMatrix.getClass().equals(
+        m_OutputFormatClasses.get(m_OutputFormatComboBox.getSelectedIndex()))) {
+        if (m_OutputFormatClasses
+          .get(m_OutputFormatComboBox.getSelectedIndex()).equals(
+            ExperimenterDefaults.getOutputFormat().getClass())) {
+          m_ResultMatrix = ExperimenterDefaults.getOutputFormat();
+        } else {
+          m_ResultMatrix = (ResultMatrix) m_OutputFormatClasses.get(
+            m_OutputFormatComboBox.getSelectedIndex()).newInstance();
+        }
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       m_ResultMatrix = new ResultMatrixPlainText();
     }
 
     // Precision
-    m_ResultMatrix.setMeanPrec(Integer.parseInt(m_MeanPrecSpinner.getValue().toString()));
-    m_ResultMatrix.setStdDevPrec(Integer.parseInt(m_StdDevPrecSpinner.getValue().toString()));
+    m_ResultMatrix.setMeanPrec(Integer.parseInt(m_MeanPrecSpinner.getValue()
+      .toString()));
+    m_ResultMatrix.setStdDevPrec(Integer.parseInt(m_StdDevPrecSpinner
+      .getValue().toString()));
 
     // average
     m_ResultMatrix.setShowAverage(m_ShowAverageCheckBox.isSelected());
@@ -414,7 +443,7 @@ public class OutputFormatDialog
 
   /**
    * Sets the matrix to use as initial selected output format.
-   *
+   * 
    * @param matrix the matrix to use as initial selected output format
    */
   public void setResultMatrix(ResultMatrix matrix) {
@@ -424,7 +453,7 @@ public class OutputFormatDialog
 
   /**
    * Gets the currently selected output format result matrix.
-   *
+   * 
    * @return the currently selected matrix to use as output
    */
   public ResultMatrix getResultMatrix() {
@@ -437,7 +466,7 @@ public class OutputFormatDialog
   protected void setFormat() {
     for (int i = 0; i < m_OutputFormatClasses.size(); i++) {
       if (m_OutputFormatNames.get(i).equals(
-            m_OutputFormatComboBox.getItemAt(i).toString())) {
+        m_OutputFormatComboBox.getItemAt(i).toString())) {
         m_OutputFormatComboBox.setSelectedIndex(i);
         break;
       }
@@ -445,11 +474,11 @@ public class OutputFormatDialog
   }
 
   /**
-   * the result from the last display of the dialog, the same is returned
-   * from <code>showDialog</code>.
-   *
-   * @return the result from the last display of the dialog;
-   *         either APPROVE_OPTION, or CANCEL_OPTION
+   * the result from the last display of the dialog, the same is returned from
+   * <code>showDialog</code>.
+   * 
+   * @return the result from the last display of the dialog; either
+   *         APPROVE_OPTION, or CANCEL_OPTION
    * @see #showDialog()
    */
   public int getResult() {
@@ -458,7 +487,7 @@ public class OutputFormatDialog
 
   /**
    * Pops up the modal dialog and waits for cancel or a selection.
-   *
+   * 
    * @return either APPROVE_OPTION, or CANCEL_OPTION
    */
   public int showDialog() {
@@ -470,16 +499,17 @@ public class OutputFormatDialog
 
   /**
    * for testing only.
-   *
+   * 
    * @param args ignored
    */
   public static void main(String[] args) {
-    OutputFormatDialog      dialog;
+    OutputFormatDialog dialog;
 
     dialog = new OutputFormatDialog(null);
-    if (dialog.showDialog() == APPROVE_OPTION)
+    if (dialog.showDialog() == APPROVE_OPTION) {
       System.out.println("Accepted");
-    else
+    } else {
       System.out.println("Aborted");
+    }
   }
 }
