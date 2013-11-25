@@ -398,10 +398,10 @@ public class ItemSet implements Serializable, RevisionHandler {
    * @return a set of item sets, each containing a single item
    * @exception Exception if singletons can't be generated successfully
    */
-  public static ArrayList<ItemSet> singletons(Instances instances)
+  public static ArrayList<Object> singletons(Instances instances)
     throws Exception {
 
-    ArrayList<ItemSet> setOfItemSets = new ArrayList<ItemSet>();
+    ArrayList<Object> setOfItemSets = new ArrayList<Object>();
     ItemSet current;
 
     for (int i = 0; i < instances.numAttributes(); i++) {
@@ -516,10 +516,9 @@ public class ItemSet implements Serializable, RevisionHandler {
     Instances instances) {
 
     for (int i = 0; i < instances.numInstances(); i++) {
-      @SuppressWarnings("unchecked")
-      Enumeration<ItemSet> enu = new WekaEnumeration(itemSets);
+      Enumeration<Object> enu = new WekaEnumeration<Object>(itemSets);
       while (enu.hasMoreElements()) {
-        enu.nextElement().upDateCounter(instances.instance(i));
+        ((ItemSet) enu.nextElement()).upDateCounter(instances.instance(i));
       }
     }
   }
@@ -533,11 +532,10 @@ public class ItemSet implements Serializable, RevisionHandler {
   public static void upDateCountersTreatZeroAsMissing(
     ArrayList<Object> itemSets, Instances instances) {
     for (int i = 0; i < instances.numInstances(); i++) {
-      @SuppressWarnings("unchecked")
-      Enumeration<ItemSet> enu = new WekaEnumeration(itemSets);
+      Enumeration<Object> enu = new WekaEnumeration<Object>(itemSets);
       while (enu.hasMoreElements()) {
-        enu.nextElement()
-          .updateCounterTreatZeroAsMissing(instances.instance(i));
+        ((ItemSet) enu.nextElement()).updateCounterTreatZeroAsMissing(instances
+          .instance(i));
       }
     }
   }
