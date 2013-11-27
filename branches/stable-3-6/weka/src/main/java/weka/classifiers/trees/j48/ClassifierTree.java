@@ -318,7 +318,7 @@ public class ClassifierTree
     if (m_isLeaf) {
       text.append("N" + m_id 
 		  + " [label=\"" + 
-		  m_localModel.dumpLabel(0,m_train) + "\" " + 
+		  Utils.quote(m_localModel.dumpLabel(0,m_train)) + "\" " + 
 		  "shape=box style=filled ");
       if (m_train != null && m_train.numInstances() > 0) {
 	text.append("data =\n" + m_train + "\n");
@@ -329,7 +329,7 @@ public class ClassifierTree
     }else {
       text.append("N" + m_id 
 		  + " [label=\"" + 
-		  m_localModel.leftSide(m_train) + "\" ");
+		  Utils.quote(m_localModel.leftSide(m_train)) + "\" ");
       if (m_train != null && m_train.numInstances() > 0) {
 	text.append("data =\n" + m_train + "\n");
 	text.append(",\n");
@@ -555,11 +555,11 @@ public class ClassifierTree
       text.append("N" + m_id  
 		  + "->" + 
 		  "N" + m_sons[i].m_id +
-		  " [label=\"" + m_localModel.rightSide(i,m_train).trim() + 
+		  " [label=\"" + Utils.quote(m_localModel.rightSide(i,m_train).trim()) + 
 		  "\"]\n");
       if (m_sons[i].m_isLeaf) {
 	text.append("N" + m_sons[i].m_id +
-		    " [label=\""+m_localModel.dumpLabel(i,m_train)+"\" "+ 
+		    " [label=\""+ Utils.quote(m_localModel.dumpLabel(i,m_train))+"\" "+ 
 		    "shape=box style=filled ");
 	if (m_train != null && m_train.numInstances() > 0) {
 	  text.append("data =\n" + m_sons[i].m_train + "\n");
@@ -568,7 +568,7 @@ public class ClassifierTree
 	text.append("]\n");
       } else {
 	text.append("N" + m_sons[i].m_id +
-		    " [label=\""+m_sons[i].m_localModel.leftSide(m_train) + 
+		    " [label=\""+ Utils.quote(m_sons[i].m_localModel.leftSide(m_train))+ 
 		    "\" ");
 	if (m_train != null && m_train.numInstances() > 0) {
 	  text.append("data =\n" + m_sons[i].m_train + "\n");
