@@ -930,7 +930,7 @@ public class ADTree
 	PredictionNode child = split.getChildForBranch(i);
 	if (child != null) {
 	  text.append("S" + split.orderAdded + "->" + "S" + split.orderAdded + "P" + i +
-		      " [label=\"" + split.comparisonString(i, m_trainInstances) + "\"]\n");
+		      " [label=\"" + Utils.quote(split.comparisonString(i, m_trainInstances)) + "\"]\n");
 	  graphTraverse(child, text, split.orderAdded, i,
 			split.instancesDownBranch(i, instances));
 	}
