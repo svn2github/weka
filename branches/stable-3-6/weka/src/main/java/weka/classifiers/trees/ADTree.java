@@ -924,7 +924,7 @@ public class ADTree
       text.append("S" + splitOrder + "P" + predOrder + "->" + "S" + split.orderAdded +
 		  " [style=dotted]\n");
       text.append("S" + split.orderAdded + " [label=\"" + split.orderAdded + ": " +
-		  split.attributeString(m_trainInstances) + "\"]\n");
+		  Utils.backQuoteChars(split.attributeString(m_trainInstances)) + "\"]\n");
 
       for (int i=0; i<split.getNumOfBranches(); i++) {
 	PredictionNode child = split.getChildForBranch(i);
