@@ -1121,7 +1121,7 @@ public class LADTree
 	PredictionNode child = split.getChildForBranch(i);
 	if (child != null) {
 	  text.append("S" + split.orderAdded + "->" + "S" + split.orderAdded + "P" + i +
-		      " [label=\"" + split.comparisonString(i) + "\"]\n");
+		      " [label=\"" + Utils.quote(split.comparisonString(i)) + "\"]\n");
 	  graphTraverse(child, text, split.orderAdded, i);
 	}
       }
