@@ -872,7 +872,7 @@ public class RandomTree extends Classifier implements OptionHandler,
     public int toGraph(StringBuffer text, int num) throws Exception {
 
       int maxIndex = Utils.maxIndex(m_ClassDistribution);
-      String classValue = Utils.quote(m_Info.classAttribute().value(maxIndex));
+      String classValue = Utils.backQuoteChars(m_Info.classAttribute().value(maxIndex));
 
       num++;
       if (m_Attribute == -1) {
@@ -884,7 +884,7 @@ public class RandomTree extends Classifier implements OptionHandler,
         for (int i = 0; i < m_Successors.length; i++) {
           text.append("N" + Integer.toHexString(hashCode()) + "->" + "N"
               + Integer.toHexString(m_Successors[i].hashCode()) + " [label=\""
-              + Utils.quote(m_Info.attribute(m_Attribute).name()));
+              + Utils.backQuoteChars(m_Info.attribute(m_Attribute).name()));
           if (m_Info.attribute(m_Attribute).isNumeric()) {
             if (i == 0) {
               text.append(" < " + Utils.doubleToString(m_SplitPoint, 2));
@@ -892,7 +892,7 @@ public class RandomTree extends Classifier implements OptionHandler,
               text.append(" >= " + Utils.doubleToString(m_SplitPoint, 2));
             }
           } else {
-            text.append(" = " + Utils.quote(m_Info.attribute(m_Attribute).value(i)));
+            text.append(" = " + Utils.backQuoteChars(m_Info.attribute(m_Attribute).value(i)));
           }
           text.append("\"]\n");
           num = m_Successors[i].toGraph(text, num);
