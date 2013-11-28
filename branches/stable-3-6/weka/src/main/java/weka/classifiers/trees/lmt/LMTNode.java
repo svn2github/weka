@@ -904,7 +904,7 @@ public class LMTNode
 	}else {
 	    text.append("N" + m_id 
 			+ " [label=\"" + 
-			Utils.quote(m_localModel.leftSide(m_train)) + "\" ");
+			Utils.backQuoteChars(m_localModel.leftSide(m_train)) + "\" ");
 	    text.append("]\n");
 	    graphTree(text);
 	}
@@ -923,7 +923,7 @@ public class LMTNode
 	    text.append("N" + m_id  
 			+ "->" + 
 			"N" + m_sons[i].m_id +
-			" [label=\"" + Utils.quote(m_localModel.rightSide(i,m_train).trim()) + 
+			" [label=\"" + Utils.backQuoteChars(m_localModel.rightSide(i,m_train).trim()) + 
 			"\"]\n");
 	    if (m_sons[i].m_isLeaf) {
 		text.append("N" +m_sons[i].m_id + " [label=\"LM_"+m_sons[i].m_leafModelNum+":"+
@@ -931,7 +931,7 @@ public class LMTNode
 		text.append("]\n");
 	    } else {
 		text.append("N" + m_sons[i].m_id +
-			    " [label=\""+ Utils.quote(m_sons[i].m_localModel.leftSide(m_train)) + 
+			    " [label=\""+ Utils.backQuoteChars(m_sons[i].m_localModel.leftSide(m_train)) + 
 			    "\" ");
 		text.append("]\n");
 		m_sons[i].graphTree(text);
