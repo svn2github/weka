@@ -1055,7 +1055,7 @@ public class RuleNode
     text.append("N" + m_id
 		+ (m_isLeaf 
 		   ? " [label=\"LM " + m_leafModelNum
-		   : " [label=\"" + Utils.quote(m_instances.attribute(m_splitAtt).name()))
+		   : " [label=\"" + Utils.backQuoteChars(m_instances.attribute(m_splitAtt).name()))
 		+ (m_isLeaf
 		 ? " (" + ((m_globalDeviation > 0.0) 
 			  ?  m_numInstances + "/" 
