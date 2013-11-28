@@ -28,6 +28,7 @@ import weka.core.Capabilities;
 import weka.core.Instances;
 import weka.core.RevisionUtils;
 import weka.core.Capabilities.Capability;
+import weka.core.Utils;
 
 /**
  * Class for handling a naive bayes tree structure used for
@@ -221,7 +222,7 @@ public class NBTreeClassifierTree
     }else {
       text.append("N" + m_id 
 		  + " [label=\"" + 
-		  m_localModel.leftSide(m_train) + "\" ");
+		  Utils.quote(m_localModel.leftSide(m_train)) + "\" ");
       if (m_train != null && m_train.numInstances() > 0) {
 	text.append("data =\n" + m_train + "\n");
 	text.append(",\n");
@@ -244,7 +245,7 @@ public class NBTreeClassifierTree
       text.append("N" + m_id  
 		  + "->" + 
 		  "N" + m_sons[i].m_id +
-		  " [label=\"" + m_localModel.rightSide(i,m_train).trim() + 
+		  " [label=\"" + Utils.quote(m_localModel.rightSide(i,m_train).trim()) + 
 		  "\"]\n");
       if (m_sons[i].m_isLeaf) {
 	text.append("N" + m_sons[i].m_id +
@@ -257,7 +258,7 @@ public class NBTreeClassifierTree
 	text.append("]\n");
       } else {
 	text.append("N" + m_sons[i].m_id +
-		    " [label=\""+m_sons[i].m_localModel.leftSide(m_train) + 
+		    " [label=\""+ Utils.quote(m_sons[i].m_localModel.leftSide(m_train)) + 
 		    "\" ");
 	if (m_train != null && m_train.numInstances() > 0) {
 	  text.append("data =\n" + m_sons[i].m_train + "\n");
