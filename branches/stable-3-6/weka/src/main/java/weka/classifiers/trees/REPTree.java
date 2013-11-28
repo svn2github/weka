@@ -350,12 +350,12 @@ public class REPTree
       num++;
       if (m_Attribute == -1) {
 	text.append("N" + Integer.toHexString(Tree.this.hashCode()) +
-		    " [label=\"" + num + leafString(parent) +"\"" +
+		    " [label=\"" + num + Utils.backQuoteChars(leafString(parent)) +"\"" +
 		    "shape=box]\n");
       } else {
 	text.append("N" + Integer.toHexString(Tree.this.hashCode()) +
 		    " [label=\"" + num + ": " + 
-		    m_Info.attribute(m_Attribute).name() + 
+		    Utils.backQuoteChars(m_Info.attribute(m_Attribute).name()) + 
 		    "\"]\n");
 	for (int i = 0; i < m_Successors.length; i++) {
 	  text.append("N" + Integer.toHexString(Tree.this.hashCode()) 
@@ -372,7 +372,7 @@ public class REPTree
 			  Utils.doubleToString(m_SplitPoint, 2));
 	    }
 	  } else {
-	    text.append(" = " + m_Info.attribute(m_Attribute).value(i));
+	    text.append(" = " + Utils.backQuoteChars(m_Info.attribute(m_Attribute).value(i)));
 	  }
 	  text.append("\"]\n");
 	  num = m_Successors[i].toGraph(text, num, this);
