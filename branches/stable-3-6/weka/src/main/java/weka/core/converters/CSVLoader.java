@@ -46,15 +46,13 @@ import weka.core.RevisionUtils;
 import weka.core.Utils;
 
 /**
- <!-- globalinfo-start --> 
- * Reads a source that is in comma separated or tab
+ * <!-- globalinfo-start --> Reads a source that is in comma separated or tab
  * separated format. Assumes that the first row in the file determines the
  * number of and names of the attributes.
  * <p/>
- <!-- globalinfo-end -->
+ * <!-- globalinfo-end -->
  * 
- <!-- options-start --> 
- * Valid options are:
+ * <!-- options-start --> Valid options are:
  * <p/>
  * 
  * <pre>
@@ -99,7 +97,7 @@ import weka.core.Utils;
  *  Specify as a comma separated list (e.g. ",' (default: '"')
  * </pre>
  * 
- <!-- options-end -->
+ * <!-- options-end -->
  * 
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
  * @version $Revision$
@@ -252,8 +250,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    * Parses a given list of options.
    * <p/>
    * 
-   <!-- options-start --> 
-   * Valid options are:
+   * <!-- options-start --> Valid options are:
    * <p/>
    * 
    * <pre>
@@ -298,7 +295,7 @@ public class CSVLoader extends AbstractFileLoader implements BatchConverter,
    *  Specify as a comma separated list (e.g. ",' (default: '"')
    * </pre>
    * 
-   <!-- options-end -->
+   * <!-- options-end -->
    * 
    * @param options the list of options as an array of strings
    * @throws Exception if an option is not supported

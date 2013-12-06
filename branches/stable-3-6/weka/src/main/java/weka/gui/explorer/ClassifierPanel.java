@@ -145,7 +145,7 @@ import weka.gui.visualize.plugins.VisualizePlugin;
  * @version $Revision$
  */
 public class ClassifierPanel extends JPanel implements
-    CapabilitiesFilterChangeListener, ExplorerPanel, LogHandler {
+  CapabilitiesFilterChangeListener, ExplorerPanel, LogHandler {
 
   /** for serialization */
   static final long serialVersionUID = 6959973704963624003L;
@@ -182,89 +182,88 @@ public class ClassifierPanel extends JPanel implements
 
   /** Click to set test mode to cross-validation */
   protected JRadioButton m_CVBut = new JRadioButton(Messages.getInstance()
-      .getString("ClassifierPanel_CVBut_JRadioButton_Text"));
+    .getString("ClassifierPanel_CVBut_JRadioButton_Text"));
 
   /** Click to set test mode to generate a % split */
   protected JRadioButton m_PercentBut = new JRadioButton(Messages.getInstance()
-      .getString("ClassifierPanel_PercentBut_JRadioButton_Text"));
+    .getString("ClassifierPanel_PercentBut_JRadioButton_Text"));
 
   /** Click to set test mode to test on training data */
   protected JRadioButton m_TrainBut = new JRadioButton(Messages.getInstance()
-      .getString("ClassifierPanel_TrainBut_JRadioButton_Text"));
+    .getString("ClassifierPanel_TrainBut_JRadioButton_Text"));
 
   /** Click to set test mode to a user-specified test set */
   protected JRadioButton m_TestSplitBut = new JRadioButton(Messages
-      .getInstance()
-      .getString("ClassifierPanel_TestSplitBut_JRadioButton_Text"));
+    .getInstance().getString("ClassifierPanel_TestSplitBut_JRadioButton_Text"));
 
   /**
    * Check to save the predictions in the results list for visualizing later on
    */
   protected JCheckBox m_StorePredictionsBut = new JCheckBox(Messages
-      .getInstance().getString(
-          "ClassifierPanel_StorePredictionsBut_JCheckBox_Text"));
+    .getInstance().getString(
+      "ClassifierPanel_StorePredictionsBut_JCheckBox_Text"));
 
   /** Check to output the model built from the training data */
   protected JCheckBox m_OutputModelBut = new JCheckBox(Messages.getInstance()
-      .getString("ClassifierPanel_OutputModelBut_JCheckBox_Text"));
+    .getString("ClassifierPanel_OutputModelBut_JCheckBox_Text"));
 
   /** Check to output true/false positives, precision/recall for each class */
   protected JCheckBox m_OutputPerClassBut = new JCheckBox(Messages
-      .getInstance().getString(
-          "ClassifierPanel_OutputPerClassBut_JCheckBox_Text"));
+    .getInstance()
+    .getString("ClassifierPanel_OutputPerClassBut_JCheckBox_Text"));
 
   /** Check to output a confusion matrix */
   protected JCheckBox m_OutputConfusionBut = new JCheckBox(Messages
-      .getInstance().getString(
-          "ClassifierPanel_OutputConfusionBut_JCheckBox_Text"));
+    .getInstance().getString(
+      "ClassifierPanel_OutputConfusionBut_JCheckBox_Text"));
 
   /** Check to output entropy statistics */
   protected JCheckBox m_OutputEntropyBut = new JCheckBox(Messages.getInstance()
-      .getString("ClassifierPanel_OutputEntropyBut_JCheckBox_Text"));
+    .getString("ClassifierPanel_OutputEntropyBut_JCheckBox_Text"));
 
   /** Check to output text predictions */
   protected JCheckBox m_OutputPredictionsTextBut = new JCheckBox(Messages
-      .getInstance().getString(
-          "ClassifierPanel_OutputPredictionsTextBut_JCheckBox_Text"));
+    .getInstance().getString(
+      "ClassifierPanel_OutputPredictionsTextBut_JCheckBox_Text"));
 
   /** Lists indices for additional attributes to output */
   protected JTextField m_OutputAdditionalAttributesText = new JTextField("", 10);
 
   /** Label for the text field with additional attributes in the output */
   protected JLabel m_OutputAdditionalAttributesLab = new JLabel(Messages
-      .getInstance().getString(
-          "ClassifierPanel_OutputAdditionalAttributesLab_JLabel_Text"));
+    .getInstance().getString(
+      "ClassifierPanel_OutputAdditionalAttributesLab_JLabel_Text"));
 
   /** the range of attributes to output */
   protected Range m_OutputAdditionalAttributesRange = null;
 
   /** Check to evaluate w.r.t a cost matrix */
   protected JCheckBox m_EvalWRTCostsBut = new JCheckBox(Messages.getInstance()
-      .getString("ClassifierPanel_EvalWRTCostsBut_JCheckBox_Text"));
+    .getString("ClassifierPanel_EvalWRTCostsBut_JCheckBox_Text"));
 
   /** for the cost matrix */
   protected JButton m_SetCostsBut = new JButton(Messages.getInstance()
-      .getString("ClassifierPanel_SetCostsBut_JButton_Text"));
+    .getString("ClassifierPanel_SetCostsBut_JButton_Text"));
 
   /** Label by where the cv folds are entered */
   protected JLabel m_CVLab = new JLabel(Messages.getInstance().getString(
-      "ClassifierPanel_CVLab_JLabel_Text"), SwingConstants.RIGHT);
+    "ClassifierPanel_CVLab_JLabel_Text"), SwingConstants.RIGHT);
 
   /** The field where the cv folds are entered */
   protected JTextField m_CVText = new JTextField(Messages.getInstance()
-      .getString("ClassifierPanel_CVText_JTextField_Text"), 3);
+    .getString("ClassifierPanel_CVText_JTextField_Text"), 3);
 
   /** Label by where the % split is entered */
   protected JLabel m_PercentLab = new JLabel(Messages.getInstance().getString(
-      "ClassifierPanel_PercentLab_JLabel_Text"), SwingConstants.RIGHT);
+    "ClassifierPanel_PercentLab_JLabel_Text"), SwingConstants.RIGHT);
 
   /** The field where the % split is entered */
   protected JTextField m_PercentText = new JTextField(Messages.getInstance()
-      .getString("ClassifierPanel_PercentText_JTextField_Text"), 3);
+    .getString("ClassifierPanel_PercentText_JTextField_Text"), 3);
 
   /** The button used to open a separate test dataset */
   protected JButton m_SetTestBut = new JButton(Messages.getInstance()
-      .getString("ClassifierPanel_SetTestBut_JButton_Text"));
+    .getString("ClassifierPanel_SetTestBut_JButton_Text"));
 
   /** The frame used to show the test set selection panel */
   protected JFrame m_SetTestFrame;
@@ -285,43 +284,43 @@ public class ClassifierPanel extends JPanel implements
 
   /** Button for further output/visualize options */
   JButton m_MoreOptions = new JButton(Messages.getInstance().getString(
-      "ClassifierPanel_MoreOptions_JButton_Text"));
+    "ClassifierPanel_MoreOptions_JButton_Text"));
 
   /** User specified random seed for cross validation or % split */
   protected JTextField m_RandomSeedText = new JTextField(Messages.getInstance()
-      .getString("ClassifierPanel_RandomSeedText_JTextField_Text"), 3);
+    .getString("ClassifierPanel_RandomSeedText_JTextField_Text"), 3);
 
   /** the label for the random seed textfield */
   protected JLabel m_RandomLab = new JLabel(Messages.getInstance().getString(
-      "ClassifierPanel_RandomLab_JLabel_Text"), SwingConstants.RIGHT);
+    "ClassifierPanel_RandomLab_JLabel_Text"), SwingConstants.RIGHT);
 
   /** Whether randomization is turned off to preserve order */
   protected JCheckBox m_PreserveOrderBut = new JCheckBox(Messages.getInstance()
-      .getString("ClassifierPanel_PreserveOrderBut_JCheckBox_Text"));
+    .getString("ClassifierPanel_PreserveOrderBut_JCheckBox_Text"));
 
   /**
    * Whether to output the source code (only for classifiers importing
    * Sourcable)
    */
   protected JCheckBox m_OutputSourceCode = new JCheckBox(Messages.getInstance()
-      .getString("ClassifierPanel_OutputSourceCode_JCheckBox_Text"));
+    .getString("ClassifierPanel_OutputSourceCode_JCheckBox_Text"));
 
   /** The name of the generated class (only applicable to Sourcable schemes) */
-  protected JTextField m_SourceCodeClass = new JTextField(Messages
-      .getInstance().getString(
-          "ClassifierPanel_SourceCodeClass_JTextField_Text"), 10);
+  protected JTextField m_SourceCodeClass = new JTextField(
+    Messages.getInstance().getString(
+      "ClassifierPanel_SourceCodeClass_JTextField_Text"), 10);
 
   /** Click to start running the classifier */
   protected JButton m_StartBut = new JButton(Messages.getInstance().getString(
-      "ClassifierPanel_StartBut_JButton_Text"));
+    "ClassifierPanel_StartBut_JButton_Text"));
 
   /** Click to stop a running classifier */
   protected JButton m_StopBut = new JButton(Messages.getInstance().getString(
-      "ClassifierPanel_StopBut_JButton_Text"));
+    "ClassifierPanel_StopBut_JButton_Text"));
 
   /** Stop the class combo from taking up to much space */
   private final Dimension COMBO_SIZE = new Dimension(150,
-      m_StartBut.getPreferredSize().height);
+    m_StartBut.getPreferredSize().height);
 
   /** The cost matrix editor for evaluation costs */
   protected CostMatrixEditor m_CostMatrixEditor = new CostMatrixEditor();
@@ -340,16 +339,16 @@ public class ClassifierPanel extends JPanel implements
 
   /** Filter to ensure only model files are selected */
   protected FileFilter m_ModelFilter = new ExtensionFileFilter(
-      MODEL_FILE_EXTENSION, Messages.getInstance().getString(
-          "ClassifierPanel_ModelFilter_FileFilter_Text"));
+    MODEL_FILE_EXTENSION, Messages.getInstance().getString(
+      "ClassifierPanel_ModelFilter_FileFilter_Text"));
 
   protected FileFilter m_PMMLModelFilter = new ExtensionFileFilter(
-      PMML_FILE_EXTENSION, Messages.getInstance().getString(
-          "ClassifierPanel_PMMLModelFilter_FileFilter_Text"));
+    PMML_FILE_EXTENSION, Messages.getInstance().getString(
+      "ClassifierPanel_PMMLModelFilter_FileFilter_Text"));
 
   /** The file chooser for selecting model files */
   protected JFileChooser m_FileChooser = new JFileChooser(new File(
-      System.getProperty("user.dir")));
+    System.getProperty("user.dir")));
 
   /* Register the property editors we need */
   static {
@@ -373,9 +372,9 @@ public class ClassifierPanel extends JPanel implements
         }
       }
     });
-    m_History.setBorder(BorderFactory.createTitledBorder(Messages.getInstance()
-        .getString(
-            "ClassifierPanel_History_BorderFactoryCreateTitledBorder_Text")));
+    m_History.setBorder(BorderFactory
+      .createTitledBorder(Messages.getInstance().getString(
+        "ClassifierPanel_History_BorderFactoryCreateTitledBorder_Text")));
     m_ClassifierEditor.setClassType(Classifier.class);
     m_ClassifierEditor.setValue(ExplorerDefaults.getClassifier());
     m_ClassifierEditor.addPropertyChangeListener(new PropertyChangeListener() {
@@ -387,12 +386,12 @@ public class ClassifierPanel extends JPanel implements
         Classifier classifier = (Classifier) m_ClassifierEditor.getValue();
         Capabilities currentSchemeCapabilities = null;
         if (classifier != null && currentFilter != null
-            && (classifier instanceof CapabilitiesHandler)) {
+          && (classifier instanceof CapabilitiesHandler)) {
           currentSchemeCapabilities = ((CapabilitiesHandler) classifier)
-              .getCapabilities();
+            .getCapabilities();
 
           if (!currentSchemeCapabilities.supportsMaybe(currentFilter)
-              && !currentSchemeCapabilities.supports(currentFilter)) {
+            && !currentSchemeCapabilities.supports(currentFilter)) {
             m_StartBut.setEnabled(false);
           }
         }
@@ -401,47 +400,45 @@ public class ClassifierPanel extends JPanel implements
     });
 
     m_ClassCombo.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_ClassCombo_SetToolTipText_Text"));
+      "ClassifierPanel_ClassCombo_SetToolTipText_Text"));
     m_TrainBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_TrainBut_SetToolTipText_Text"));
+      "ClassifierPanel_TrainBut_SetToolTipText_Text"));
     m_CVBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_CVBut_SetToolTipText_Text"));
+      "ClassifierPanel_CVBut_SetToolTipText_Text"));
     m_PercentBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_PercentBut_SetToolTipText_Text"));
+      "ClassifierPanel_PercentBut_SetToolTipText_Text"));
     m_TestSplitBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_TestSplitBut_SetToolTipText_Text"));
+      "ClassifierPanel_TestSplitBut_SetToolTipText_Text"));
     m_StartBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_StartBut_SetToolTipText_Text"));
+      "ClassifierPanel_StartBut_SetToolTipText_Text"));
     m_StopBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_StopBut_SetToolTipText_Text"));
+      "ClassifierPanel_StopBut_SetToolTipText_Text"));
     m_StorePredictionsBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_StorePredictionsBut_SetToolTipText_Text"));
+      "ClassifierPanel_StorePredictionsBut_SetToolTipText_Text"));
     m_OutputModelBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputModelBut_SetToolTipText_Text"));
+      "ClassifierPanel_OutputModelBut_SetToolTipText_Text"));
     m_OutputPerClassBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputPerClassBut_SetToolTipText_Text"));
+      "ClassifierPanel_OutputPerClassBut_SetToolTipText_Text"));
     m_OutputConfusionBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputConfusionBut_SetToolTipText_Text"));
+      "ClassifierPanel_OutputConfusionBut_SetToolTipText_Text"));
     m_OutputEntropyBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputEntropyBut_SetToolTipText_Text"));
+      "ClassifierPanel_OutputEntropyBut_SetToolTipText_Text"));
     m_EvalWRTCostsBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_EvalWRTCostsBut_SetToolTipText_Text"));
+      "ClassifierPanel_EvalWRTCostsBut_SetToolTipText_Text"));
     m_OutputPredictionsTextBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputPredictionsTextBut_SetToolTipText_Text"));
-    m_OutputAdditionalAttributesText
-        .setToolTipText(Messages
-            .getInstance()
-            .getString(
-                "ClassifierPanel_OutputAdditionalAttributesText_SetToolTipText_Text"));
+      "ClassifierPanel_OutputPredictionsTextBut_SetToolTipText_Text"));
+    m_OutputAdditionalAttributesText.setToolTipText(Messages.getInstance()
+      .getString(
+        "ClassifierPanel_OutputAdditionalAttributesText_SetToolTipText_Text"));
     m_RandomLab.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_RandomLab_SetToolTipText_Text"));
+      "ClassifierPanel_RandomLab_SetToolTipText_Text"));
     m_RandomSeedText.setToolTipText(m_RandomLab.getToolTipText());
     m_PreserveOrderBut.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_PreserveOrderBut_SetToolTipText_Text"));
+      "ClassifierPanel_PreserveOrderBut_SetToolTipText_Text"));
     m_OutputSourceCode.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_OutputSourceCode_SetToolTipText_Text"));
+      "ClassifierPanel_OutputSourceCode_SetToolTipText_Text"));
     m_SourceCodeClass.setToolTipText(Messages.getInstance().getString(
-        "ClassifierPanel_SourceCodeClass_SetToolTipText_Text"));
+      "ClassifierPanel_SourceCodeClass_SetToolTipText_Text"));
 
     m_FileChooser.addChoosableFileFilter(m_PMMLModelFilter);
     m_FileChooser.setFileFilter(m_ModelFilter);
@@ -449,32 +446,32 @@ public class ClassifierPanel extends JPanel implements
     m_FileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
     m_StorePredictionsBut.setSelected(ExplorerDefaults
-        .getClassifierStorePredictionsForVis());
+      .getClassifierStorePredictionsForVis());
     m_OutputModelBut.setSelected(ExplorerDefaults.getClassifierOutputModel());
     m_OutputPerClassBut.setSelected(ExplorerDefaults
-        .getClassifierOutputPerClassStats());
+      .getClassifierOutputPerClassStats());
     m_OutputConfusionBut.setSelected(ExplorerDefaults
-        .getClassifierOutputConfusionMatrix());
+      .getClassifierOutputConfusionMatrix());
     m_EvalWRTCostsBut.setSelected(ExplorerDefaults
-        .getClassifierCostSensitiveEval());
+      .getClassifierCostSensitiveEval());
     m_OutputEntropyBut.setSelected(ExplorerDefaults
-        .getClassifierOutputEntropyEvalMeasures());
+      .getClassifierOutputEntropyEvalMeasures());
     m_OutputPredictionsTextBut.setSelected(ExplorerDefaults
-        .getClassifierOutputPredictions());
+      .getClassifierOutputPredictions());
     m_OutputPredictionsTextBut.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         m_OutputAdditionalAttributesText.setEnabled(m_OutputPredictionsTextBut
-            .isSelected());
+          .isSelected());
       }
     });
     m_OutputAdditionalAttributesText.setText(ExplorerDefaults
-        .getClassifierOutputAdditionalAttributes());
+      .getClassifierOutputAdditionalAttributes());
     m_OutputAdditionalAttributesText.setEnabled(m_OutputPredictionsTextBut
-        .isSelected());
+      .isSelected());
     m_RandomSeedText.setText("" + ExplorerDefaults.getClassifierRandomSeed());
     m_PreserveOrderBut.setSelected(ExplorerDefaults
-        .getClassifierPreserveOrder());
+      .getClassifierPreserveOrder());
     m_OutputSourceCode.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -482,7 +479,7 @@ public class ClassifierPanel extends JPanel implements
       }
     });
     m_OutputSourceCode.setSelected(ExplorerDefaults
-        .getClassifierOutputSourceCode());
+      .getClassifierOutputSourceCode());
     m_SourceCodeClass.setText(ExplorerDefaults.getClassifierSourceCodeClass());
     m_SourceCodeClass.setEnabled(m_OutputSourceCode.isSelected());
     m_ClassCombo.setEnabled(false);
@@ -530,23 +527,24 @@ public class ClassifierPanel extends JPanel implements
       public void actionPerformed(ActionEvent e) {
         m_SetCostsBut.setEnabled(false);
         if (m_SetCostsFrame == null) {
-          if (PropertyDialog.getParentDialog(ClassifierPanel.this) != null)
+          if (PropertyDialog.getParentDialog(ClassifierPanel.this) != null) {
             m_SetCostsFrame = new PropertyDialog(PropertyDialog
-                .getParentDialog(ClassifierPanel.this), m_CostMatrixEditor,
-                100, 100);
-          else
+              .getParentDialog(ClassifierPanel.this), m_CostMatrixEditor, 100,
+              100);
+          } else {
             m_SetCostsFrame = new PropertyDialog(PropertyDialog
-                .getParentFrame(ClassifierPanel.this), m_CostMatrixEditor, 100,
-                100);
+              .getParentFrame(ClassifierPanel.this), m_CostMatrixEditor, 100,
+              100);
+          }
           m_SetCostsFrame.setTitle(Messages.getInstance().getString(
-              "ClassifierPanel_SetCostsFrame_SetTitle_Text"));
+            "ClassifierPanel_SetCostsFrame_SetTitle_Text"));
           // pd.setSize(250,150);
           m_SetCostsFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent p) {
               m_SetCostsBut.setEnabled(m_EvalWRTCostsBut.isSelected());
               if ((m_SetCostsFrame != null)
-                  && (!m_EvalWRTCostsBut.isSelected())) {
+                && (!m_EvalWRTCostsBut.isSelected())) {
                 m_SetCostsFrame.setVisible(false);
               }
             }
@@ -558,8 +556,9 @@ public class ClassifierPanel extends JPanel implements
         int classIndex = m_ClassCombo.getSelectedIndex();
         int numClasses = m_Instances.attribute(classIndex).numValues();
         if (numClasses != ((CostMatrix) m_CostMatrixEditor.getValue())
-            .numColumns())
+          .numColumns()) {
           m_CostMatrixEditor.setValue(new CostMatrix(numClasses));
+        }
 
         m_SetCostsFrame.setVisible(true);
       }
@@ -606,7 +605,7 @@ public class ClassifierPanel extends JPanel implements
       @Override
       public void mouseClicked(MouseEvent e) {
         if (((e.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
-            || e.isAltDown()) {
+          || e.isAltDown()) {
           int index = m_History.getList().locationToIndex(e.getPoint());
           if (index != -1) {
             String name = m_History.getNameAtIndex(index);
@@ -647,7 +646,7 @@ public class ClassifierPanel extends JPanel implements
         JPanel sourcePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         m_OutputSourceCode.setEnabled(m_ClassifierEditor.getValue() instanceof Sourcable);
         m_SourceCodeClass.setEnabled(m_OutputSourceCode.isEnabled()
-            && m_OutputSourceCode.isSelected());
+          && m_OutputSourceCode.isSelected());
         sourcePanel.add(m_OutputSourceCode);
         sourcePanel.add(m_SourceCodeClass);
         moreOptionsPanel.add(sourcePanel);
@@ -656,7 +655,7 @@ public class ClassifierPanel extends JPanel implements
         all.setLayout(new BorderLayout());
 
         JButton oK = new JButton(Messages.getInstance().getString(
-            "ClassifierPanel_OK_JButton_Text"));
+          "ClassifierPanel_OK_JButton_Text"));
         JPanel okP = new JPanel();
         okP.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         okP.setLayout(new GridLayout(1, 1, 5, 5));
@@ -666,8 +665,8 @@ public class ClassifierPanel extends JPanel implements
         all.add(okP, BorderLayout.SOUTH);
 
         final JDialog jd = new JDialog(PropertyDialog
-            .getParentFrame(ClassifierPanel.this), Messages.getInstance()
-            .getString("ClassifierPanel_JD_JDialog_Text"));
+          .getParentFrame(ClassifierPanel.this), Messages.getInstance()
+          .getString("ClassifierPanel_JD_JDialog_Text"));
         jd.getContentPane().setLayout(new BorderLayout());
         jd.getContentPane().add(all, BorderLayout.CENTER);
         jd.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -693,9 +692,9 @@ public class ClassifierPanel extends JPanel implements
     // Layout the GUI
     JPanel p1 = new JPanel();
     p1.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createTitledBorder(Messages.getInstance().getString(
-            "ClassifierPanel_P1_JPanel_BorderFactoryCreateTitledBorder_Text")),
-        BorderFactory.createEmptyBorder(0, 5, 5, 5)));
+      BorderFactory.createTitledBorder(Messages.getInstance().getString(
+        "ClassifierPanel_P1_JPanel_BorderFactoryCreateTitledBorder_Text")),
+      BorderFactory.createEmptyBorder(0, 5, 5, 5)));
     p1.setLayout(new BorderLayout());
     p1.add(m_CEPanel, BorderLayout.NORTH);
 
@@ -703,9 +702,9 @@ public class ClassifierPanel extends JPanel implements
     GridBagLayout gbL = new GridBagLayout();
     p2.setLayout(gbL);
     p2.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createTitledBorder(Messages.getInstance().getString(
-            "ClassifierPanel_P2_JPanel_BorderFactoryCreateTitledBorder_Text")),
-        BorderFactory.createEmptyBorder(0, 5, 5, 5)));
+      BorderFactory.createTitledBorder(Messages.getInstance().getString(
+        "ClassifierPanel_P2_JPanel_BorderFactoryCreateTitledBorder_Text")),
+      BorderFactory.createEmptyBorder(0, 5, 5, 5)));
     GridBagConstraints gbC = new GridBagConstraints();
     gbC.anchor = GridBagConstraints.WEST;
     gbC.gridy = 0;
@@ -808,8 +807,8 @@ public class ClassifierPanel extends JPanel implements
 
     JPanel p3 = new JPanel();
     p3.setBorder(BorderFactory.createTitledBorder(Messages.getInstance()
-        .getString(
-            "ClassifierPanel_P3_JPanel_BorderFactoryCreateTitledBorder_Text")));
+      .getString(
+        "ClassifierPanel_P3_JPanel_BorderFactoryCreateTitledBorder_Text")));
     p3.setLayout(new BorderLayout());
     final JScrollPane js = new JScrollPane(m_OutText);
     p3.add(js, BorderLayout.CENTER);
@@ -909,36 +908,37 @@ public class ClassifierPanel extends JPanel implements
       switch (m_Instances.attribute(i).type()) {
       case Attribute.NOMINAL:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeNOMINAL_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeNOMINAL_Text");
         break;
       case Attribute.NUMERIC:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeNUMERIC_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeNUMERIC_Text");
         break;
       case Attribute.STRING:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeSTRING_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeSTRING_Text");
         break;
       case Attribute.DATE:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeDATE_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeDATE_Text");
         break;
       case Attribute.RELATIONAL:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeRELATIONAL_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeRELATIONAL_Text");
         break;
       default:
         type = Messages.getInstance().getString(
-            "ClassifierPanel_SetInstances_Type_AttributeDEFAULT_Text");
+          "ClassifierPanel_SetInstances_Type_AttributeDEFAULT_Text");
       }
       attribNames[i] = type + m_Instances.attribute(i).name();
     }
     m_ClassCombo.setModel(new DefaultComboBoxModel(attribNames));
     if (attribNames.length > 0) {
-      if (inst.classIndex() == -1)
+      if (inst.classIndex() == -1) {
         m_ClassCombo.setSelectedIndex(attribNames.length - 1);
-      else
+      } else {
         m_ClassCombo.setSelectedIndex(inst.classIndex());
+      }
       m_ClassCombo.setEnabled(true);
       m_StartBut.setEnabled(m_RunThread == null);
       m_StopBut.setEnabled(m_RunThread != null);
@@ -958,11 +958,12 @@ public class ClassifierPanel extends JPanel implements
 
     if (m_SetTestFrame == null) {
       final SetInstancesPanel sp = new SetInstancesPanel(true,
-          m_Explorer.getPreprocessPanel().m_FileChooser);
+        m_Explorer.getPreprocessPanel().m_FileChooser);
       if (m_TestLoader != null) {
         try {
-          if (m_TestLoader.getStructure() != null)
+          if (m_TestLoader.getStructure() != null) {
             sp.setInstances(m_TestLoader.getStructure());
+          }
         } catch (Exception ex) {
           ex.printStackTrace();
         }
@@ -976,7 +977,7 @@ public class ClassifierPanel extends JPanel implements
       // Add propertychangelistener to update m_TestLoader whenever
       // it changes in the settestframe
       m_SetTestFrame = new JFrame(Messages.getInstance().getString(
-          "ClassifierPanel_SetTestSet_SetTestFrame_JFrame_Text"));
+        "ClassifierPanel_SetTestSet_SetTestFrame_JFrame_Text"));
       sp.setParentFrame(m_SetTestFrame); // enable Close-Button
       m_SetTestFrame.getContentPane().setLayout(new BorderLayout());
       m_SetTestFrame.getContentPane().add(sp, BorderLayout.CENTER);
@@ -1002,11 +1003,11 @@ public class ClassifierPanel extends JPanel implements
    * @param plotSize additional plotting information (size)
    */
   public static void processClassifierPrediction(Instance toPredict,
-      Classifier classifier, Evaluation eval, Instances plotInstances,
-      FastVector plotShape, FastVector plotSize) {
+    Classifier classifier, Evaluation eval, Instances plotInstances,
+    FastVector plotShape, FastVector plotSize) {
     try {
       double pred = eval.evaluateModelOnceAndRecordPrediction(classifier,
-          toPredict);
+        toPredict);
 
       if (plotInstances != null) {
         double[] values = new double[plotInstances.numAttributes()];
@@ -1030,7 +1031,7 @@ public class ClassifierPanel extends JPanel implements
         plotInstances.add(new Instance(1.0, values));
         if (toPredict.classAttribute().isNominal()) {
           if (toPredict.isMissing(toPredict.classIndex())
-              || Instance.isMissingValue(pred)) {
+            || Instance.isMissingValue(pred)) {
             plotShape.addElement(new Integer(Plot2D.MISSING_SHAPE));
           } else if (pred != toPredict.classValue()) {
             // set to default error point shape
@@ -1044,7 +1045,7 @@ public class ClassifierPanel extends JPanel implements
           // store the error (to be converted to a point size later)
           Double errd = null;
           if (!toPredict.isMissing(toPredict.classIndex())
-              && !Instance.isMissingValue(pred)) {
+            && !Instance.isMissingValue(pred)) {
             errd = new Double(pred - toPredict.classValue());
             plotShape.addElement(new Integer(Plot2D.CONST_AUTOMATIC_SHAPE));
           } else {
@@ -1121,18 +1122,18 @@ public class ClassifierPanel extends JPanel implements
         attVals.addElement(classAt.value(i));
       }
       predictedClass = new Attribute(
-          Messages
-              .getInstance()
-              .getString(
-                  "ClassifierPanel_SetUpVisualizableInstances_PredictedClass_Attribute_Text_First")
-              + classAt.name(), attVals);
+        Messages
+          .getInstance()
+          .getString(
+            "ClassifierPanel_SetUpVisualizableInstances_PredictedClass_Attribute_Text_First")
+          + classAt.name(), attVals);
     } else {
       predictedClass = new Attribute(
-          Messages
-              .getInstance()
-              .getString(
-                  "ClassifierPanel_SetUpVisualizableInstances_PredictedClass_Attribute_Text_Second")
-              + classAt.name());
+        Messages
+          .getInstance()
+          .getString(
+            "ClassifierPanel_SetUpVisualizableInstances_PredictedClass_Attribute_Text_Second")
+          + classAt.name());
     }
 
     for (int i = 0; i < trainInstances.numAttributes(); i++) {
@@ -1142,7 +1143,7 @@ public class ClassifierPanel extends JPanel implements
       hv.addElement(trainInstances.attribute(i).copy());
     }
     return new Instances(trainInstances.relationName() + "_predicted", hv,
-        trainInstances.numInstances());
+      trainInstances.numInstances());
   }
 
   /**
@@ -1153,31 +1154,29 @@ public class ClassifierPanel extends JPanel implements
    * @param title the title to print
    */
   protected void printPredictionsHeader(StringBuffer outBuff, Instances inst,
-      String title) {
-    outBuff
-        .append(Messages.getInstance().getString(
-            "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_First")
-            + title
-            + " "
-            + Messages
-                .getInstance()
-                .getString(
-                    "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_First_Alpha"));
+    String title) {
     outBuff.append(Messages.getInstance().getString(
-        "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_Second"));
+      "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_First")
+      + title
+      + " "
+      + Messages.getInstance().getString(
+        "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_First_Alpha"));
+    outBuff.append(Messages.getInstance().getString(
+      "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_Second"));
     if (inst.classAttribute().isNominal()) {
       outBuff.append(Messages.getInstance().getString(
-          "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_Third"));
+        "ClassifierPanel_PrintPredictionsHeader_OutBuffer_Text_Third"));
     }
     if (m_OutputAdditionalAttributesRange != null) {
       outBuff.append(" (");
       boolean first = true;
       for (int i = 0; i < inst.numAttributes() - 1; i++) {
         if (m_OutputAdditionalAttributesRange.isInRange(i)) {
-          if (!first)
+          if (!first) {
             outBuff.append(",");
-          else
+          } else {
             first = false;
+          }
           outBuff.append(inst.attribute(i).name());
         }
       }
@@ -1204,7 +1203,7 @@ public class ClassifierPanel extends JPanel implements
         public void run() {
           // Copy the current state of things
           m_Log.statusMessage(Messages.getInstance().getString(
-              "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_First"));
+            "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_First"));
           CostMatrix costMatrix = null;
           Instances inst = new Instances(m_Instances);
           DataSource source = null;
@@ -1228,7 +1227,7 @@ public class ClassifierPanel extends JPanel implements
           }
           if (m_EvalWRTCostsBut.isSelected()) {
             costMatrix = new CostMatrix(
-                (CostMatrix) m_CostMatrixEditor.getValue());
+              (CostMatrix) m_CostMatrixEditor.getValue());
           }
           boolean outputModel = m_OutputModelBut.isSelected();
           boolean outputConfusion = m_OutputConfusionBut.isSelected();
@@ -1237,14 +1236,30 @@ public class ClassifierPanel extends JPanel implements
           boolean outputEntropy = m_OutputEntropyBut.isSelected();
           boolean saveVis = m_StorePredictionsBut.isSelected();
           boolean outputPredictionsText = m_OutputPredictionsTextBut
-              .isSelected();
+            .isSelected();
           if (m_OutputAdditionalAttributesText.getText().equals("")) {
             m_OutputAdditionalAttributesRange = null;
           } else {
-            m_OutputAdditionalAttributesRange = new Range(
+            try {
+              m_OutputAdditionalAttributesRange = new Range(
                 m_OutputAdditionalAttributesText.getText());
-            m_OutputAdditionalAttributesRange
+              m_OutputAdditionalAttributesRange
                 .setUpper(inst.numAttributes() - 1);
+            } catch (IllegalArgumentException e) {
+              JOptionPane.showMessageDialog(
+                ClassifierPanel.this,
+                Messages.getInstance().getString(
+                  "ClassifierPanel_OutputAdditionalAttributes_First")
+                  + "\n\n"
+                  + m_OutputAdditionalAttributesText.getText()
+                  + "\n\n"
+                  + Messages.getInstance().getString(
+                    "ClassifierPanel_OutputAdditionalAttributes_Second"),
+                Messages.getInstance().getString(
+                  "ClassifierPanel_OutputAdditionalAttributes_Title"),
+                JOptionPane.ERROR_MESSAGE);
+              m_OutputAdditionalAttributesRange = null;
+            }
           }
 
           String grph = null;
@@ -1259,13 +1274,13 @@ public class ClassifierPanel extends JPanel implements
             template = Classifier.makeCopy(classifier);
           } catch (Exception ex) {
             m_Log.logMessage(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_Log_LogMessage_Text_First")
-                + ex.getMessage());
+              "ClassifierPanel_StartClassifier_Log_LogMessage_Text_First")
+              + ex.getMessage());
           }
           Classifier fullClassifier = null;
           StringBuffer outBuff = new StringBuffer();
           String name = (new SimpleDateFormat("HH:mm:ss - "))
-              .format(new Date());
+            .format(new Date());
           String cname = classifier.getClass().getName();
           if (cname.startsWith("weka.classifiers.")) {
             name += cname.substring("weka.classifiers.".length());
@@ -1273,10 +1288,11 @@ public class ClassifierPanel extends JPanel implements
             name += cname;
           }
           String cmd = m_ClassifierEditor.getValue().getClass().getName();
-          if (m_ClassifierEditor.getValue() instanceof OptionHandler)
+          if (m_ClassifierEditor.getValue() instanceof OptionHandler) {
             cmd += " "
-                + Utils.joinOptions(((OptionHandler) m_ClassifierEditor
-                    .getValue()).getOptions());
+              + Utils.joinOptions(((OptionHandler) m_ClassifierEditor
+                .getValue()).getOptions());
+          }
           Evaluation eval = null;
           try {
             if (m_CVBut.isSelected()) {
@@ -1284,14 +1300,14 @@ public class ClassifierPanel extends JPanel implements
               numFolds = Integer.parseInt(m_CVText.getText());
               if (numFolds <= 1) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_StartClassifier_Exception_Text_First"));
+                  "ClassifierPanel_StartClassifier_Exception_Text_First"));
               }
             } else if (m_PercentBut.isSelected()) {
               testMode = 2;
               percent = Double.parseDouble(m_PercentText.getText());
               if ((percent <= 0) || (percent >= 100)) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_StartClassifier_Exception_Text_Second"));
+                  "ClassifierPanel_StartClassifier_Exception_Text_Second"));
               }
             } else if (m_TrainBut.isSelected()) {
               testMode = 3;
@@ -1300,16 +1316,16 @@ public class ClassifierPanel extends JPanel implements
               // Check the test instance compatibility
               if (source == null) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_StartClassifier_Exception_Text_Third"));
+                  "ClassifierPanel_StartClassifier_Exception_Text_Third"));
               }
               if (!inst.equalHeaders(userTestStructure)) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_StartClassifier_Exception_Text_Fourth"));
+                  "ClassifierPanel_StartClassifier_Exception_Text_Fourth"));
               }
               userTestStructure.setClassIndex(classIndex);
             } else {
               throw new Exception(Messages.getInstance().getString(
-                  "ClassifierPanel_StartClassifier_Exception_Text_Fifth"));
+                "ClassifierPanel_StartClassifier_Exception_Text_Fifth"));
             }
             inst.setClassIndex(classIndex);
 
@@ -1322,99 +1338,87 @@ public class ClassifierPanel extends JPanel implements
 
             // Output some header information
             m_Log.logMessage(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Second")
-                + cname);
+              "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Second")
+              + cname);
             m_Log.logMessage(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Third")
-                + cmd);
+              "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Third")
+              + cmd);
             if (m_Log instanceof TaskLogger) {
               ((TaskLogger) m_Log).taskStarted();
             }
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_First"));
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_First"));
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_Second")
-                + cname);
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_Second")
+              + cname);
             if (classifier instanceof OptionHandler) {
               String[] o = ((OptionHandler) classifier).getOptions();
               outBuff.append(" " + Utils.joinOptions(o));
             }
             outBuff.append("\n");
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_Fourth")
-                + inst.relationName() + '\n');
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_Fourth")
+              + inst.relationName() + '\n');
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_Sixth")
-                + inst.numInstances() + '\n');
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_Sixth")
+              + inst.numInstances() + '\n');
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_Eigth")
-                + inst.numAttributes() + '\n');
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_Eigth")
+              + inst.numAttributes() + '\n');
             if (inst.numAttributes() < 100) {
               for (int i = 0; i < inst.numAttributes(); i++) {
                 outBuff.append("              " + inst.attribute(i).name()
-                    + '\n');
+                  + '\n');
               }
             } else {
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_StartClassifier_OutBuffer_Text_Twelveth"));
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_Twelveth"));
             }
 
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_OutBuffer_Text_Thirteenth"));
+              "ClassifierPanel_StartClassifier_OutBuffer_Text_Thirteenth"));
             switch (testMode) {
             case 3: // Test on training
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_StartClassifier_OutBuffer_Text_Fourteenth"));
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_Fourteenth"));
               break;
             case 1: // CV mode
-              outBuff
-                  .append(""
-                      + numFolds
-                      + Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_OutBuffer_Text_Sixteenth"));
+              outBuff.append(""
+                + numFolds
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_StartClassifier_OutBuffer_Text_Sixteenth"));
               break;
             case 2: // Percent split
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_Seventeenth")
-                      + percent
-                      + Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_OutBuffer_Text_Eighteenth"));
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_Seventeenth")
+                + percent
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_StartClassifier_OutBuffer_Text_Eighteenth"));
               break;
             case 4: // Test on user split
-              if (source.isIncremental())
+              if (source.isIncremental()) {
+                outBuff.append(Messages.getInstance().getString(
+                  "ClassifierPanel_StartClassifier_OutBuffer_Text_Nineteenth"));
+              } else {
                 outBuff
-                    .append(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_OutBuffer_Text_Nineteenth"));
-              else
-                outBuff
-                    .append(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_OutBuffer_Text_Twentyth")
-                        + source.getDataSet().numInstances()
-                        + Messages
-                            .getInstance()
-                            .getString(
-                                "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyFirst"));
+                  .append(Messages.getInstance().getString(
+                    "ClassifierPanel_StartClassifier_OutBuffer_Text_Twentyth")
+                    + source.getDataSet().numInstances()
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyFirst"));
+              }
               break;
             }
             if (costMatrix != null) {
               outBuff
-                  .append(
-                      Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentySecond"))
-                  .append(costMatrix.toString()).append("\n");
+                .append(
+                  Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentySecond"))
+                .append(costMatrix.toString()).append("\n");
             }
             outBuff.append("\n");
             m_History.addResult(name, outBuff);
@@ -1423,10 +1427,10 @@ public class ClassifierPanel extends JPanel implements
             // Build the model and output it.
             if (outputModel || (testMode == 3) || (testMode == 4)) {
               m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Second"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Second"));
 
               trainTimeStart = System.currentTimeMillis();
               classifier.buildClassifier(inst);
@@ -1434,23 +1438,20 @@ public class ClassifierPanel extends JPanel implements
             }
 
             if (outputModel) {
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentySixth"));
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentySixth"));
               outBuff.append(classifier.toString() + "\n");
               outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyEighth")
-                      + Utils.doubleToString(trainTimeElapsed / 1000.0, 2)
-                      + " "
-                      + Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyNineth"));
+                .append(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyEighth")
+                  + Utils.doubleToString(trainTimeElapsed / 1000.0, 2)
+                  + " "
+                  + Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_OutBuffer_Text_TwentyNineth"));
               m_History.updateResult(name);
               if (classifier instanceof Drawable) {
                 grph = null;
@@ -1475,15 +1476,15 @@ public class ClassifierPanel extends JPanel implements
 
               for (int jj = 0; jj < inst.numInstances(); jj++) {
                 processClassifierPrediction(inst.instance(jj), classifier,
-                    eval, predInstances, plotShape, plotSize);
+                  eval, predInstances, plotShape, plotSize);
 
                 if (outputPredictionsText) {
                   outBuff.append(predictionText(classifier, inst.instance(jj),
-                      jj + 1));
+                    jj + 1));
                 }
                 if ((jj % 100) == 0) {
                   m_Log.statusMessage("Evaluating on training data. Processed "
-                      + jj + " instances...");
+                    + jj + " instances...");
                 }
               }
               if (outputPredictionsText) {
@@ -1517,56 +1518,56 @@ public class ClassifierPanel extends JPanel implements
               // Make some splits and do a CV
               for (int fold = 0; fold < numFolds; fold++) {
                 m_Log
-                    .statusMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eighth")
-                        + (fold + 1)
-                        + Messages
-                            .getInstance()
-                            .getString(
-                                "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Nineth"));
+                  .statusMessage(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eighth")
+                    + (fold + 1)
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Nineth"));
                 Instances train = inst.trainCV(numFolds, fold, random);
                 eval.setPriors(train);
                 m_Log
-                    .statusMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Tenth")
-                        + (fold + 1)
-                        + Messages
-                            .getInstance()
-                            .getString(
-                                "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twelveth"));
+                  .statusMessage(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Tenth")
+                    + (fold + 1)
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twelveth"));
                 Classifier current = null;
                 try {
                   current = Classifier.makeCopy(template);
                 } catch (Exception ex) {
                   m_Log
-                      .logMessage(Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Fifth")
-                          + ex.getMessage());
+                    .logMessage(Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Fifth")
+                      + ex.getMessage());
                 }
                 current.buildClassifier(train);
                 Instances test = inst.testCV(numFolds, fold);
                 m_Log
-                    .statusMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eleventh")
-                        + (fold + 1)
-                        + Messages
-                            .getInstance()
-                            .getString(
-                                "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twelveth"));
+                  .statusMessage(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eleventh")
+                    + (fold + 1)
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twelveth"));
                 for (int jj = 0; jj < test.numInstances(); jj++) {
                   processClassifierPrediction(test.instance(jj), current, eval,
-                      predInstances, plotShape, plotSize);
+                    predInstances, plotShape, plotSize);
                   if (outputPredictionsText) {
                     outBuff.append(predictionText(current, test.instance(jj),
-                        jj + 1));
+                      jj + 1));
                   }
                 }
               }
@@ -1575,128 +1576,122 @@ public class ClassifierPanel extends JPanel implements
               }
               if (inst.attribute(classIndex).isNominal()) {
                 outBuff
-                    .append(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyThird"));
+                  .append(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyThird"));
               } else {
                 outBuff
-                    .append(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyFourth"));
+                  .append(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyFourth"));
               }
               break;
 
             case 2: // Percent split
               if (!m_PreserveOrderBut.isSelected()) {
                 m_Log
-                    .statusMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Thirteenth"));
+                  .statusMessage(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Thirteenth"));
                 try {
                   rnd = Integer.parseInt(m_RandomSeedText.getText().trim());
                 } catch (Exception ex) {
                   m_Log
-                      .logMessage(Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Fourteenth"));
+                    .logMessage(Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Fourteenth"));
                   rnd = 1;
                 }
                 inst.randomize(new Random(rnd));
               }
               int trainSize = (int) Math.round(inst.numInstances() * percent
-                  / 100);
+                / 100);
               int testSize = inst.numInstances() - trainSize;
               Instances train = new Instances(inst, 0, trainSize);
               Instances test = new Instances(inst, trainSize, testSize);
               m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Fifteenth")
-                      + trainSize
-                      + Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Sixteenth"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Fifteenth")
+                  + trainSize
+                  + Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Sixteenth"));
               Classifier current = null;
               try {
                 current = Classifier.makeCopy(template);
               } catch (Exception ex) {
-                m_Log
-                    .logMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Sixth")
-                        + ex.getMessage());
+                m_Log.logMessage(Messages.getInstance().getString(
+                  "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Sixth")
+                  + ex.getMessage());
               }
               current.buildClassifier(train);
               eval = new Evaluation(train, costMatrix);
               m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Seventeenth"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Seventeenth"));
 
               if (outputPredictionsText) {
                 printPredictionsHeader(
-                    outBuff,
-                    inst,
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_PrintPredictionsHeader_Text_First"));
+                  outBuff,
+                  inst,
+                  Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_PrintPredictionsHeader_Text_First"));
               }
 
               for (int jj = 0; jj < test.numInstances(); jj++) {
                 processClassifierPrediction(test.instance(jj), current, eval,
-                    predInstances, plotShape, plotSize);
+                  predInstances, plotShape, plotSize);
                 if (outputPredictionsText) {
                   outBuff.append(predictionText(current, test.instance(jj),
-                      jj + 1));
+                    jj + 1));
                 }
                 if ((jj % 100) == 0) {
                   m_Log
-                      .statusMessage(Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eighteenth")
-                          + jj
-                          + Messages
-                              .getInstance()
-                              .getString(
-                                  "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Nineteenth"));
+                    .statusMessage(Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Eighteenth")
+                      + jj
+                      + Messages
+                        .getInstance()
+                        .getString(
+                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Nineteenth"));
                 }
               }
               if (outputPredictionsText) {
                 outBuff.append("\n");
               }
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtySixth"));
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtySixth"));
               break;
 
             case 4: // Test on user split
               m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twentyth"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_Twentyth"));
               eval = new Evaluation(inst, costMatrix);
 
               if (outputPredictionsText) {
                 printPredictionsHeader(
-                    outBuff,
-                    inst,
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_PrintPredictionsHeader_Text_Second"));
+                  outBuff,
+                  inst,
+                  Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_StartClassifier_PrintPredictionsHeader_Text_Second"));
               }
 
               Instance instance;
@@ -1704,37 +1699,34 @@ public class ClassifierPanel extends JPanel implements
               while (source.hasMoreElements(userTestStructure)) {
                 instance = source.nextElement(userTestStructure);
                 processClassifierPrediction(instance, classifier, eval,
-                    predInstances, plotShape, plotSize);
+                  predInstances, plotShape, plotSize);
                 if (outputPredictionsText) {
                   outBuff.append(predictionText(classifier, instance, jj + 1));
                 }
                 if ((++jj % 100) == 0) {
                   m_Log
-                      .statusMessage(Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFirst")
-                          + jj
-                          + Messages
-                              .getInstance()
-                              .getString(
-                                  "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentySecond"));
+                    .statusMessage(Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFirst")
+                      + jj
+                      + Messages
+                        .getInstance()
+                        .getString(
+                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentySecond"));
                 }
               }
 
               if (outputPredictionsText) {
                 outBuff.append("\n");
               }
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyEighth"));
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_ThirtyEighth"));
               break;
 
             default:
               throw new Exception(Messages.getInstance().getString(
-                  "ClassifierPanel_StartClassifier_Exception_Text"));
+                "ClassifierPanel_StartClassifier_Exception_Text"));
             }
 
             if (outputSummary) {
@@ -1753,46 +1745,43 @@ public class ClassifierPanel extends JPanel implements
             }
 
             if ((fullClassifier instanceof Sourcable)
-                && m_OutputSourceCode.isSelected()) {
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_OutBuffer_Text_FourtySecond"));
+              && m_OutputSourceCode.isSelected()) {
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_StartClassifier_OutBuffer_Text_FourtySecond"));
               outBuff.append(Evaluation.wekaStaticWrapper(
-                  ((Sourcable) fullClassifier), m_SourceCodeClass.getText()));
+                ((Sourcable) fullClassifier), m_SourceCodeClass.getText()));
             }
 
             m_History.updateResult(name);
             m_Log.logMessage(Messages.getInstance().getString(
-                "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Seventh")
-                + cname);
+              "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Seventh")
+              + cname);
             m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyThird"));
+              .statusMessage(Messages
+                .getInstance()
+                .getString(
+                  "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyThird"));
           } catch (Exception ex) {
             ex.printStackTrace();
             m_Log.logMessage(ex.getMessage());
             JOptionPane
-                .showMessageDialog(
-                    ClassifierPanel.this,
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_JOptionPaneShowMessageDialog_Text_First")
-                        + ex.getMessage(),
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_StartClassifier_JOptionPaneShowMessageDialog_Text_Second"),
-                    JOptionPane.ERROR_MESSAGE);
+              .showMessageDialog(
+                ClassifierPanel.this,
+                Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_JOptionPaneShowMessageDialog_Text_First")
+                  + ex.getMessage(),
+                Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_JOptionPaneShowMessageDialog_Text_Second"),
+                JOptionPane.ERROR_MESSAGE);
             m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFourth"));
+              .statusMessage(Messages
+                .getInstance()
+                .getString(
+                  "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFourth"));
           } finally {
             try {
               if (!saveVis && outputModel) {
@@ -1806,9 +1795,9 @@ public class ClassifierPanel extends JPanel implements
                 }
                 m_History.addObject(name, vv);
               } else if (saveVis && predInstances != null
-                  && predInstances.numInstances() > 0) {
+                && predInstances.numInstances() > 0) {
                 if (predInstances.attribute(predInstances.classIndex())
-                    .isNumeric()) {
+                  .isNumeric()) {
                   postProcessPlotInfo(plotSize);
                 }
                 m_CurrentVis = new VisualizePanel();
@@ -1848,13 +1837,13 @@ public class ClassifierPanel extends JPanel implements
 
             if (isInterrupted()) {
               m_Log.logMessage(Messages.getInstance().getString(
-                  "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Eighth")
-                  + cname);
+                "ClassifierPanel_StartClassifier_Log_LogMessage_Text_Eighth")
+                + cname);
               m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFourth"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_StartClassifier_Log_StatusMessage_Text_TwentyFourth"));
             }
 
             synchronized (this) {
@@ -1883,7 +1872,7 @@ public class ClassifierPanel extends JPanel implements
    * @return the generated row
    */
   protected String predictionText(Classifier classifier, Instance inst,
-      int instNum) throws Exception {
+    int instNum) throws Exception {
 
     // > inst# actual predicted error probability distribution
 
@@ -1893,12 +1882,13 @@ public class ClassifierPanel extends JPanel implements
     if (inst.classAttribute().isNominal()) {
 
       // actual
-      if (inst.classIsMissing())
+      if (inst.classIsMissing()) {
         text.append(Utils.padLeft("?", 10) + " ");
-      else
+      } else {
         text.append(Utils.padLeft("" + ((int) inst.classValue() + 1) + ":"
-            + inst.stringValue(inst.classAttribute()), 10)
-            + " ");
+          + inst.stringValue(inst.classAttribute()), 10)
+          + " ");
+      }
 
       // predicted
       double[] probdist = null;
@@ -1906,49 +1896,55 @@ public class ClassifierPanel extends JPanel implements
       if (inst.classAttribute().isNominal()) {
         probdist = classifier.distributionForInstance(inst);
         pred = Utils.maxIndex(probdist);
-        if (probdist[(int) pred] <= 0.0)
+        if (probdist[(int) pred] <= 0.0) {
           pred = Instance.missingValue();
+        }
       } else {
         pred = classifier.classifyInstance(inst);
       }
-      text.append(Utils.padLeft(
-          (Instance.isMissingValue(pred) ? "?" : (((int) pred + 1) + ":" + inst
-              .classAttribute().value((int) pred))), 10)
-          + " ");
+      text.append(Utils.padLeft((Instance.isMissingValue(pred) ? "?"
+        : (((int) pred + 1) + ":" + inst.classAttribute().value((int) pred))),
+        10)
+        + " ");
       // error
-      if (pred == inst.classValue())
+      if (pred == inst.classValue()) {
         text.append(Utils.padLeft(" ", 6) + " ");
-      else
+      } else {
         text.append(Utils.padLeft("+", 6) + " ");
+      }
 
       // prob dist
       if (inst.classAttribute().type() == Attribute.NOMINAL) {
         for (int i = 0; i < probdist.length; i++) {
-          if (i == (int) pred)
+          if (i == (int) pred) {
             text.append(" *");
-          else
+          } else {
             text.append("  ");
+          }
           text.append(Utils.doubleToString(probdist[i], 5, 3));
         }
       }
     } else {
 
       // actual
-      if (inst.classIsMissing())
+      if (inst.classIsMissing()) {
         text.append(Utils.padLeft("?", 10) + " ");
-      else
+      } else {
         text.append(Utils.doubleToString(inst.classValue(), 10, 3) + " ");
+      }
 
       // predicted
       double pred = classifier.classifyInstance(inst);
-      if (Instance.isMissingValue(pred))
+      if (Instance.isMissingValue(pred)) {
         text.append(Utils.padLeft("?", 10) + " ");
-      else
+      } else {
         text.append(Utils.doubleToString(pred, 10, 3) + " ");
+      }
 
       // err
-      if (!inst.classIsMissing() && !Instance.isMissingValue(pred))
+      if (!inst.classIsMissing() && !Instance.isMissingValue(pred)) {
         text.append(Utils.doubleToString(pred - inst.classValue(), 10, 3));
+      }
     }
 
     // additional Attributes
@@ -1957,10 +1953,11 @@ public class ClassifierPanel extends JPanel implements
       boolean first = true;
       for (int i = 0; i < inst.numAttributes() - 1; i++) {
         if (m_OutputAdditionalAttributesRange.isInRange(i)) {
-          if (!first)
+          if (!first) {
             text.append(",");
-          else
+          } else {
             first = false;
+          }
           text.append(inst.toString(i));
         }
       }
@@ -1984,7 +1981,7 @@ public class ClassifierPanel extends JPanel implements
     JPopupMenu resultListMenu = new JPopupMenu();
 
     JMenuItem visMainBuffer = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisMainBuffer_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_VisMainBuffer_JMenuItem_Text"));
     if (selectedName != null) {
       visMainBuffer.addActionListener(new ActionListener() {
         @Override
@@ -1998,7 +1995,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visMainBuffer);
 
     JMenuItem visSepBuffer = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisSepBuffer_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_VisSepBuffer_JMenuItem_Text"));
     if (selectedName != null) {
       visSepBuffer.addActionListener(new ActionListener() {
         @Override
@@ -2012,7 +2009,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visSepBuffer);
 
     JMenuItem saveOutput = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_SaveOutput_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_SaveOutput_JMenuItem_Text"));
     if (selectedName != null) {
       saveOutput.addActionListener(new ActionListener() {
         @Override
@@ -2026,7 +2023,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(saveOutput);
 
     JMenuItem deleteOutput = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_DeleteOutput_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_DeleteOutput_JMenuItem_Text"));
     if (selectedName != null) {
       deleteOutput.addActionListener(new ActionListener() {
         @Override
@@ -2042,7 +2039,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.addSeparator();
 
     JMenuItem loadModel = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_LoadModel_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_LoadModel_JMenuItem_Text"));
     loadModel.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -2090,7 +2087,7 @@ public class ClassifierPanel extends JPanel implements
     final Instances trainHeader = temp_trainHeader;
 
     JMenuItem saveModel = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_SaveModel_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_SaveModel_JMenuItem_Text"));
     if (classifier != null) {
       saveModel.addActionListener(new ActionListener() {
         @Override
@@ -2104,7 +2101,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(saveModel);
 
     JMenuItem reEvaluate = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_ReEvaluate_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_ReEvaluate_JMenuItem_Text"));
     if (classifier != null && m_TestLoader != null) {
       reEvaluate.addActionListener(new ActionListener() {
         @Override
@@ -2120,7 +2117,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.addSeparator();
 
     JMenuItem visErrors = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisErrors_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_VisErrors_JMenuItem_Text"));
     if (vp != null) {
       if ((vp.getXIndex() == 0) && (vp.getYIndex() == 1)) {
         try {
@@ -2142,23 +2139,24 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visErrors);
 
     JMenuItem visGrph = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisGrph_JMenuItem_Text_First"));
+      "ClassifierPanel_Visualize_VisGrph_JMenuItem_Text_First"));
     if (grph != null) {
       if (((Drawable) temp_classifier).graphType() == Drawable.TREE) {
         visGrph.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
             String title;
-            if (vp != null)
+            if (vp != null) {
               title = vp.getName();
-            else
+            } else {
               title = selectedName;
+            }
             visualizeTree(grph, title);
           }
         });
       } else if (((Drawable) temp_classifier).graphType() == Drawable.BayesNet) {
         visGrph.setText(Messages.getInstance().getString(
-            "ClassifierPanel_Visualize_VisGrph_JMenuItem_Text_Second"));
+          "ClassifierPanel_Visualize_VisGrph_JMenuItem_Text_Second"));
         visGrph.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -2171,15 +2169,16 @@ public class ClassifierPanel extends JPanel implements
             th.start();
           }
         });
-      } else
+      } else {
         visGrph.setEnabled(false);
+      }
     } else {
       visGrph.setEnabled(false);
     }
     resultListMenu.add(visGrph);
 
     JMenuItem visMargin = new JMenuItem(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisMargin_JMenuItem_Text"));
+      "ClassifierPanel_Visualize_VisMargin_JMenuItem_Text"));
     if (preds != null) {
       visMargin.addActionListener(new ActionListener() {
         @Override
@@ -2206,7 +2205,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visMargin);
 
     JMenu visThreshold = new JMenu(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisThreshold_JMenu_Text"));
+      "ClassifierPanel_Visualize_VisThreshold_JMenu_Text"));
     if (preds != null && classAtt != null) {
       for (int i = 0; i < classAtt.numValues(); i++) {
         JMenuItem clv = new JMenuItem(classAtt.value(i));
@@ -2220,24 +2219,25 @@ public class ClassifierPanel extends JPanel implements
               // VisualizePanel vmc = new VisualizePanel();
               ThresholdVisualizePanel vmc = new ThresholdVisualizePanel();
               vmc.setROCString(Messages.getInstance().getString(
-                  "ClassifierPanel_Visualize_VMC_SetROCString_Text_First")
-                  + Utils.doubleToString(ThresholdCurve.getROCArea(result), 4)
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_VMC_SetROCString_Text_Second"));
+                "ClassifierPanel_Visualize_VMC_SetROCString_Text_First")
+                + Utils.doubleToString(ThresholdCurve.getROCArea(result), 4)
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_VMC_SetROCString_Text_Second"));
               vmc.setLog(m_Log);
               vmc.setName(result.relationName()
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_VMC_SetName_Text_First")
-                  + classAtt.value(classValue)
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_VMC_SetName_Text_Second"));
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_VMC_SetName_Text_First")
+                + classAtt.value(classValue)
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_VMC_SetName_Text_Second"));
               PlotData2D tempd = new PlotData2D(result);
               tempd.setPlotName(result.relationName());
               tempd.addInstanceNumberAttribute();
               // specify which points are connected
               boolean[] cp = new boolean[result.numInstances()];
-              for (int n = 1; n < cp.length; n++)
+              for (int n = 1; n < cp.length; n++) {
                 cp[n] = true;
+              }
               tempd.setConnectPoints(cp);
               // add plot
               vmc.addPlot(tempd);
@@ -2255,7 +2255,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visThreshold);
 
     JMenu visCostBenefit = new JMenu(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisCostBenefit_JMenu_Text"));
+      "ClassifierPanel_Visualize_VisCostBenefit_JMenu_Text"));
     if ((preds != null) && (classAtt != null) && (classAtt.isNominal())) {
       for (int i = 0; i < classAtt.numValues(); i++) {
         JMenuItem clv = new JMenuItem(classAtt.value(i));
@@ -2288,8 +2288,9 @@ public class ClassifierPanel extends JPanel implements
               tempd.m_alwaysDisplayPointsOfThisSize = 10;
               // specify which points are connected
               boolean[] cp = new boolean[result.numInstances()];
-              for (int n = 1; n < cp.length; n++)
+              for (int n = 1; n < cp.length; n++) {
                 cp[n] = true;
+              }
               tempd.setConnectPoints(cp);
 
               String windowTitle = "";
@@ -2297,14 +2298,14 @@ public class ClassifierPanel extends JPanel implements
                 String cname = classifier.getClass().getName();
                 if (cname.startsWith("weka.classifiers.")) {
                   windowTitle = ""
-                      + cname.substring("weka.classifiers.".length()) + " ";
+                    + cname.substring("weka.classifiers.".length()) + " ";
                 }
               }
               windowTitle += Messages.getInstance().getString(
-                  "ClassifierPanel_Visualize_WindowTitle_Text_First")
-                  + classAttToUse.value(0)
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_WindowTitle_Text_Second");
+                "ClassifierPanel_Visualize_WindowTitle_Text_First")
+                + classAttToUse.value(0)
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_WindowTitle_Text_Second");
 
               // add plot
               cbAnalysis.setCurveData(tempd, classAttToUse);
@@ -2322,7 +2323,7 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visCostBenefit);
 
     JMenu visCost = new JMenu(Messages.getInstance().getString(
-        "ClassifierPanel_VisCost_JMenu_Text"));
+      "ClassifierPanel_VisCost_JMenu_Text"));
     if (preds != null && classAtt != null) {
       for (int i = 0; i < classAtt.numValues(); i++) {
         JMenuItem clv = new JMenuItem(classAtt.value(i));
@@ -2336,11 +2337,11 @@ public class ClassifierPanel extends JPanel implements
               VisualizePanel vmc = new VisualizePanel();
               vmc.setLog(m_Log);
               vmc.setName(result.relationName()
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_VMC_SetName_Text_Third")
-                  + classAtt.value(classValue)
-                  + Messages.getInstance().getString(
-                      "ClassifierPanel_Visualize_VMC_SetName_Text_Fourth"));
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_VMC_SetName_Text_Third")
+                + classAtt.value(classValue)
+                + Messages.getInstance().getString(
+                  "ClassifierPanel_Visualize_VMC_SetName_Text_Fourth"));
               PlotData2D tempd = new PlotData2D(result);
               tempd.m_displayAllPoints = true;
               tempd.setPlotName(result.relationName());
@@ -2365,18 +2366,19 @@ public class ClassifierPanel extends JPanel implements
     resultListMenu.add(visCost);
 
     JMenu visPlugins = new JMenu(Messages.getInstance().getString(
-        "ClassifierPanel_Visualize_VisPlugins_JMenu_Text"));
+      "ClassifierPanel_Visualize_VisPlugins_JMenu_Text"));
     Vector pluginsVector = GenericObjectEditor
-        .getClassnames(VisualizePlugin.class.getName());
+      .getClassnames(VisualizePlugin.class.getName());
     boolean availablePlugins = false;
 
     for (int i = 0; i < pluginsVector.size(); i++) {
       String className = (String) (pluginsVector.elementAt(i));
       try {
         VisualizePlugin plugin = (VisualizePlugin) Class.forName(className)
-            .newInstance();
-        if (plugin == null)
+          .newInstance();
+        if (plugin == null) {
           continue;
+        }
         availablePlugins = true;
         JMenuItem pluginMenuItem = plugin.getVisualizeMenuItem(preds, classAtt);
         Version version = new Version();
@@ -2407,17 +2409,18 @@ public class ClassifierPanel extends JPanel implements
 
     // errors
     pluginsVector = GenericObjectEditor
-        .getClassnames(ErrorVisualizePlugin.class.getName());
+      .getClassnames(ErrorVisualizePlugin.class.getName());
     for (int i = 0; i < pluginsVector.size(); i++) {
       String className = (String) (pluginsVector.elementAt(i));
       try {
         ErrorVisualizePlugin plugin = (ErrorVisualizePlugin) Class.forName(
-            className).newInstance();
-        if (plugin == null)
+          className).newInstance();
+        if (plugin == null) {
           continue;
+        }
         availablePlugins = true;
         JMenuItem pluginMenuItem = plugin.getVisualizeMenuItem(vp
-            .getInstances());
+          .getInstances());
         Version version = new Version();
         if (pluginMenuItem != null) {
           /*
@@ -2439,17 +2442,18 @@ public class ClassifierPanel extends JPanel implements
       // trees
       if (((Drawable) temp_classifier).graphType() == Drawable.TREE) {
         pluginsVector = GenericObjectEditor
-            .getClassnames(TreeVisualizePlugin.class.getName());
+          .getClassnames(TreeVisualizePlugin.class.getName());
         for (int i = 0; i < pluginsVector.size(); i++) {
           String className = (String) (pluginsVector.elementAt(i));
           try {
             TreeVisualizePlugin plugin = (TreeVisualizePlugin) Class.forName(
-                className).newInstance();
-            if (plugin == null)
+              className).newInstance();
+            if (plugin == null) {
               continue;
+            }
             availablePlugins = true;
             JMenuItem pluginMenuItem = plugin.getVisualizeMenuItem(grph,
-                selectedName);
+              selectedName);
             Version version = new Version();
             if (pluginMenuItem != null) {
               /*
@@ -2470,17 +2474,18 @@ public class ClassifierPanel extends JPanel implements
       // graphs
       else {
         pluginsVector = GenericObjectEditor
-            .getClassnames(GraphVisualizePlugin.class.getName());
+          .getClassnames(GraphVisualizePlugin.class.getName());
         for (int i = 0; i < pluginsVector.size(); i++) {
           String className = (String) (pluginsVector.elementAt(i));
           try {
             GraphVisualizePlugin plugin = (GraphVisualizePlugin) Class.forName(
-                className).newInstance();
-            if (plugin == null)
+              className).newInstance();
+            if (plugin == null) {
               continue;
+            }
             availablePlugins = true;
             JMenuItem pluginMenuItem = plugin.getVisualizeMenuItem(grph,
-                selectedName);
+              selectedName);
             Version version = new Version();
             if (pluginMenuItem != null) {
               /*
@@ -2500,8 +2505,9 @@ public class ClassifierPanel extends JPanel implements
       }
     }
 
-    if (availablePlugins)
+    if (availablePlugins) {
       resultListMenu.add(visPlugins);
+    }
 
     resultListMenu.show(m_History.getList(), x, y);
   }
@@ -2515,7 +2521,7 @@ public class ClassifierPanel extends JPanel implements
    */
   protected void visualizeTree(String dottyString, String treeName) {
     final javax.swing.JFrame jf = new javax.swing.JFrame(Messages.getInstance()
-        .getString("ClassifierPanel_VisualizeTree_JF_JFrame_Text") + treeName);
+      .getString("ClassifierPanel_VisualizeTree_JF_JFrame_Text") + treeName);
     jf.setSize(500, 400);
     jf.getContentPane().setLayout(new BorderLayout());
     TreeVisualizer tv = new TreeVisualizer(null, dottyString, new PlaceNode2());
@@ -2540,8 +2546,8 @@ public class ClassifierPanel extends JPanel implements
    */
   protected void visualizeBayesNet(String XMLBIF, String graphName) {
     final javax.swing.JFrame jf = new javax.swing.JFrame(Messages.getInstance()
-        .getString("ClassifierPanel_VisualizeBayesNet_JF_JFrame_Text")
-        + graphName);
+      .getString("ClassifierPanel_VisualizeBayesNet_JF_JFrame_Text")
+      + graphName);
     jf.setSize(500, 400);
     jf.getContentPane().setLayout(new BorderLayout());
     GraphVisualizer gv = new GraphVisualizer();
@@ -2549,7 +2555,7 @@ public class ClassifierPanel extends JPanel implements
       gv.readBIF(XMLBIF);
     } catch (BIFFormatException be) {
       System.err.println(Messages.getInstance().getString(
-          "ClassifierPanel_VisualizeBayesNet_Error_Text"));
+        "ClassifierPanel_VisualizeBayesNet_Error_Text"));
       be.printStackTrace();
     }
     gv.layoutGraph();
@@ -2576,9 +2582,9 @@ public class ClassifierPanel extends JPanel implements
     if (sp != null) {
       String plotName = sp.getName();
       final javax.swing.JFrame jf = new javax.swing.JFrame(Messages
-          .getInstance().getString(
-              "ClassifierPanel_VisualizeClassifierErrors_JF_JFrame_Text")
-          + plotName);
+        .getInstance().getString(
+          "ClassifierPanel_VisualizeClassifierErrors_JF_JFrame_Text")
+        + plotName);
       jf.setSize(600, 400);
       jf.getContentPane().setLayout(new BorderLayout());
 
@@ -2600,10 +2606,10 @@ public class ClassifierPanel extends JPanel implements
    * @param cb the CostBenefitAnalysis panel to pop up
    */
   protected void visualizeCostBenefitAnalysis(CostBenefitAnalysis cb,
-      String classifierAndRelationName) {
+    String classifierAndRelationName) {
     if (cb != null) {
       String windowTitle = Messages.getInstance().getString(
-          "ClassifierPanel_VisualizeCostBenefitAnalysis_WindowTitle_Text");
+        "ClassifierPanel_VisualizeCostBenefitAnalysis_WindowTitle_Text");
       if (classifierAndRelationName != null) {
         windowTitle += "- " + classifierAndRelationName;
       }
@@ -2633,7 +2639,7 @@ public class ClassifierPanel extends JPanel implements
     if (sb != null) {
       if (m_SaveOut.save(sb)) {
         m_Log.logMessage(Messages.getInstance().getString(
-            "ClassifierPanel_SaveBuffer_Log_LogMessage_Text"));
+          "ClassifierPanel_SaveBuffer_Log_LogMessage_Text"));
       }
     }
   }
@@ -2659,7 +2665,7 @@ public class ClassifierPanel extends JPanel implements
    * @param trainHeader the header of the training instances
    */
   protected void saveClassifier(String name, Classifier classifier,
-      Instances trainHeader) {
+    Instances trainHeader) {
 
     File sFile = null;
     boolean saveOK = true;
@@ -2671,10 +2677,10 @@ public class ClassifierPanel extends JPanel implements
       sFile = m_FileChooser.getSelectedFile();
       if (!sFile.getName().toLowerCase().endsWith(MODEL_FILE_EXTENSION)) {
         sFile = new File(sFile.getParent(), sFile.getName()
-            + MODEL_FILE_EXTENSION);
+          + MODEL_FILE_EXTENSION);
       }
       m_Log.statusMessage(Messages.getInstance().getString(
-          "ClassifierPanel_SaveClassifier_Log_StatusMessage_Text"));
+        "ClassifierPanel_SaveClassifier_Log_StatusMessage_Text"));
 
       try {
         OutputStream os = new FileOutputStream(sFile);
@@ -2684,34 +2690,36 @@ public class ClassifierPanel extends JPanel implements
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
         objectOutputStream.writeObject(classifier);
         trainHeader = trainHeader.stringFreeStructure();
-        if (trainHeader != null)
+        if (trainHeader != null) {
           objectOutputStream.writeObject(trainHeader);
+        }
         objectOutputStream.flush();
         objectOutputStream.close();
       } catch (Exception e) {
 
         JOptionPane
-            .showMessageDialog(
-                null,
-                e,
-                Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_SaveClassifier_JOptionPaneShowMessageDialog_Text_First"),
-                JOptionPane.ERROR_MESSAGE);
+          .showMessageDialog(
+            null,
+            e,
+            Messages
+              .getInstance()
+              .getString(
+                "ClassifierPanel_SaveClassifier_JOptionPaneShowMessageDialog_Text_First"),
+            JOptionPane.ERROR_MESSAGE);
         saveOK = false;
       }
-      if (saveOK)
+      if (saveOK) {
         m_Log.logMessage(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_First")
-            + name
-            + Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Second")
-            + sFile.getName()
-            + Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Third"));
+          "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_First")
+          + name
+          + Messages.getInstance().getString(
+            "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Second")
+          + sFile.getName()
+          + Messages.getInstance().getString(
+            "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Third"));
+      }
       m_Log.statusMessage(Messages.getInstance().getString(
-          "ClassifierPanel_SaveClassifier_JOptionPaneShowMessageDialog_Text"));
+        "ClassifierPanel_SaveClassifier_JOptionPaneShowMessageDialog_Text"));
     }
   }
 
@@ -2729,7 +2737,7 @@ public class ClassifierPanel extends JPanel implements
       Instances trainHeader = null;
 
       m_Log.statusMessage(Messages.getInstance().getString(
-          "ClassifierPanel_LoadClassifier_Log_StatusMessage_Text_First"));
+        "ClassifierPanel_LoadClassifier_Log_StatusMessage_Text_First"));
 
       try {
         InputStream is = new FileInputStream(selected);
@@ -2743,7 +2751,7 @@ public class ClassifierPanel extends JPanel implements
              */
           } else {
             throw new Exception(Messages.getInstance().getString(
-                "ClassifierPanel_LoadClassifier_Exception_Text"));
+              "ClassifierPanel_LoadClassifier_Exception_Text"));
           }
         } else {
           if (selected.getName().endsWith(".gz")) {
@@ -2760,45 +2768,46 @@ public class ClassifierPanel extends JPanel implements
       } catch (Exception e) {
 
         JOptionPane
-            .showMessageDialog(
-                null,
-                e,
-                Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_LoadClassifier_JOptionPaneShowMessageDialog_Text"),
-                JOptionPane.ERROR_MESSAGE);
+          .showMessageDialog(
+            null,
+            e,
+            Messages
+              .getInstance()
+              .getString(
+                "ClassifierPanel_LoadClassifier_JOptionPaneShowMessageDialog_Text"),
+            JOptionPane.ERROR_MESSAGE);
       }
 
       m_Log.statusMessage(Messages.getInstance().getString(
-          "ClassifierPanel_LoadClassifier_Log_StatusMessage_Text_Second"));
+        "ClassifierPanel_LoadClassifier_Log_StatusMessage_Text_Second"));
 
       if (classifier != null) {
         m_Log.logMessage(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Fourth")
-            + selected.getName()
-            + Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Fifth"));
+          "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Fourth")
+          + selected.getName()
+          + Messages.getInstance().getString(
+            "ClassifierPanel_SaveClassifier_Log_LogMessage_Text_Fifth"));
         String name = (new SimpleDateFormat("HH:mm:ss - ")).format(new Date());
         String cname = classifier.getClass().getName();
-        if (cname.startsWith("weka.classifiers."))
+        if (cname.startsWith("weka.classifiers.")) {
           cname = cname.substring("weka.classifiers.".length());
+        }
         name += cname
-            + Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_Name_Text_First")
-            + selected.getName()
-            + Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_Name_Text_Second");
+          + Messages.getInstance().getString(
+            "ClassifierPanel_SaveClassifier_Name_Text_First")
+          + selected.getName()
+          + Messages.getInstance().getString(
+            "ClassifierPanel_SaveClassifier_Name_Text_Second");
         StringBuffer outBuff = new StringBuffer();
 
         outBuff.append(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_OutBuffer_Text_First"));
+          "ClassifierPanel_SaveClassifier_OutBuffer_Text_First"));
         outBuff.append(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Second")
-            + selected.getName() + "\n");
+          "ClassifierPanel_SaveClassifier_OutBuffer_Text_Second")
+          + selected.getName() + "\n");
         outBuff.append(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fourth")
-            + classifier.getClass().getName());
+          "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fourth")
+          + classifier.getClass().getName());
         if (classifier instanceof OptionHandler) {
           String[] o = ((OptionHandler) classifier).getOptions();
           outBuff.append(" " + Utils.joinOptions(o));
@@ -2806,35 +2815,36 @@ public class ClassifierPanel extends JPanel implements
         outBuff.append("\n");
         if (trainHeader != null) {
           outBuff.append(Messages.getInstance().getString(
-              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fifth")
-              + trainHeader.relationName() + '\n');
+            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fifth")
+            + trainHeader.relationName() + '\n');
           outBuff.append(Messages.getInstance().getString(
-              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Seventh")
-              + trainHeader.numAttributes() + '\n');
+            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Seventh")
+            + trainHeader.numAttributes() + '\n');
           if (trainHeader.numAttributes() < 100) {
             for (int i = 0; i < trainHeader.numAttributes(); i++) {
               outBuff.append("              " + trainHeader.attribute(i).name()
-                  + '\n');
+                + '\n');
             }
           } else {
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Nineth"));
+              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Nineth"));
           }
         } else {
           outBuff.append(Messages.getInstance().getString(
-              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Tenth"));
+            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Tenth"));
         }
 
         outBuff.append(Messages.getInstance().getString(
-            "ClassifierPanel_SaveClassifier_OutBuffer_Text_Eleventh"));
+          "ClassifierPanel_SaveClassifier_OutBuffer_Text_Eleventh"));
         outBuff.append(classifier.toString() + "\n");
 
         m_History.addResult(name, outBuff);
         m_History.setSingle(name);
         FastVector vv = new FastVector();
         vv.addElement(classifier);
-        if (trainHeader != null)
+        if (trainHeader != null) {
           vv.addElement(trainHeader);
+        }
         // allow visualization of graphable classifiers
         String grph = null;
         if (classifier instanceof Drawable) {
@@ -2843,8 +2853,9 @@ public class ClassifierPanel extends JPanel implements
           } catch (Exception ex) {
           }
         }
-        if (grph != null)
+        if (grph != null) {
           vv.addElement(grph);
+        }
 
         m_History.addObject(name, vv);
       }
@@ -2860,7 +2871,7 @@ public class ClassifierPanel extends JPanel implements
    * @param trainHeader the header of the training set
    */
   protected void reevaluateModel(final String name,
-      final Classifier classifier, final Instances trainHeader) {
+    final Classifier classifier, final Instances trainHeader) {
 
     if (m_RunThread == null) {
       synchronized (this) {
@@ -2872,7 +2883,7 @@ public class ClassifierPanel extends JPanel implements
         public void run() {
           // Copy the current state of things
           m_Log.statusMessage(Messages.getInstance().getString(
-              "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_First"));
+            "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_First"));
 
           StringBuffer outBuff = m_History.getNamedBuffer(name);
           DataSource source = null;
@@ -2885,7 +2896,7 @@ public class ClassifierPanel extends JPanel implements
           CostMatrix costMatrix = null;
           if (m_EvalWRTCostsBut.isSelected()) {
             costMatrix = new CostMatrix(
-                (CostMatrix) m_CostMatrixEditor.getValue());
+              (CostMatrix) m_CostMatrixEditor.getValue());
           }
           boolean outputConfusion = m_OutputConfusionBut.isSelected();
           boolean outputPerClass = m_OutputPerClassBut.isSelected();
@@ -2893,7 +2904,7 @@ public class ClassifierPanel extends JPanel implements
           boolean outputEntropy = m_OutputEntropyBut.isSelected();
           boolean saveVis = m_StorePredictionsBut.isSelected();
           boolean outputPredictionsText = m_OutputPredictionsTextBut
-              .isSelected();
+            .isSelected();
           String grph = null;
           Evaluation eval = null;
 
@@ -2908,61 +2919,49 @@ public class ClassifierPanel extends JPanel implements
             // Check the test instance compatibility
             if (source == null) {
               throw new Exception(Messages.getInstance().getString(
-                  "ClassifierPanel_ReEvaluateModel_Exception_Text_First"));
+                "ClassifierPanel_ReEvaluateModel_Exception_Text_First"));
             }
             if (trainHeader != null) {
-              if (trainHeader.classIndex() > userTestStructure.numAttributes() - 1)
+              if (trainHeader.classIndex() > userTestStructure.numAttributes() - 1) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_ReEvaluateModel_Exception_Text_Second"));
+                  "ClassifierPanel_ReEvaluateModel_Exception_Text_Second"));
+              }
               userTestStructure.setClassIndex(trainHeader.classIndex());
               if (!trainHeader.equalHeaders(userTestStructure)) {
                 throw new Exception(Messages.getInstance().getString(
-                    "ClassifierPanel_ReEvaluateModel_Exception_Text_Third"));
+                  "ClassifierPanel_ReEvaluateModel_Exception_Text_Third"));
               }
             } else {
               if (classifier instanceof PMMLClassifier) {
                 // set the class based on information in the mining schema
                 Instances miningSchemaStructure = ((PMMLClassifier) classifier)
-                    .getMiningSchema().getMiningSchemaAsInstances();
+                  .getMiningSchema().getMiningSchemaAsInstances();
                 String className = miningSchemaStructure.classAttribute()
-                    .name();
+                  .name();
                 Attribute classMatch = userTestStructure.attribute(className);
                 if (classMatch == null) {
-                  throw new Exception(
-                      Messages
-                          .getInstance()
-                          .getString(
-                              "ClassifierPanel_ReEvaluateModel_Exception_Text_Fourth")
-                          + className
-                          + Messages
-                              .getInstance()
-                              .getString(
-                                  "ClassifierPanel_ReEvaluateModel_Exception_Text_Fifth"));
+                  throw new Exception(Messages.getInstance().getString(
+                    "ClassifierPanel_ReEvaluateModel_Exception_Text_Fourth")
+                    + className
+                    + Messages.getInstance().getString(
+                      "ClassifierPanel_ReEvaluateModel_Exception_Text_Fifth"));
                 }
                 userTestStructure.setClass(classMatch);
               } else {
                 userTestStructure.setClassIndex(userTestStructure
-                    .numAttributes() - 1);
+                  .numAttributes() - 1);
               }
             }
             if (m_Log instanceof TaskLogger) {
               ((TaskLogger) m_Log).taskStarted();
             }
-            m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Second"));
-            m_Log
-                .logMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_First")
-                    + name
-                    + Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Second"));
+            m_Log.statusMessage(Messages.getInstance().getString(
+              "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Second"));
+            m_Log.logMessage(Messages.getInstance().getString(
+              "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_First")
+              + name
+              + Messages.getInstance().getString(
+                "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Second"));
             eval = new Evaluation(userTestStructure, costMatrix);
             eval.useNoPriors();
 
@@ -2974,44 +2973,42 @@ public class ClassifierPanel extends JPanel implements
             }
 
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Twelveth"));
+              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Twelveth"));
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Thirteenth"));
+              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Thirteenth"));
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fourteenth")
-                + userTestStructure.relationName() + '\n');
-            if (incrementalLoader)
+              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Fourteenth")
+              + userTestStructure.relationName() + '\n');
+            if (incrementalLoader) {
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_SaveClassifier_OutBuffer_Text_Sixteenth"));
-            else
+                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Sixteenth"));
+            } else {
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_SaveClassifier_OutBuffer_Text_Seventeenth")
-                  + source.getDataSet().numInstances() + "\n");
+                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Seventeenth")
+                + source.getDataSet().numInstances() + "\n");
+            }
             outBuff.append(Messages.getInstance().getString(
-                "ClassifierPanel_SaveClassifier_OutBuffer_Text_Nineteenth")
-                + userTestStructure.numAttributes() + "\n\n");
+              "ClassifierPanel_SaveClassifier_OutBuffer_Text_Nineteenth")
+              + userTestStructure.numAttributes() + "\n\n");
             if (trainHeader == null
-                && !(classifier instanceof weka.classifiers.pmml.consumer.PMMLClassifier)) {
+              && !(classifier instanceof weka.classifiers.pmml.consumer.PMMLClassifier)) {
 
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyFirst"));
+                "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyFirst"));
 
             }
 
             if (outputPredictionsText) {
-              outBuff
-                  .append(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentySecond"));
               outBuff.append(Messages.getInstance().getString(
-                  "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyThird"));
+                "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentySecond"));
+              outBuff.append(Messages.getInstance().getString(
+                "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyThird"));
               if (userTestStructure.classAttribute().isNominal()) {
                 outBuff
-                    .append(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyFourth"));
+                  .append(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_SaveClassifier_OutBuffer_Text_TwentyFourth"));
               }
               outBuff.append("\n");
             }
@@ -3021,21 +3018,21 @@ public class ClassifierPanel extends JPanel implements
             while (source.hasMoreElements(userTestStructure)) {
               instance = source.nextElement(userTestStructure);
               processClassifierPrediction(instance, classifier, eval,
-                  predInstances, plotShape, plotSize);
+                predInstances, plotShape, plotSize);
               if (outputPredictionsText) {
                 outBuff.append(predictionText(classifier, instance, jj + 1));
               }
               if ((++jj % 100) == 0) {
                 m_Log
-                    .statusMessage(Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Third")
-                        + jj
-                        + Messages
-                            .getInstance()
-                            .getString(
-                                "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Fourth"));
+                  .statusMessage(Messages
+                    .getInstance()
+                    .getString(
+                      "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Third")
+                    + jj
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Fourth"));
               }
             }
 
@@ -3060,41 +3057,35 @@ public class ClassifierPanel extends JPanel implements
 
             m_History.updateResult(name);
             m_Log.logMessage(Messages.getInstance().getString(
-                "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Third"));
-            m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Fifth"));
+              "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Third"));
+            m_Log.statusMessage(Messages.getInstance().getString(
+              "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Fifth"));
           } catch (Exception ex) {
             ex.printStackTrace();
             m_Log.logMessage(ex.getMessage());
-            m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Sixth"));
+            m_Log.statusMessage(Messages.getInstance().getString(
+              "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Sixth"));
 
             ex.printStackTrace();
             m_Log.logMessage(ex.getMessage());
             JOptionPane
-                .showMessageDialog(
-                    ClassifierPanel.this,
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_ReEvaluateModel_JOptionPaneShowMessageDialog_Text_First")
-                        + ex.getMessage(),
-                    Messages
-                        .getInstance()
-                        .getString(
-                            "ClassifierPanel_ReEvaluateModel_JOptionPaneShowMessageDialog_Text_Second"),
-                    JOptionPane.ERROR_MESSAGE);
+              .showMessageDialog(
+                ClassifierPanel.this,
+                Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_ReEvaluateModel_JOptionPaneShowMessageDialog_Text_First")
+                  + ex.getMessage(),
+                Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_ReEvaluateModel_JOptionPaneShowMessageDialog_Text_Second"),
+                JOptionPane.ERROR_MESSAGE);
             m_Log
-                .statusMessage(Messages
-                    .getInstance()
-                    .getString(
-                        "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Seventh"));
+              .statusMessage(Messages
+                .getInstance()
+                .getString(
+                  "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Seventh"));
           } finally {
             try {
               if (classifier instanceof PMMLClassifier) {
@@ -3107,18 +3098,18 @@ public class ClassifierPanel extends JPanel implements
 
               if (predInstances != null && predInstances.numInstances() > 0) {
                 if (predInstances.attribute(predInstances.classIndex())
-                    .isNumeric()) {
+                  .isNumeric()) {
                   postProcessPlotInfo(plotSize);
                 }
                 m_CurrentVis = new VisualizePanel();
                 m_CurrentVis.setName(name + " ("
-                    + userTestStructure.relationName() + ")");
+                  + userTestStructure.relationName() + ")");
                 m_CurrentVis.setLog(m_Log);
                 PlotData2D tempd = new PlotData2D(predInstances);
                 tempd.setShapeSize(plotSize);
                 tempd.setShapeType(plotShape);
                 tempd.setPlotName(name + " ("
-                    + userTestStructure.relationName() + ")");
+                  + userTestStructure.relationName() + ")");
                 // tempd.addInstanceNumberAttribute();
 
                 m_CurrentVis.addPlot(tempd);
@@ -3135,8 +3126,9 @@ public class ClassifierPanel extends JPanel implements
                 if (saveVis) {
                   FastVector vv = new FastVector();
                   vv.addElement(classifier);
-                  if (trainHeader != null)
+                  if (trainHeader != null) {
                     vv.addElement(trainHeader);
+                  }
                   vv.addElement(m_CurrentVis);
                   if (grph != null) {
                     vv.addElement(grph);
@@ -3149,8 +3141,9 @@ public class ClassifierPanel extends JPanel implements
                 } else {
                   FastVector vv = new FastVector();
                   vv.addElement(classifier);
-                  if (trainHeader != null)
+                  if (trainHeader != null) {
                     vv.addElement(trainHeader);
+                  }
                   m_History.addObject(name, vv);
                 }
               }
@@ -3158,16 +3151,13 @@ public class ClassifierPanel extends JPanel implements
               ex.printStackTrace();
             }
             if (isInterrupted()) {
+              m_Log.logMessage(Messages.getInstance().getString(
+                "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Fourth"));
               m_Log
-                  .logMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_ReEvaluateModel_Log_LogMessage_Text_Fourth"));
-              m_Log
-                  .statusMessage(Messages
-                      .getInstance()
-                      .getString(
-                          "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Seventh"));
+                .statusMessage(Messages
+                  .getInstance()
+                  .getString(
+                    "ClassifierPanel_ReEvaluateModel_Log_StatusMessage_Text_Seventh"));
             }
 
             synchronized (this) {
@@ -3202,10 +3192,11 @@ public class ClassifierPanel extends JPanel implements
       return;
     }
 
-    if (!ExplorerDefaults.getInitGenericObjectEditorFilter())
+    if (!ExplorerDefaults.getInitGenericObjectEditorFilter()) {
       tempInst = new Instances(m_Instances, 0);
-    else
+    } else {
       tempInst = new Instances(m_Instances);
+    }
     tempInst.setClassIndex(m_ClassCombo.getSelectedIndex());
 
     try {
@@ -3223,12 +3214,12 @@ public class ClassifierPanel extends JPanel implements
     Classifier classifier = (Classifier) m_ClassifierEditor.getValue();
     Capabilities currentSchemeCapabilities = null;
     if (classifier != null && currentFilter != null
-        && (classifier instanceof CapabilitiesHandler)) {
+      && (classifier instanceof CapabilitiesHandler)) {
       currentSchemeCapabilities = ((CapabilitiesHandler) classifier)
-          .getCapabilities();
+        .getCapabilities();
 
       if (!currentSchemeCapabilities.supportsMaybe(currentFilter)
-          && !currentSchemeCapabilities.supports(currentFilter)) {
+        && !currentSchemeCapabilities.supports(currentFilter)) {
         m_StartBut.setEnabled(false);
       }
     }
@@ -3241,10 +3232,11 @@ public class ClassifierPanel extends JPanel implements
    */
   @Override
   public void capabilitiesFilterChanged(CapabilitiesFilterChangeEvent e) {
-    if (e.getFilter() == null)
+    if (e.getFilter() == null) {
       updateCapabilitiesFilter(null);
-    else
+    } else {
       updateCapabilitiesFilter((Capabilities) e.getFilter().clone());
+    }
   }
 
   /**
@@ -3286,7 +3278,7 @@ public class ClassifierPanel extends JPanel implements
   @Override
   public String getTabTitleToolTip() {
     return Messages.getInstance().getString(
-        "ClassifierPanel_GetTabTitleToolTip_Text");
+      "ClassifierPanel_GetTabTitleToolTip_Text");
   }
 
   /**
@@ -3298,7 +3290,7 @@ public class ClassifierPanel extends JPanel implements
 
     try {
       final javax.swing.JFrame jf = new javax.swing.JFrame(Messages
-          .getInstance().getString("ClassifierPanel_Main_JFrame_Text"));
+        .getInstance().getString("ClassifierPanel_Main_JFrame_Text"));
       jf.getContentPane().setLayout(new BorderLayout());
       final ClassifierPanel sp = new ClassifierPanel();
       jf.getContentPane().add(sp, BorderLayout.CENTER);
@@ -3317,10 +3309,10 @@ public class ClassifierPanel extends JPanel implements
       jf.setVisible(true);
       if (args.length == 1) {
         System.err.println(Messages.getInstance().getString(
-            "ClassifierPanel_Main_Error_Text")
-            + args[0]);
+          "ClassifierPanel_Main_Error_Text")
+          + args[0]);
         java.io.Reader r = new java.io.BufferedReader(new java.io.FileReader(
-            args[0]));
+          args[0]));
         Instances i = new Instances(r);
         sp.setInstances(i);
       }
