@@ -483,7 +483,8 @@ public class BestFirst
    * displaying in the explorer/experimenter gui
    */
   public String searchTerminationTipText() {
-    return "Set the amount of backtracking. Specify the number of ";
+    return "Specify the number of consecutive non-improving nodes to allow " +
+    		"before terminating the search.";
   }
 
   /**
