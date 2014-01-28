@@ -575,7 +575,7 @@ public class WrapperSubsetEval
 
     errorRate /= (double)i;
     m_Evaluation = null;
-    return  -errorRate;
+    return  m_trainInstances.classAttribute().isNumeric() ? -errorRate : 1.0 - errorRate;
   }
 
 
@@ -607,9 +607,9 @@ public class WrapperSubsetEval
 
       text.append("\n");
       if (m_trainInstances.attribute(m_classIndex).isNumeric()) {
-	text.append("\tAccuracy estimation: RMSE\n");
+	text.append("\tSubset evaluation: RMSE\n");
       } else {
-	text.append("\tAccuracy estimation: classification error\n");
+	text.append("\tSubset evaluation: classification accuracy\n");
       }
       
       text.append("\tNumber of folds for accuracy estimation: " 
