@@ -374,8 +374,6 @@ public class Main extends JFrame implements OptionHandler {
   private JMenuItem jMenuItemVisualizationROC;
   private JMenuItem jMenuItemVisualizationPlot;
   private JMenuItem jMenuItemToolsSqlViewer;
-  private JMenuItem jMenuItemToolsGroovyConsole;
-  private JMenuItem jMenuItemToolsJythonConsole;
   private JMenuItem jMenuItemToolsArffViewer;
   private JMenuItem jMenuItemApplicationsSimpleCLI;
   private JMenuItem jMenuItemApplicationsKnowledgeFlow;
@@ -1875,24 +1873,24 @@ public class Main extends JFrame implements OptionHandler {
         @Override
         public void run() {
           while (true) {
-            try {
-              Thread.sleep(10);
+            // try {
+            // Thread.sleep(10);
 
-              if (m_Memory.isOutOfMemory()) {
-                // clean up
-                m_MainCommandline = null;
-                System.gc();
+            if (m_Memory.isOutOfMemory()) {
+              // clean up
+              m_MainCommandline = null;
+              System.gc();
 
-                // display error
-                System.err.println("\ndisplayed message:");
-                m_Memory.showOutOfMemory();
-                System.err.println("\nexiting");
-                System.exit(-1);
-              }
-
-            } catch (InterruptedException ex) {
-              ex.printStackTrace();
+              // display error
+              System.err.println("\ndisplayed message:");
+              m_Memory.showOutOfMemory();
+              System.err.println("\nexiting");
+              System.exit(-1);
             }
+
+            // } catch (InterruptedException ex) {
+            // ex.printStackTrace();
+            // }
           }
         }
       };
