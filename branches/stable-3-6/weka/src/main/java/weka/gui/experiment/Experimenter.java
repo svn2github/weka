@@ -22,10 +22,6 @@
 
 package weka.gui.experiment;
 
-import weka.core.Memory;
-import weka.experiment.Experiment;
-import weka.gui.LookAndFeel;
-
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -38,15 +34,18 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-/** 
- * The main class for the experiment environment. Lets the user create,
- * open, save, configure, run experiments, and analyse experimental results.
- *
+import weka.core.Memory;
+import weka.experiment.Experiment;
+import weka.gui.LookAndFeel;
+
+/**
+ * The main class for the experiment environment. Lets the user create, open,
+ * save, configure, run experiments, and analyse experimental results.
+ * 
  * @author Len Trigg (trigg@cs.waikato.ac.nz)
  * @version $Revision$
  */
-public class Experimenter
-  extends JPanel {
+public class Experimenter extends JPanel {
 
   /** for serialization */
   private static final long serialVersionUID = -5751617505738193788L;
@@ -63,8 +62,10 @@ public class Experimenter
   /** The tabbed pane that controls which sub-pane we are working with */
   protected JTabbedPane m_TabbedPane = new JTabbedPane();
 
-  /** True if the class attribute is the first attribute for all
-      datasets involved in this experiment. */
+  /**
+   * True if the class attribute is the first attribute for all datasets
+   * involved in this experiment.
+   */
   protected boolean m_ClassFirst = false;
 
   /**
@@ -72,37 +73,56 @@ public class Experimenter
    */
   public Experimenter(boolean classFirst) {
 
-	  System.out.println("[DEBUGGER] ---- " + Messages.getInstance().getString("Experimenter_TabbedPane_Setup_Key_Text"));
-	  
+    System.out.println("[DEBUGGER] ---- "
+      + Messages.getInstance().getString(
+        "Experimenter_TabbedPane_Setup_Key_Text"));
+
     m_SetupPanel = new SetupModePanel();
     m_ResultsPanel = new ResultsPanel();
     m_RunPanel = new RunPanel();
     m_RunPanel.setResultsPanel(m_ResultsPanel);
-    
+
     m_ClassFirst = classFirst;
 
-    m_TabbedPane.addTab(Messages.getInstance().getString("Experimenter_TabbedPane_Setup_Key_Text"), null, m_SetupPanel, Messages.getInstance().getString("Experimenter_TabbedPane_Setup_Value_Text"));
-    m_TabbedPane.addTab(Messages.getInstance().getString("Experimenter_TabbedPane_Run_Key_Text"), null, m_RunPanel, Messages.getInstance().getString("Experimenter_TabbedPane_Run_Value_Text"));
-    m_TabbedPane.addTab(Messages.getInstance().getString("Experimenter_TabbedPane_Analyse_Key_Text"), null, m_ResultsPanel, Messages.getInstance().getString("Experimenter_TabbedPane_Analyse_Value_Text"));
+    m_TabbedPane.addTab(
+      Messages.getInstance()
+        .getString("Experimenter_TabbedPane_Setup_Key_Text"),
+      null,
+      m_SetupPanel,
+      Messages.getInstance().getString(
+        "Experimenter_TabbedPane_Setup_Value_Text"));
+    m_TabbedPane.addTab(
+      Messages.getInstance().getString("Experimenter_TabbedPane_Run_Key_Text"),
+      null, m_RunPanel,
+      Messages.getInstance()
+        .getString("Experimenter_TabbedPane_Run_Value_Text"));
+    m_TabbedPane.addTab(
+      Messages.getInstance().getString(
+        "Experimenter_TabbedPane_Analyse_Key_Text"),
+      null,
+      m_ResultsPanel,
+      Messages.getInstance().getString(
+        "Experimenter_TabbedPane_Analyse_Value_Text"));
     m_TabbedPane.setSelectedIndex(0);
     m_TabbedPane.setEnabledAt(1, false);
     m_SetupPanel.addPropertyChangeListener(new PropertyChangeListener() {
+      @Override
       public void propertyChange(PropertyChangeEvent e) {
-	//System.err.println("Updated experiment");
-	Experiment exp = m_SetupPanel.getExperiment();
-	exp.classFirst(m_ClassFirst);
-	m_RunPanel.setExperiment(exp);
-	//m_ResultsPanel.setExperiment(exp);
-	m_TabbedPane.setEnabledAt(1, true);
+        // System.err.println("Updated experiment");
+        Experiment exp = m_SetupPanel.getExperiment();
+        exp.classFirst(m_ClassFirst);
+        m_RunPanel.setExperiment(exp);
+        // m_ResultsPanel.setExperiment(exp);
+        m_TabbedPane.setEnabledAt(1, true);
       }
     });
     setLayout(new BorderLayout());
     add(m_TabbedPane, BorderLayout.CENTER);
   }
 
-
-  /** variable for the Experimenter class which would be set to null by the memory 
-      monitoring thread to free up some memory if we running out of memory
+  /**
+   * variable for the Experimenter class which would be set to null by the
+   * memory monitoring thread to free up some memory if we running out of memory
    */
   private static Experimenter m_experimenter;
 
@@ -111,61 +131,68 @@ public class Experimenter
 
   /**
    * Tests out the experiment environment.
-   *
+   * 
    * @param args ignored.
    */
-  public static void main(String [] args) {
-    weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO, Messages.getInstance().getString("Experimenter_Main_LoggingStarted_Text"));    
+  public static void main(String[] args) {
+    weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO, Messages
+      .getInstance().getString("Experimenter_Main_LoggingStarted_Text"));
     LookAndFeel.setLookAndFeel();
-    
+
     try {
       // uncomment to disable the memory management:
-      //m_Memory.setEnabled(false);
+      // m_Memory.setEnabled(false);
 
       boolean classFirst = false;
       if (args.length > 0) {
-	classFirst = args[0].equals("CLASS_FIRST");
+        classFirst = args[0].equals("CLASS_FIRST");
       }
       m_experimenter = new Experimenter(classFirst);
-      final JFrame jf = new JFrame(Messages.getInstance().getString("Experimenter_Main_WekaExperimentEnvironment_JFrame_Text"));
+      final JFrame jf = new JFrame(Messages.getInstance().getString(
+        "Experimenter_Main_WekaExperimentEnvironment_JFrame_Text"));
       jf.getContentPane().setLayout(new BorderLayout());
       jf.getContentPane().add(m_experimenter, BorderLayout.CENTER);
       jf.addWindowListener(new WindowAdapter() {
-	public void windowClosing(WindowEvent e) {
-	  jf.dispose();
-	  System.exit(0);
-	}
+        @Override
+        public void windowClosing(WindowEvent e) {
+          jf.dispose();
+          System.exit(0);
+        }
       });
       jf.pack();
       jf.setSize(800, 600);
       jf.setVisible(true);
-      
-      Image icon = Toolkit.getDefaultToolkit().
-        getImage(m_experimenter.getClass().getClassLoader().getResource("weka/gui/weka_icon_new_48.png"));
+
+      Image icon = Toolkit.getDefaultToolkit().getImage(
+        m_experimenter.getClass().getClassLoader()
+          .getResource("weka/gui/weka_icon_new_48.png"));
       jf.setIconImage(icon);
 
       Thread memMonitor = new Thread() {
+        @Override
         public void run() {
-          while(true) {
-            try {
-              this.sleep(4000);
-              
+          while (true) {
+            // try {
+            // this.sleep(4000);
+            //
+            // System.gc();
+
+            if (m_Memory.isOutOfMemory()) {
+              // clean up
+              jf.dispose();
+              m_experimenter = null;
               System.gc();
 
-              if (m_Memory.isOutOfMemory()) {
-                // clean up
-                jf.dispose();
-                m_experimenter = null;
-                System.gc();
+              // display error
+              System.err.println(Messages.getInstance().getString(
+                "Experimenter_Main_Error_Text_First"));
+              m_Memory.showOutOfMemory();
+              System.err.println(Messages.getInstance().getString(
+                "Experimenter_Main_Error_Text_Second"));
+              System.exit(-1);
+            }
 
-                // display error
-                System.err.println(Messages.getInstance().getString("Experimenter_Main_Error_Text_First"));
-                m_Memory.showOutOfMemory();
-                System.err.println(Messages.getInstance().getString("Experimenter_Main_Error_Text_Second"));
-                System.exit(-1);
-              }
-
-            } catch(InterruptedException ex) { ex.printStackTrace(); }
+            // } catch(InterruptedException ex) { ex.printStackTrace(); }
           }
         }
       };
