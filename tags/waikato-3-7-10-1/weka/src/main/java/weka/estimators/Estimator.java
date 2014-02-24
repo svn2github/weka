@@ -106,7 +106,7 @@ public abstract class Estimator
   protected double m_classValueIndex = -1.0;
   
   /** set if class is not important */
-  private boolean m_noClass = true;
+  protected boolean m_noClass = true;
   
   /**
    * Class to support a building process of an estimator.

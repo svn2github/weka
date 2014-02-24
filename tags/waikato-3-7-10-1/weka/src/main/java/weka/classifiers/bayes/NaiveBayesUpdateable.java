@@ -15,7 +15,7 @@
 
 /*
  *    NaiveBayesUpdateable.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -61,6 +61,10 @@ import weka.core.TechnicalInformation;
  * 
  * <pre> -D
  *  Use supervised discretization to process numeric attributes
+ * </pre>
+ * 
+ * <pre> -O
+ *  Display model in old format (good when there are many classes)
  * </pre>
  * 
  <!-- options-end -->
@@ -132,3 +136,4 @@ public class NaiveBayesUpdateable extends NaiveBayes
     runClassifier(new NaiveBayesUpdateable(), argv);
   }
 }
+
