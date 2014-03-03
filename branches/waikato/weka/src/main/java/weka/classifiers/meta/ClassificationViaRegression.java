@@ -15,25 +15,26 @@
 
 /*
  *    ClassificationViaRegression.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers.meta;
 
-import weka.classifiers.Classifier;
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
 import weka.classifiers.SingleClassifierEnhancer;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.RevisionUtils;
 import weka.core.TechnicalInformation;
-import weka.core.TechnicalInformationHandler;
-import weka.core.Utils;
-import weka.core.Capabilities.Capability;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
+import weka.core.TechnicalInformationHandler;
+import weka.core.Utils;
+import weka.core.UnassignedClassException;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.MakeIndicator;
 
@@ -229,6 +230,9 @@ public class ClassificationViaRegression
       m_ClassFilters[i].batchFinished();
       newInst = m_ClassFilters[i].output();
       probs[i] = m_Classifiers[i].classifyInstance(newInst);
+      if (Utils.isMissingValue(probs[i])) {
+        throw new UnassignedClassException("ClassificationViaRegression: base learner predicted missing value.");
+      }
       if (probs[i] > 1) {
         probs[i] = 1;
       }
