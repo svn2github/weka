@@ -380,6 +380,7 @@ public class SimpleCart
 
     m_totalTrainInstances = totalInstances;
     m_isLeaf = true;
+    m_Successors = null;
 
     m_ClassProbs = new double[classProbs.length];
     m_Distribution = new double[classProbs.length];
