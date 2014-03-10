@@ -116,13 +116,6 @@ public class Instances implements Serializable, RevisionHandler {
   protected int m_Lines = 0;
 
   /**
-   * used in randomizeAttribute and undoRandomizeAttribute to store/restore the
-   * index of attribute that was last shuffled, and it's original values
-   */
-  private final int attIdx4Randomization = -1;
-  private double[] attIdxOrigValues;
-
-  /**
    * Reads an ARFF file from a reader, and assigns a weight of one to each
    * instance. Lets the index of the class attribute be undefined (negative).
    * 
@@ -156,8 +149,7 @@ public class Instances implements Serializable, RevisionHandler {
   // @ requires capacity >= 0;
   // @ ensures classIndex() == -1;
   @Deprecated
-  public Instances(/* @non_null@ */Reader reader, int capacity)
-      throws IOException {
+  public Instances(/* @non_null@ */Reader reader, int capacity) throws IOException {
 
     ArffReader arff = new ArffReader(reader, 0);
     Instances header = arff.getStructure();
@@ -199,8 +191,9 @@ public class Instances implements Serializable, RevisionHandler {
    * @param capacity the number of rows to reserve
    */
   protected void initialize(Instances dataset, int capacity) {
-    if (capacity < 0)
+    if (capacity < 0) {
       capacity = 0;
+    }
 
     // Strings only have to be "shallow" copied because
     // they can't be modified.
@@ -227,7 +220,7 @@ public class Instances implements Serializable, RevisionHandler {
 
     if ((first < 0) || ((first + toCopy) > source.numInstances())) {
       throw new IllegalArgumentException("Parameters first and/or toCopy out "
-          + "of range");
+        + "of range");
     }
     source.copyInstances(first, this, toCopy);
   }
@@ -251,13 +244,14 @@ public class Instances implements Serializable, RevisionHandler {
     for (int i = 0; i < attInfo.size(); i++) {
       if (names.contains(((Attribute) attInfo.elementAt(i)).name())) {
         nonUniqueNames.append("'" + ((Attribute) attInfo.elementAt(i)).name()
-            + "' ");
+          + "' ");
       }
       names.add(((Attribute) attInfo.elementAt(i)).name());
     }
-    if (names.size() != attInfo.size())
+    if (names.size() != attInfo.size()) {
       throw new IllegalArgumentException("Attribute names are not unique!"
-          + " Causes: " + nonUniqueNames.toString());
+        + " Causes: " + nonUniqueNames.toString());
+    }
     names.clear();
 
     m_RelationName = name;
@@ -285,7 +279,7 @@ public class Instances implements Serializable, RevisionHandler {
         newAtts.addElement(new Attribute(att.name(), (FastVector) null, i));
       } else if (att.type() == Attribute.RELATIONAL) {
         newAtts.addElement(new Attribute(att.name(), new Instances(att
-            .relation(), 0), i));
+          .relation(), 0), i));
       }
     }
     if (newAtts.size() == 0) {
@@ -294,7 +288,7 @@ public class Instances implements Serializable, RevisionHandler {
     FastVector atts = (FastVector) m_Attributes.copy();
     for (int i = 0; i < newAtts.size(); i++) {
       atts.setElementAt(newAtts.elementAt(i),
-          ((Attribute) newAtts.elementAt(i)).index());
+        ((Attribute) newAtts.elementAt(i)).index());
     }
     Instances result = new Instances(this, 0);
     result.m_Attributes = atts;
@@ -397,7 +391,7 @@ public class Instances implements Serializable, RevisionHandler {
         if (!(Utils.eq(instance.value(i), (int) instance.value(i)))) {
           return false;
         } else if (Utils.sm(instance.value(i), 0)
-            || Utils.gr(instance.value(i), attribute(i).numValues())) {
+          || Utils.gr(instance.value(i), attribute(i).numValues())) {
           return false;
         }
       }
@@ -569,7 +563,8 @@ public class Instances implements Serializable, RevisionHandler {
   }
 
   /**
-   * Returns an enumeration of all the attributes.
+   * Returns an enumeration of all the attributes. The class attribute (if set)
+   * is skipped by this enumeration.
    * 
    * @return enumeration of all the attributes.
    */
@@ -635,7 +630,7 @@ public class Instances implements Serializable, RevisionHandler {
 
     Random r = new Random(seed);
     r.setSeed(instance(r.nextInt(numInstances())).toStringNoWeight().hashCode()
-        + seed);
+      + seed);
     return r;
   }
 
@@ -657,7 +652,7 @@ public class Instances implements Serializable, RevisionHandler {
     }
     if (attribute(att.name()) != null) {
       throw new IllegalArgumentException("Attribute name '" + att.name()
-          + "' already in use at position #" + attribute(att.name()).index());
+        + "' already in use at position #" + attribute(att.name()).index());
     }
     att = (Attribute) att.copy();
     freshAttributeInfo();
@@ -713,12 +708,12 @@ public class Instances implements Serializable, RevisionHandler {
 
     if (!attribute(attIndex).isNumeric()) {
       throw new IllegalArgumentException(
-          "Instances: attribute must be numeric to compute kth-smallest value.");
+        "Instances: attribute must be numeric to compute kth-smallest value.");
     }
 
     if ((k < 1) || (k > numInstances())) {
       throw new IllegalArgumentException(
-          "Instances: value for k for computing kth-smallest value too large.");
+        "Instances: value for k for computing kth-smallest value too large.");
     }
 
     double[] vals = new double[numInstances()];
@@ -891,8 +886,9 @@ public class Instances implements Serializable, RevisionHandler {
    */
   public void randomize(Random random) {
 
-    for (int j = numInstances() - 1; j > 0; j--)
+    for (int j = numInstances() - 1; j > 0; j--) {
       swap(j, random.nextInt(j + 1));
+    }
   }
 
   /**
@@ -945,11 +941,12 @@ public class Instances implements Serializable, RevisionHandler {
   public void renameAttribute(int att, String name) {
     // name already present?
     for (int i = 0; i < numAttributes(); i++) {
-      if (i == att)
+      if (i == att) {
         continue;
+      }
       if (attribute(i).name().equals(name)) {
         throw new IllegalArgumentException("Attribute name '" + name
-            + "' already present at position #" + i);
+          + "' already present at position #" + i);
       }
     }
 
@@ -1011,8 +1008,9 @@ public class Instances implements Serializable, RevisionHandler {
   public void renameAttributeValue(Attribute att, String val, String name) {
 
     int v = att.indexOfValue(val);
-    if (v == -1)
+    if (v == -1) {
       throw new IllegalArgumentException(val + " not found");
+    }
     renameAttributeValue(att.index(), v, name);
   }
 
@@ -1100,7 +1098,7 @@ public class Instances implements Serializable, RevisionHandler {
    *           length or contains negative weights.
    */
   public Instances resampleWithWeights(Random random, double[] weights,
-      boolean[] sampled) {
+    boolean[] sampled) {
 
     if (weights.length != numInstances()) {
       throw new IllegalArgumentException("weights.length != numInstances.");
@@ -1263,7 +1261,7 @@ public class Instances implements Serializable, RevisionHandler {
 
     if (numFolds <= 1) {
       throw new IllegalArgumentException(
-          "Number of folds must be greater than 1");
+        "Number of folds must be greater than 1");
     }
     if (m_ClassIndex < 0) {
       throw new UnassignedClassException("Class index is negative (not set)!");
@@ -1277,7 +1275,7 @@ public class Instances implements Serializable, RevisionHandler {
         for (int j = index; j < numInstances(); j++) {
           Instance instance2 = instance(j);
           if ((instance1.classValue() == instance2.classValue())
-              || (instance1.classIsMissing() && instance2.classIsMissing())) {
+            || (instance1.classIsMissing() && instance2.classIsMissing())) {
             swap(index, j);
             index++;
           }
@@ -1325,14 +1323,15 @@ public class Instances implements Serializable, RevisionHandler {
     }
     if (numFolds > numInstances()) {
       throw new IllegalArgumentException(
-          "Can't have more folds than instances!");
+        "Can't have more folds than instances!");
     }
     numInstForFold = numInstances() / numFolds;
     if (numFold < numInstances() % numFolds) {
       numInstForFold++;
       offset = numFold;
-    } else
+    } else {
       offset = numInstances() % numFolds;
+    }
     test = new Instances(this, numInstForFold);
     first = numFold * (numInstances() / numFolds) + offset;
     copyInstances(first, test, numInstForFold);
@@ -1351,7 +1350,7 @@ public class Instances implements Serializable, RevisionHandler {
     StringBuffer text = new StringBuffer();
 
     text.append(ARFF_RELATION).append(" ").append(Utils.quote(m_RelationName))
-        .append("\n\n");
+      .append("\n\n");
     for (int i = 0; i < numAttributes(); i++) {
       text.append(attribute(i)).append("\n");
     }
@@ -1403,19 +1402,20 @@ public class Instances implements Serializable, RevisionHandler {
     }
     if (numFolds > numInstances()) {
       throw new IllegalArgumentException(
-          "Can't have more folds than instances!");
+        "Can't have more folds than instances!");
     }
     numInstForFold = numInstances() / numFolds;
     if (numFold < numInstances() % numFolds) {
       numInstForFold++;
       offset = numFold;
-    } else
+    } else {
       offset = numInstances() % numFolds;
+    }
     train = new Instances(this, numInstances() - numInstForFold);
     first = numFold * (numInstances() / numFolds) + offset;
     copyInstances(0, train, first);
     copyInstances(first + numInstForFold, train, numInstances() - first
-        - numInstForFold);
+      - numInstForFold);
 
     return train;
   }
@@ -1455,13 +1455,13 @@ public class Instances implements Serializable, RevisionHandler {
 
     if (!attribute(attIndex).isNumeric()) {
       throw new IllegalArgumentException(
-          "Can't compute variance because attribute is " + "not numeric!");
+        "Can't compute variance because attribute is " + "not numeric!");
     }
     for (int i = 0; i < numInstances(); i++) {
       if (!instance(i).isMissing(attIndex)) {
         sum += instance(i).weight() * instance(i).value(attIndex);
         sumSquared += instance(i).weight() * instance(i).value(attIndex)
-            * instance(i).value(attIndex);
+          * instance(i).value(attIndex);
         sumOfWeights += instance(i).weight();
       }
     }
@@ -1469,7 +1469,7 @@ public class Instances implements Serializable, RevisionHandler {
       return 0;
     }
     double result = (sumSquared - (sum * sum / sumOfWeights))
-        / (sumOfWeights - 1);
+      / (sumOfWeights - 1);
 
     // We don't like negative variance
     if (result < 0) {
@@ -1733,7 +1733,7 @@ public class Instances implements Serializable, RevisionHandler {
 
     if (first.numInstances() != second.numInstances()) {
       throw new IllegalArgumentException(
-          "Instance sets must be of the same size");
+        "Instance sets must be of the same size");
     }
 
     // Create the vector of merged attributes
@@ -1747,7 +1747,7 @@ public class Instances implements Serializable, RevisionHandler {
 
     // Create the set of Instances
     Instances merged = new Instances(first.relationName() + '_'
-        + second.relationName(), newAttributes, first.numInstances());
+      + second.relationName(), newAttributes, first.numInstances());
     // Merge each instance
     for (int i = 0; i < first.numInstances(); i++) {
       merged.add(first.instance(i).mergeInstance(second.instance(i)));
@@ -1823,9 +1823,9 @@ public class Instances implements Serializable, RevisionHandler {
       System.out.println("\nClass name: " + instances.classAttribute().name());
       System.out.println("\nClass index: " + instances.classIndex());
       System.out.println("\nClass is nominal: "
-          + instances.classAttribute().isNominal());
+        + instances.classAttribute().isNominal());
       System.out.println("\nClass is numeric: "
-          + instances.classAttribute().isNumeric());
+        + instances.classAttribute().isNumeric());
       System.out.println("\nClasses:\n");
       for (i = 0; i < instances.numClasses(); i++) {
         System.out.println(instances.classAttribute().value(i));
@@ -1861,18 +1861,18 @@ public class Instances implements Serializable, RevisionHandler {
       System.out.println("\nSet with inserted attribute:\n");
       System.out.println(secondInstances);
       System.out.println("\nClass name: "
-          + secondInstances.classAttribute().name());
+        + secondInstances.classAttribute().name());
 
       // Delete the attribute
       secondInstances.deleteAttributeAt(0);
       System.out.println("\nSet with attribute deleted:\n");
       System.out.println(secondInstances);
       System.out.println("\nClass name: "
-          + secondInstances.classAttribute().name());
+        + secondInstances.classAttribute().name());
 
       // Test if headers are equal
       System.out.println("\nHeaders equal: "
-          + instances.equalHeaders(secondInstances) + "\n");
+        + instances.equalHeaders(secondInstances) + "\n");
 
       // Print data in internal format.
       System.out.println("\nData (internal values):\n");
@@ -1898,7 +1898,7 @@ public class Instances implements Serializable, RevisionHandler {
         Instances copy = new Instances(empty, 0);
         copy.renameAttribute(copy.classAttribute(), "new_name");
         copy.renameAttributeValue(copy.classAttribute(), copy.classAttribute()
-            .value(0), "new_val_name");
+          .value(0), "new_val_name");
         System.out.println("\nDataset with names changed:\n" + copy);
         System.out.println("\nOriginal dataset:\n" + empty);
       }
@@ -1910,7 +1910,7 @@ public class Instances implements Serializable, RevisionHandler {
       System.out.println(num + " instances from " + (start + 1) + ". instance");
       secondInstances = new Instances(instances, start, num);
       System.out.println("\nClass name: "
-          + secondInstances.classAttribute().name());
+        + secondInstances.classAttribute().name());
 
       // Print all instances and their weights (and the sum of weights).
       System.out.println("\nInstances and their weights:\n");
@@ -2011,7 +2011,7 @@ public class Instances implements Serializable, RevisionHandler {
       }
       // read file and print statistics
       else if ((args.length == 1) && (!args[0].equals("-h"))
-          && (!args[0].equals("help"))) {
+        && (!args[0].equals("help"))) {
         DataSource source = new DataSource(args[0]);
         i = source.getDataSet();
         System.out.println(i.toSummaryString());
@@ -2021,35 +2021,39 @@ public class Instances implements Serializable, RevisionHandler {
         DataSource source1 = new DataSource(args[1]);
         DataSource source2 = new DataSource(args[2]);
         i = Instances
-            .mergeInstances(source1.getDataSet(), source2.getDataSet());
+          .mergeInstances(source1.getDataSet(), source2.getDataSet());
         System.out.println(i);
       }
       // read two files, append them and print result to stdout
       else if ((args.length == 3) && (args[0].toLowerCase().equals("append"))) {
         DataSource source1 = new DataSource(args[1]);
         DataSource source2 = new DataSource(args[2]);
-        if (!source1.getStructure().equalHeaders(source2.getStructure()))
+        if (!source1.getStructure().equalHeaders(source2.getStructure())) {
           throw new Exception("The two datasets have different headers!");
+        }
         Instances structure = source1.getStructure();
         System.out.println(source1.getStructure());
-        while (source1.hasMoreElements(structure))
+        while (source1.hasMoreElements(structure)) {
           System.out.println(source1.nextElement(structure));
+        }
         structure = source2.getStructure();
-        while (source2.hasMoreElements(structure))
+        while (source2.hasMoreElements(structure)) {
           System.out.println(source2.nextElement(structure));
+        }
       }
       // read two files and compare their headers
       else if ((args.length == 3) && (args[0].toLowerCase().equals("headers"))) {
         DataSource source1 = new DataSource(args[1]);
         DataSource source2 = new DataSource(args[2]);
-        if (source1.getStructure().equalHeaders(source2.getStructure()))
+        if (source1.getStructure().equalHeaders(source2.getStructure())) {
           System.out.println("Headers match");
-        else
+        } else {
           System.out.println("Headers don't match");
+        }
       }
       // read file and seed value, randomize data and print result to stdout
       else if ((args.length == 3)
-          && (args[0].toLowerCase().equals("randomize"))) {
+        && (args[0].toLowerCase().equals("randomize"))) {
         DataSource source = new DataSource(args[2]);
         i = source.getDataSet();
         i.randomize(new Random(Integer.parseInt(args[1])));
@@ -2058,11 +2062,11 @@ public class Instances implements Serializable, RevisionHandler {
       // wrong parameters
       else {
         System.err.println("\nUsage:\n" + "\tweka.core.Instances help\n"
-            + "\tweka.core.Instances <filename>\n"
-            + "\tweka.core.Instances merge <filename1> <filename2>\n"
-            + "\tweka.core.Instances append <filename1> <filename2>\n"
-            + "\tweka.core.Instances headers <filename1> <filename2>\n"
-            + "\tweka.core.Instances randomize <seed> <filename>\n");
+          + "\tweka.core.Instances <filename>\n"
+          + "\tweka.core.Instances merge <filename1> <filename2>\n"
+          + "\tweka.core.Instances append <filename1> <filename2>\n"
+          + "\tweka.core.Instances headers <filename1> <filename2>\n"
+          + "\tweka.core.Instances randomize <seed> <filename>\n");
       }
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -2075,6 +2079,7 @@ public class Instances implements Serializable, RevisionHandler {
    * 
    * @return the revision
    */
+  @Override
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
