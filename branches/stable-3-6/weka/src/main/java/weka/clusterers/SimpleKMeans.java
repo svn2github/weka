@@ -21,9 +21,15 @@
  */
 package weka.clusterers;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.Vector;
+
 import weka.classifiers.rules.DecisionTableHashKey;
 import weka.core.Attribute;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.DistanceFunction;
 import weka.core.EuclideanDistance;
 import weka.core.Instance;
@@ -33,65 +39,69 @@ import weka.core.Option;
 import weka.core.RevisionUtils;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
-import weka.core.Capabilities.Capability;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Vector;
-
 /**
- <!-- globalinfo-start -->
- * Cluster data using the k means algorithm
+ * <!-- globalinfo-start --> Cluster data using the k means algorithm
  * <p/>
- <!-- globalinfo-end -->
- *
- <!-- options-start -->
- * Valid options are: <p/>
+ * <!-- globalinfo-end -->
  * 
- * <pre> -N &lt;num&gt;
+ * <!-- options-start --> Valid options are:
+ * <p/>
+ * 
+ * <pre>
+ * -N &lt;num&gt;
  *  number of clusters.
- *  (default 2).</pre>
+ *  (default 2).
+ * </pre>
  * 
- * <pre> -V
+ * <pre>
+ * -V
  *  Display std. deviations for centroids.
  * </pre>
  * 
- * <pre> -M
+ * <pre>
+ * -M
  *  Replace missing values with mean/mode.
  * </pre>
  * 
- * <pre> -S &lt;num&gt;
+ * <pre>
+ * -S &lt;num&gt;
  *  Random number seed.
- *  (default 10)</pre>
+ *  (default 10)
+ * </pre>
  * 
- * <pre> -A &lt;classname and options&gt;
+ * <pre>
+ * -A &lt;classname and options&gt;
  *  Distance function to be used for instance comparison
- *  (default weka.core.EuclidianDistance)</pre>
+ *  (default weka.core.EuclidianDistance)
+ * </pre>
  * 
- * <pre> -I &lt;num&gt;
- *  Maximum number of iterations. </pre>
+ * <pre>
+ * -I &lt;num&gt;
+ *  Maximum number of iterations.
+ * </pre>
  * 
- * <pre> -O 
- *  Preserve order of instances. </pre>
+ * <pre>
+ * -O 
+ *  Preserve order of instances.
+ * </pre>
  * 
  * 
- <!-- options-end -->
- *
+ * <!-- options-end -->
+ * 
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @version $Revision$
  * @see RandomizableClusterer
  */
-public class SimpleKMeans 
-  extends RandomizableClusterer 
-  implements NumberOfClustersRequestable, WeightedInstancesHandler {
+public class SimpleKMeans extends RandomizableClusterer implements
+  NumberOfClustersRequestable, WeightedInstancesHandler {
 
   /** for serialization */
   static final long serialVersionUID = -3235809600124455376L;
-  
+
   /**
    * replace missing values in training instances
    */
@@ -112,19 +122,18 @@ public class SimpleKMeans
    */
   private Instances m_ClusterStdDevs;
 
-  
   /**
-   * For each cluster, holds the frequency counts for the values of each 
-   * nominal attribute
+   * For each cluster, holds the frequency counts for the values of each nominal
+   * attribute
    */
-  private int [][][] m_ClusterNominalCounts;
+  private int[][][] m_ClusterNominalCounts;
   private int[][] m_ClusterMissingCounts;
-  
+
   /**
-   * Stats on the full data set for comparison purposes
-   * In case the attribute is numeric the value is the mean if is 
-   * being used the Euclidian distance or the median if Manhattan distance
-   * and if the attribute is nominal then it's mode is saved
+   * Stats on the full data set for comparison purposes In case the attribute is
+   * numeric the value is the mean if is being used the Euclidian distance or
+   * the median if Manhattan distance and if the attribute is nominal then it's
+   * mode is saved
    */
   private double[] m_FullMeansOrMediansOrModes;
   private double[] m_FullStdDevs;
@@ -144,7 +153,7 @@ public class SimpleKMeans
   /**
    * The number of instances in each cluster
    */
-  private int [] m_ClusterSizes;
+  private int[] m_ClusterSizes;
 
   /**
    * Maximum number of iterations to be executed
@@ -159,35 +168,36 @@ public class SimpleKMeans
   /**
    * Holds the squared errors for all clusters
    */
-  private double [] m_squaredErrors;
+  private double[] m_squaredErrors;
 
   /** the distance function used. */
   protected DistanceFunction m_DistanceFunction = new EuclideanDistance();
 
   /**
-   * Preserve order of instances 
+   * Preserve order of instances
    */
   private boolean m_PreserveOrder = false;
-	
+
   /**
    * Assignments obtained
    */
   protected int[] m_Assignments = null;
-	
+
   /**
    * the default constructor
    */
   public SimpleKMeans() {
     super();
-    
+
     m_SeedDefault = 10;
     setSeed(m_SeedDefault);
   }
-  
+
   /**
    * Returns a string describing this clusterer
-   * @return a description of the evaluator suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return a description of the evaluator suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String globalInfo() {
     return "Cluster data using the k means algorithm. Can use either "
@@ -198,9 +208,10 @@ public class SimpleKMeans
 
   /**
    * Returns default capabilities of the clusterer.
-   *
-   * @return      the capabilities of this clusterer
+   * 
+   * @return the capabilities of this clusterer
    */
+  @Override
   public Capabilities getCapabilities() {
     Capabilities result = super.getCapabilities();
     result.disableAll();
@@ -215,13 +226,13 @@ public class SimpleKMeans
   }
 
   /**
-   * Generates a clusterer. Has to initialize all fields of the clusterer
-   * that are not being set via options.
-   *
-   * @param data set of instances serving as training data 
-   * @throws Exception if the clusterer has not been 
-   * generated successfully
+   * Generates a clusterer. Has to initialize all fields of the clusterer that
+   * are not being set via options.
+   * 
+   * @param data set of instances serving as training data
+   * @throws Exception if the clusterer has not been generated successfully
    */
+  @Override
   public void buildClusterer(Instances data) throws Exception {
 
     // can clusterer handle the data?
@@ -231,7 +242,7 @@ public class SimpleKMeans
 
     m_ReplaceMissingFilter = new ReplaceMissingValues();
     Instances instances = new Instances(data);
-				
+
     instances.setClassIndex(-1);
     if (!m_dontReplaceMissing) {
       m_ReplaceMissingFilter.setInputFormat(instances);
@@ -243,7 +254,7 @@ public class SimpleKMeans
       m_FullStdDevs = new double[instances.numAttributes()];
     }
     m_FullNominalCounts = new int[instances.numAttributes()][0];
-		
+
     m_FullMeansOrMediansOrModes = moveCentroid(0, instances, false);
     for (int i = 0; i < instances.numAttributes(); i++) {
       m_FullMissingCounts[i] = instances.attributeStats(i).missingCount;
@@ -256,101 +267,105 @@ public class SimpleKMeans
         }
       } else {
         m_FullNominalCounts[i] = instances.attributeStats(i).nominalCounts;
-        if (m_FullMissingCounts[i] 
-            > m_FullNominalCounts[i][Utils.maxIndex(m_FullNominalCounts[i])]) {
-          m_FullMeansOrMediansOrModes[i] = -1; // mark missing as most common value
+        if (m_FullMissingCounts[i] > m_FullNominalCounts[i][Utils
+          .maxIndex(m_FullNominalCounts[i])]) {
+          m_FullMeansOrMediansOrModes[i] = -1; // mark missing as most common
+                                               // value
         }
       }
     }
 
     m_ClusterCentroids = new Instances(instances, m_NumClusters);
-    int[] clusterAssignments = new int [instances.numInstances()];
+    int[] clusterAssignments = new int[instances.numInstances()];
 
-    if(m_PreserveOrder)
+    if (m_PreserveOrder) {
       m_Assignments = clusterAssignments;
-		
+    }
+
     m_DistanceFunction.setInstances(instances);
-    
+
     Random RandomO = new Random(getSeed());
     int instIndex;
     HashMap initC = new HashMap();
     DecisionTableHashKey hk = null;
 
     Instances initInstances = null;
-    if(m_PreserveOrder)
+    if (m_PreserveOrder) {
       initInstances = new Instances(instances);
-    else
+    } else {
       initInstances = instances;
-		
+    }
+
     for (int j = initInstances.numInstances() - 1; j >= 0; j--) {
-      instIndex = RandomO.nextInt(j+1);
+      instIndex = RandomO.nextInt(j + 1);
       hk = new DecisionTableHashKey(initInstances.instance(instIndex),
-                                    initInstances.numAttributes(), true);
+        initInstances.numAttributes(), true);
       if (!initC.containsKey(hk)) {
         m_ClusterCentroids.add(initInstances.instance(instIndex));
-	initC.put(hk, null);
+        initC.put(hk, null);
       }
       initInstances.swap(j, instIndex);
-      
+
       if (m_ClusterCentroids.numInstances() == m_NumClusters) {
-	break;
+        break;
       }
     }
 
     m_NumClusters = m_ClusterCentroids.numInstances();
-    
-    //removing reference
+
+    // removing reference
     initInstances = null;
-		
+
     int i;
     boolean converged = false;
     int emptyClusterCount;
-    Instances [] tempI = new Instances[m_NumClusters];
-    m_squaredErrors = new double [m_NumClusters];
-    m_ClusterNominalCounts = new int [m_NumClusters][instances.numAttributes()][0];
+    Instances[] tempI = new Instances[m_NumClusters];
+    m_squaredErrors = new double[m_NumClusters];
+    m_ClusterNominalCounts = new int[m_NumClusters][instances.numAttributes()][0];
     m_ClusterMissingCounts = new int[m_NumClusters][instances.numAttributes()];
     while (!converged) {
       emptyClusterCount = 0;
       m_Iterations++;
       converged = true;
       for (i = 0; i < instances.numInstances(); i++) {
-	Instance toCluster = instances.instance(i);
-	int newC = clusterProcessedInstance(toCluster, true);
-	if (newC != clusterAssignments[i]) {
-	  converged = false;
-	}
-	clusterAssignments[i] = newC;
+        Instance toCluster = instances.instance(i);
+        int newC = clusterProcessedInstance(toCluster, true);
+        if (newC != clusterAssignments[i]) {
+          converged = false;
+        }
+        clusterAssignments[i] = newC;
       }
-      
+
       // update centroids
       m_ClusterCentroids = new Instances(instances, m_NumClusters);
       for (i = 0; i < m_NumClusters; i++) {
-	tempI[i] = new Instances(instances, 0);
+        tempI[i] = new Instances(instances, 0);
       }
       for (i = 0; i < instances.numInstances(); i++) {
-	tempI[clusterAssignments[i]].add(instances.instance(i));
+        tempI[clusterAssignments[i]].add(instances.instance(i));
       }
       for (i = 0; i < m_NumClusters; i++) {
-	if (tempI[i].numInstances() == 0) {
-	  // empty cluster
-	  emptyClusterCount++;
-	} else {
-          moveCentroid( i, tempI[i], true  );					
-	}
+        if (tempI[i].numInstances() == 0) {
+          // empty cluster
+          emptyClusterCount++;
+        } else {
+          moveCentroid(i, tempI[i], true);
+        }
       }
-      
-      if (m_Iterations == m_MaxIterations)
+
+      if (m_Iterations == m_MaxIterations) {
         converged = true;
+      }
 
       if (emptyClusterCount > 0) {
-	m_NumClusters -= emptyClusterCount;
+        m_NumClusters -= emptyClusterCount;
         if (converged) {
           Instances[] t = new Instances[m_NumClusters];
           int index = 0;
           for (int k = 0; k < tempI.length; k++) {
             if (tempI[k].numInstances() > 0) {
               t[index] = tempI[k];
-              
+
               for (i = 0; i < tempI[k].numAttributes(); i++) {
                 m_ClusterNominalCounts[index][i] = m_ClusterNominalCounts[k][i];
               }
@@ -361,106 +376,115 @@ public class SimpleKMeans
         } else {
           tempI = new Instances[m_NumClusters];
         }
-      }			
-			
+      }
+
       if (!converged) {
-	m_squaredErrors = new double [m_NumClusters];
-	m_ClusterNominalCounts = new int [m_NumClusters][instances.numAttributes()][0];
+        m_squaredErrors = new double[m_NumClusters];
+        m_ClusterNominalCounts = new int[m_NumClusters][instances
+          .numAttributes()][0];
       }
     }
-		
+
     if (m_displayStdDevs) {
       m_ClusterStdDevs = new Instances(instances, m_NumClusters);
     }
-    m_ClusterSizes = new int [m_NumClusters];
+    m_ClusterSizes = new int[m_NumClusters];
     for (i = 0; i < m_NumClusters; i++) {
       if (m_displayStdDevs) {
-        double [] vals2 = new double[instances.numAttributes()];
+        double[] vals2 = new double[instances.numAttributes()];
         for (int j = 0; j < instances.numAttributes(); j++) {
           if (instances.attribute(j).isNumeric()) {
             vals2[j] = Math.sqrt(tempI[i].variance(j));
           } else {
             vals2[j] = Instance.missingValue();
-          }	
-        }    
+          }
+        }
         m_ClusterStdDevs.add(new Instance(1.0, vals2));
       }
       m_ClusterSizes[i] = tempI[i].numInstances();
     }
+
+    // Save memory!!
+    m_DistanceFunction.clean();
   }
 
   /**
-   * Move the centroid to it's new coordinates. Generate the centroid coordinates based 
-   * on it's  members (objects assigned to the cluster of the centroid) and the distance 
-   * function being used.
-   * @param centroidIndex index of the centroid which the coordinates will be computed
-   * @param members the objects that are assigned to the cluster of this centroid
-   * @param updateClusterInfo if the method is supposed to update the m_Cluster arrays
+   * Move the centroid to it's new coordinates. Generate the centroid
+   * coordinates based on it's members (objects assigned to the cluster of the
+   * centroid) and the distance function being used.
+   * 
+   * @param centroidIndex index of the centroid which the coordinates will be
+   *          computed
+   * @param members the objects that are assigned to the cluster of this
+   *          centroid
+   * @param updateClusterInfo if the method is supposed to update the m_Cluster
+   *          arrays
    * @return the centroid coordinates
    */
-  protected double[] moveCentroid(int centroidIndex, Instances members, boolean updateClusterInfo){
-    double [] vals = new double[members.numAttributes()];
-		
-    //used only for Manhattan Distance
+  protected double[] moveCentroid(int centroidIndex, Instances members,
+    boolean updateClusterInfo) {
+    double[] vals = new double[members.numAttributes()];
+
+    // used only for Manhattan Distance
     Instances sortedMembers = null;
     int middle = 0;
     boolean dataIsEven = false;
-		
-    if(m_DistanceFunction instanceof ManhattanDistance){
-      middle = (members.numInstances()-1)/2;
-      dataIsEven = ((members.numInstances()%2)==0);
-      if(m_PreserveOrder){
+
+    if (m_DistanceFunction instanceof ManhattanDistance) {
+      middle = (members.numInstances() - 1) / 2;
+      dataIsEven = ((members.numInstances() % 2) == 0);
+      if (m_PreserveOrder) {
         sortedMembers = members;
-      }else{
+      } else {
         sortedMembers = new Instances(members);
       }
     }
-		
-    for (int j = 0; j < members.numAttributes(); j++) {						
-			
-      //in case of Euclidian distance the centroid is the mean point
-      //in case of Manhattan distance the centroid is the median point
-      //in both cases, if the attribute is nominal, the centroid is the mode
-      if(m_DistanceFunction instanceof EuclideanDistance ||
-         members.attribute(j).isNominal())
-        {													
-          vals[j] = members.meanOrMode(j);
-        }else if(m_DistanceFunction instanceof ManhattanDistance){
-        //singleton special case
-        if(members.numInstances() == 1){
+
+    for (int j = 0; j < members.numAttributes(); j++) {
+
+      // in case of Euclidian distance the centroid is the mean point
+      // in case of Manhattan distance the centroid is the median point
+      // in both cases, if the attribute is nominal, the centroid is the mode
+      if (m_DistanceFunction instanceof EuclideanDistance
+        || members.attribute(j).isNominal()) {
+        vals[j] = members.meanOrMode(j);
+      } else if (m_DistanceFunction instanceof ManhattanDistance) {
+        // singleton special case
+        if (members.numInstances() == 1) {
           vals[j] = members.instance(0).value(j);
-        }else{
+        } else {
           vals[j] = sortedMembers.kthSmallestValue(j, middle + 1);
           if (dataIsEven) {
             vals[j] = (vals[j] + sortedMembers.kthSmallestValue(j, middle + 2)) / 2;
           }
         }
-      }	
-			
-      if(updateClusterInfo){
+      }
+
+      if (updateClusterInfo) {
         m_ClusterMissingCounts[centroidIndex][j] = members.attributeStats(j).missingCount;
         m_ClusterNominalCounts[centroidIndex][j] = members.attributeStats(j).nominalCounts;
         if (members.attribute(j).isNominal()) {
-          if (m_ClusterMissingCounts[centroidIndex][j] >  
-              m_ClusterNominalCounts[centroidIndex][j][Utils.maxIndex(m_ClusterNominalCounts[centroidIndex][j])]) 
-            {
-              vals[j] = Instance.missingValue(); // mark mode as missing
-            }
+          if (m_ClusterMissingCounts[centroidIndex][j] > m_ClusterNominalCounts[centroidIndex][j][Utils
+            .maxIndex(m_ClusterNominalCounts[centroidIndex][j])]) {
+            vals[j] = Instance.missingValue(); // mark mode as missing
+          }
         } else {
-          if (m_ClusterMissingCounts[centroidIndex][j] == members.numInstances()) {
+          if (m_ClusterMissingCounts[centroidIndex][j] == members
+            .numInstances()) {
             vals[j] = Instance.missingValue(); // mark mean as missing
           }
         }
       }
     }
-    if(updateClusterInfo)
+    if (updateClusterInfo) {
       m_ClusterCentroids.add(new Instance(1.0, vals));
+    }
     return vals;
   }
-	
+
   /**
    * clusters an instance that has been through the filters
-   *
+   * 
    * @param instance the instance to assign a cluster to
    * @param updateErrors if true, update the within clusters sum of errors
    * @return a cluster number
@@ -469,15 +493,16 @@ public class SimpleKMeans
     double minDist = Integer.MAX_VALUE;
     int bestCluster = 0;
     for (int i = 0; i < m_NumClusters; i++) {
-      double dist = m_DistanceFunction.distance(instance, m_ClusterCentroids.instance(i));
+      double dist = m_DistanceFunction.distance(instance,
+        m_ClusterCentroids.instance(i));
       if (dist < minDist) {
-	minDist = dist;
-	bestCluster = i;
+        minDist = dist;
+        bestCluster = i;
       }
     }
     if (updateErrors) {
-      if(m_DistanceFunction instanceof EuclideanDistance){
-        //Euclidean distance to Squared Euclidean distance
+      if (m_DistanceFunction instanceof EuclideanDistance) {
+        // Euclidean distance to Squared Euclidean distance
         minDist *= minDist;
       }
       m_squaredErrors[bestCluster] += minDist;
@@ -487,13 +512,13 @@ public class SimpleKMeans
 
   /**
    * Classifies a given instance.
-   *
+   * 
    * @param instance the instance to be assigned to a cluster
-   * @return the number of the assigned cluster as an interger
-   * if the class is enumerated, otherwise the predicted value
-   * @throws Exception if instance could not be classified
-   * successfully
+   * @return the number of the assigned cluster as an interger if the class is
+   *         enumerated, otherwise the predicted value
+   * @throws Exception if instance could not be classified successfully
    */
+  @Override
   public int clusterInstance(Instance instance) throws Exception {
     Instance inst = null;
     if (!m_dontReplaceMissing) {
@@ -509,58 +534,54 @@ public class SimpleKMeans
 
   /**
    * Returns the number of clusters.
-   *
+   * 
    * @return the number of clusters generated for a training dataset.
-   * @throws Exception if number of clusters could not be returned
-   * successfully
+   * @throws Exception if number of clusters could not be returned successfully
    */
+  @Override
   public int numberOfClusters() throws Exception {
     return m_NumClusters;
   }
 
   /**
    * Returns an enumeration describing the available options.
-   *
+   * 
    * @return an enumeration of all the available options.
    */
-  public Enumeration listOptions () {
+  @Override
+  public Enumeration listOptions() {
     Vector result = new Vector();
 
+    result.addElement(new Option("\tnumber of clusters.\n" + "\t(default 2).",
+      "N", 1, "-N <num>"));
+    result.addElement(new Option("\tDisplay std. deviations for centroids.\n",
+      "V", 0, "-V"));
     result.addElement(new Option(
-                                 "\tnumber of clusters.\n"
-                                 + "\t(default 2).", 
-                                 "N", 1, "-N <num>"));
-    result.addElement(new Option(
-                                 "\tDisplay std. deviations for centroids.\n", 
-                                 "V", 0, "-V"));
-    result.addElement(new Option(
-                                 "\tDon't replace missing values with mean/mode.\n", 
-                                 "M", 0, "-M"));
+      "\tDon't replace missing values with mean/mode.\n", "M", 0, "-M"));
 
-    result.add(new Option(
-                          "\tDistance function to use.\n"
-                          + "\t(default: weka.core.EuclideanDistance)",
-                          "A", 1,"-A <classname and options>"));
-		
-    result.add(new Option(
-                          "\tMaximum number of iterations.\n",
-                          "I",1,"-I <num>"));
+    result.add(new Option("\tDistance function to use.\n"
+      + "\t(default: weka.core.EuclideanDistance)", "A", 1,
+      "-A <classname and options>"));
 
-    result.addElement(new Option(
-                                 "\tPreserve order of instances.\n", 
-                                 "O", 0, "-O"));
-		
+    result.add(new Option("\tMaximum number of iterations.\n", "I", 1,
+      "-I <num>"));
+
+    result.addElement(new Option("\tPreserve order of instances.\n", "O", 0,
+      "-O"));
+
     Enumeration en = super.listOptions();
-    while (en.hasMoreElements())
+    while (en.hasMoreElements()) {
       result.addElement(en.nextElement());
+    }
 
-    return  result.elements();
+    return result.elements();
   }
 
   /**
    * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String numClustersTipText() {
     return "set number of clusters";
@@ -568,10 +589,11 @@ public class SimpleKMeans
 
   /**
    * set the number of clusters to generate
-   *
+   * 
    * @param n the number of clusters to generate
    * @throws Exception if number of clusters is negative
    */
+  @Override
   public void setNumClusters(int n) throws Exception {
     if (n <= 0) {
       throw new Exception("Number of clusters must be > 0");
@@ -581,7 +603,7 @@ public class SimpleKMeans
 
   /**
    * gets the number of clusters to generate
-   *
+   * 
    * @return the number of clusters to generate
    */
   public int getNumClusters() {
@@ -590,8 +612,9 @@ public class SimpleKMeans
 
   /**
    * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String maxIterationsTipText() {
     return "set maximum number of iterations";
@@ -599,7 +622,7 @@ public class SimpleKMeans
 
   /**
    * set the maximum number of iterations to be executed
-   *
+   * 
    * @param n the maximum number of iterations
    * @throws Exception if maximum number of iteration is smaller than 1
    */
@@ -612,18 +635,18 @@ public class SimpleKMeans
 
   /**
    * gets the number of maximum iterations to be executed
-   *
+   * 
    * @return the number of clusters to generate
    */
   public int getMaxIterations() {
     return m_MaxIterations;
   }
-	
 
   /**
    * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String displayStdDevsTipText() {
     return "Display std deviations of numeric attributes "
@@ -631,22 +654,20 @@ public class SimpleKMeans
   }
 
   /**
-   * Sets whether standard deviations and nominal count
-   * Should be displayed in the clustering output
-   *
-   * @param stdD true if std. devs and counts should be 
-   * displayed
+   * Sets whether standard deviations and nominal count Should be displayed in
+   * the clustering output
+   * 
+   * @param stdD true if std. devs and counts should be displayed
    */
   public void setDisplayStdDevs(boolean stdD) {
     m_displayStdDevs = stdD;
   }
 
   /**
-   * Gets whether standard deviations and nominal count
-   * Should be displayed in the clustering output
-   *
-   * @return true if std. devs and counts should be 
-   * displayed
+   * Gets whether standard deviations and nominal count Should be displayed in
+   * the clustering output
+   * 
+   * @return true if std. devs and counts should be displayed
    */
   public boolean getDisplayStdDevs() {
     return m_displayStdDevs;
@@ -654,8 +675,9 @@ public class SimpleKMeans
 
   /**
    * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String dontReplaceMissingValuesTipText() {
     return "Replace missing values globally with mean/mode.";
@@ -663,9 +685,8 @@ public class SimpleKMeans
 
   /**
    * Sets whether missing values are to be replaced
-   *
-   * @param r true if missing values are to be
-   * replaced
+   * 
+   * @param r true if missing values are to be replaced
    */
   public void setDontReplaceMissingValues(boolean r) {
     m_dontReplaceMissing = r;
@@ -673,9 +694,8 @@ public class SimpleKMeans
 
   /**
    * Gets whether missing values are to be replaced
-   *
-   * @return true if missing values are to be
-   * replaced
+   * 
+   * @return true if missing values are to be replaced
    */
   public boolean getDontReplaceMissingValues() {
     return m_dontReplaceMissing;
@@ -684,12 +704,12 @@ public class SimpleKMeans
   /**
    * Returns the tip text for this property.
    * 
-   * @return 		tip text for this property suitable for
-   *         		displaying in the explorer/experimenter gui
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String distanceFunctionTipText() {
-    return "The distance function to use for instances comparison " +
-      "(default: weka.core.EuclideanDistance). ";
+    return "The distance function to use for instances comparison "
+      + "(default: weka.core.EuclideanDistance). ";
   }
 
   /**
@@ -708,18 +728,19 @@ public class SimpleKMeans
    * @throws Exception if instances cannot be processed
    */
   public void setDistanceFunction(DistanceFunction df) throws Exception {
-    if(!(df instanceof EuclideanDistance) && 
-       !(df instanceof ManhattanDistance))
-      {
-        throw new Exception("SimpleKMeans currently only supports the Euclidean and Manhattan distances.");
-      }
+    if (!(df instanceof EuclideanDistance)
+      && !(df instanceof ManhattanDistance)) {
+      throw new Exception(
+        "SimpleKMeans currently only supports the Euclidean and Manhattan distances.");
+    }
     m_DistanceFunction = df;
-  }	
+  }
 
   /**
    * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
   public String preserveInstancesOrderTipText() {
     return "Preserve order of instances.";
@@ -727,9 +748,8 @@ public class SimpleKMeans
 
   /**
    * Sets whether order of instances must be preserved
-   *
-   * @param r true if missing values are to be
-   * replaced
+   * 
+   * @param r true if missing values are to be replaced
    */
   public void setPreserveInstancesOrder(boolean r) {
     m_PreserveOrder = r;
@@ -737,55 +757,65 @@ public class SimpleKMeans
 
   /**
    * Gets whether order of instances must be preserved
-   *
-   * @return true if missing values are to be
-   * replaced
+   * 
+   * @return true if missing values are to be replaced
    */
   public boolean getPreserveInstancesOrder() {
     return m_PreserveOrder;
   }
-	
-	
+
   /**
-   * Parses a given list of options. <p/>
+   * Parses a given list of options.
+   * <p/>
    * 
-   <!-- options-start -->
-   * Valid options are: <p/>
+   * <!-- options-start --> Valid options are:
+   * <p/>
    * 
-   * <pre> -N &lt;num&gt;
+   * <pre>
+   * -N &lt;num&gt;
    *  number of clusters.
-   *  (default 2).</pre>
+   *  (default 2).
+   * </pre>
    * 
-   * <pre> -V
+   * <pre>
+   * -V
    *  Display std. deviations for centroids.
    * </pre>
    * 
-   * <pre> -M
+   * <pre>
+   * -M
    *  Replace missing values with mean/mode.
    * </pre>
    * 
-   * <pre> -S &lt;num&gt;
+   * <pre>
+   * -S &lt;num&gt;
    *  Random number seed.
-   *  (default 10)</pre>
+   *  (default 10)
+   * </pre>
    * 
-   * <pre> -A &lt;classname and options&gt;
+   * <pre>
+   * -A &lt;classname and options&gt;
    *  Distance function to be used for instance comparison
-   *  (default weka.core.EuclidianDistance)</pre>
+   *  (default weka.core.EuclidianDistance)
+   * </pre>
    * 
-   * <pre> -I &lt;num&gt;
-   *  Maximum number of iterations. </pre>
-   *  
-   * <pre> -O
+   * <pre>
+   * -I &lt;num&gt;
+   *  Maximum number of iterations.
+   * </pre>
+   * 
+   * <pre>
+   * -O
    *  Preserve order of instances.
    * </pre>
    * 
-   <!-- options-end -->
-   *
+   * <!-- options-end -->
+   * 
    * @param options the list of options as an array of strings
    * @throws Exception if an option is not supported
    */
-  public void setOptions (String[] options)
-    throws Exception {
+  @Override
+  public void setOptions(String[] options) throws Exception {
 
     m_displayStdDevs = Utils.getFlag("V", options);
     m_dontReplaceMissing = Utils.getFlag("M", options);
@@ -795,29 +825,27 @@ public class SimpleKMeans
     if (optionString.length() != 0) {
       setNumClusters(Integer.parseInt(optionString));
     }
-    
+
     optionString = Utils.getOption("I", options);
     if (optionString.length() != 0) {
       setMaxIterations(Integer.parseInt(optionString));
     }
-		
+
     String distFunctionClass = Utils.getOption('A', options);
-    if(distFunctionClass.length() != 0) {
+    if (distFunctionClass.length() != 0) {
       String distFunctionClassSpec[] = Utils.splitOptions(distFunctionClass);
-      if(distFunctionClassSpec.length == 0) { 
-        throw new Exception("Invalid DistanceFunction specification string."); 
+      if (distFunctionClassSpec.length == 0) {
+        throw new Exception("Invalid DistanceFunction specification string.");
       }
       String className = distFunctionClassSpec[0];
       distFunctionClassSpec[0] = "";
 
-      setDistanceFunction( (DistanceFunction)
-                           Utils.forName( DistanceFunction.class, 
-                                          className, distFunctionClassSpec) );
-    }
-    else {
+      setDistanceFunction((DistanceFunction) Utils.forName(
+        DistanceFunction.class, className, distFunctionClassSpec));
+    } else {
       setDistanceFunction(new EuclideanDistance());
     }
-		
+
     m_PreserveOrder = Utils.getFlag("O", options);
 
     super.setOptions(options);
@@ -825,13 +853,14 @@ public class SimpleKMeans
 
   /**
    * Gets the current settings of SimpleKMeans
-   *
+   * 
    * @return an array of strings suitable for passing to setOptions()
    */
-  public String[] getOptions () {
-    int       	i;
-    Vector    	result;
-    String[]  	options;
+  @Override
+  public String[] getOptions() {
+    int i;
+    Vector result;
+    String[] options;
 
     result = new Vector();
 
@@ -847,28 +876,30 @@ public class SimpleKMeans
     result.add("" + getNumClusters());
 
     result.add("-A");
-    result.add((m_DistanceFunction.getClass().getName() + " " +
-                Utils.joinOptions(m_DistanceFunction.getOptions())).trim());
-		
-    result.add("-I");
-    result.add(""+ getMaxIterations());
+    result.add((m_DistanceFunction.getClass().getName() + " " + Utils
+      .joinOptions(m_DistanceFunction.getOptions())).trim());
 
-    if(m_PreserveOrder){
+    result.add("-I");
+    result.add("" + getMaxIterations());
+
+    if (m_PreserveOrder) {
       result.add("-O");
     }
-		
-    options = super.getOptions();
-    for (i = 0; i < options.length; i++)
-      result.add(options[i]);
 
-    return (String[]) result.toArray(new String[result.size()]);	  
+    options = super.getOptions();
+    for (i = 0; i < options.length; i++) {
+      result.add(options[i]);
+    }
+
+    return (String[]) result.toArray(new String[result.size()]);
   }
 
   /**
    * return a string describing this clusterer
-   *
+   * 
    * @return a description of the clusterer as a string
    */
+  @Override
   public String toString() {
     if (m_ClusterCentroids == null) {
       return "No clusterer built yet!";
@@ -878,24 +909,24 @@ public class SimpleKMeans
     int maxAttWidth = 0;
     boolean containsNumeric = false;
     for (int i = 0; i < m_NumClusters; i++) {
-      for (int j = 0 ;j < m_ClusterCentroids.numAttributes(); j++) {
+      for (int j = 0; j < m_ClusterCentroids.numAttributes(); j++) {
         if (m_ClusterCentroids.attribute(j).name().length() > maxAttWidth) {
           maxAttWidth = m_ClusterCentroids.attribute(j).name().length();
         }
-	if (m_ClusterCentroids.attribute(j).isNumeric()) {
+        if (m_ClusterCentroids.attribute(j).isNumeric()) {
           containsNumeric = true;
-	  double width = Math.log(Math.abs(m_ClusterCentroids.instance(i).value(j))) /
-	    Math.log(10.0);
-          //          System.err.println(m_ClusterCentroids.instance(i).value(j)+" "+width);
+          double width = Math.log(Math.abs(m_ClusterCentroids.instance(i)
+            .value(j))) / Math.log(10.0);
+          // System.err.println(m_ClusterCentroids.instance(i).value(j)+" "+width);
           if (width < 0) {
             width = 1;
           }
           // decimal + # decimal places + 1
-	  width += 6.0;
-	  if ((int)width > maxWidth) {
-	    maxWidth = (int)width;
-	  }
-	}
+          width += 6.0;
+          if ((int) width > maxWidth) {
+            maxWidth = (int) width;
+          }
+        }
       }
     }
 
@@ -903,7 +934,7 @@ public class SimpleKMeans
       if (m_ClusterCentroids.attribute(i).isNominal()) {
         Attribute a = m_ClusterCentroids.attribute(i);
         for (int j = 0; j < m_ClusterCentroids.numInstances(); j++) {
-          String val = a.value((int)m_ClusterCentroids.instance(j).value(i));
+          String val = a.value((int) m_ClusterCentroids.instance(j).value(i));
           if (val.length() > maxWidth) {
             maxWidth = val.length();
           }
@@ -922,11 +953,13 @@ public class SimpleKMeans
       for (int i = 0; i < m_ClusterCentroids.numAttributes(); i++) {
         if (m_ClusterCentroids.attribute(i).isNominal()) {
           int maxV = Utils.maxIndex(m_FullNominalCounts[i]);
-          /*          int percent = (int)((double)m_FullNominalCounts[i][maxV] /
-                      Utils.sum(m_ClusterSizes) * 100.0); */
+          /*
+           * int percent = (int)((double)m_FullNominalCounts[i][maxV] /
+           * Utils.sum(m_ClusterSizes) * 100.0);
+           */
           int percent = 6; // max percent width (100%)
           String nomV = "" + m_FullNominalCounts[i][maxV];
-          //            + " (" + percent + "%)";
+          // + " (" + percent + "%)";
           if (nomV.length() + percent > maxWidth) {
             maxWidth = nomV.length() + 1;
           }
@@ -935,17 +968,17 @@ public class SimpleKMeans
     }
 
     // check for size of cluster sizes
-    for (int i = 0; i < m_ClusterSizes.length; i++) {
-      String size = "(" + m_ClusterSizes[i] + ")";
+    for (int m_ClusterSize : m_ClusterSizes) {
+      String size = "(" + m_ClusterSize + ")";
       if (size.length() > maxWidth) {
         maxWidth = size.length();
       }
     }
-    
+
     if (m_displayStdDevs && maxAttWidth < "missing".length()) {
       maxAttWidth = "missing".length();
     }
-    
+
     String plusMinus = "+/-";
     maxAttWidth += 2;
     if (m_displayStdDevs && containsNumeric) {
@@ -963,37 +996,37 @@ public class SimpleKMeans
       maxWidth = "missing".length() + 1;
     }
 
-
-    
     StringBuffer temp = new StringBuffer();
-    //    String naString = "N/A";
+    // String naString = "N/A";
 
-    
-    /*    for (int i = 0; i < maxWidth+2; i++) {
-          naString += " ";
-          } */
+    /*
+     * for (int i = 0; i < maxWidth+2; i++) { naString += " "; }
+     */
     temp.append("\nkMeans\n======\n");
-    temp.append("\nNumber of iterations: " + m_Iterations+"\n");
-		
-    if(m_DistanceFunction instanceof EuclideanDistance){
-      temp.append("Within cluster sum of squared errors: " + Utils.sum(m_squaredErrors));
-    }else{
-      temp.append("Sum of within cluster distances: " + Utils.sum(m_squaredErrors));
+    temp.append("\nNumber of iterations: " + m_Iterations + "\n");
+
+    if (m_DistanceFunction instanceof EuclideanDistance) {
+      temp.append("Within cluster sum of squared errors: "
+        + Utils.sum(m_squaredErrors));
+    } else {
+      temp.append("Sum of within cluster distances: "
+        + Utils.sum(m_squaredErrors));
     }
-		
-		
+
     if (!m_dontReplaceMissing) {
       temp.append("\nMissing values globally replaced with mean/mode");
     }
 
     temp.append("\n\nCluster centroids:\n");
-    temp.append(pad("Cluster#", " ", (maxAttWidth + (maxWidth * 2 + 2)) - "Cluster#".length(), true));
+    temp.append(pad("Cluster#", " ", (maxAttWidth + (maxWidth * 2 + 2))
+      - "Cluster#".length(), true));
 
     temp.append("\n");
-    temp.append(pad("Attribute", " ", maxAttWidth - "Attribute".length(), false));
+    temp
+      .append(pad("Attribute", " ", maxAttWidth - "Attribute".length(), false));
 
-    
-    temp.append(pad("Full Data", " ", maxWidth + 1 - "Full Data".length(), true));
+    temp
+      .append(pad("Full Data", " ", maxWidth + 1 - "Full Data".length(), true));
 
     // cluster numbers
     for (int i = 0; i < m_NumClusters; i++) {
@@ -1004,16 +1037,18 @@ public class SimpleKMeans
 
     // cluster sizes
     String cSize = "(" + Utils.sum(m_ClusterSizes) + ")";
-    temp.append(pad(cSize, " ", maxAttWidth + maxWidth + 1 - cSize.length(), true));
+    temp.append(pad(cSize, " ", maxAttWidth + maxWidth + 1 - cSize.length(),
+      true));
     for (int i = 0; i < m_NumClusters; i++) {
       cSize = "(" + m_ClusterSizes[i] + ")";
-      temp.append(pad(cSize, " ",maxWidth + 1 - cSize.length(), true));
+      temp.append(pad(cSize, " ", maxWidth + 1 - cSize.length(), true));
     }
     temp.append("\n");
 
-    temp.append(pad("", "=", maxAttWidth + 
-                    (maxWidth * (m_ClusterCentroids.numInstances()+1) 
-                     + m_ClusterCentroids.numInstances() + 1), true));
+    temp.append(pad("", "=",
+      maxAttWidth
+        + (maxWidth * (m_ClusterCentroids.numInstances() + 1)
+          + m_ClusterCentroids.numInstances() + 1), true));
     temp.append("\n");
 
     for (int i = 0; i < m_ClusterCentroids.numAttributes(); i++) {
@@ -1028,19 +1063,22 @@ public class SimpleKMeans
       // full data
       if (m_ClusterCentroids.attribute(i).isNominal()) {
         if (m_FullMeansOrMediansOrModes[i] == -1) { // missing
-          valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(), true);
+          valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(),
+            true);
         } else {
-          valMeanMode = 
-            pad((strVal = m_ClusterCentroids.attribute(i).value((int)m_FullMeansOrMediansOrModes[i])),
-                " ", maxWidth + 1 - strVal.length(), true);
+          valMeanMode = pad(
+            (strVal = m_ClusterCentroids.attribute(i).value(
+              (int) m_FullMeansOrMediansOrModes[i])), " ", maxWidth + 1
+              - strVal.length(), true);
         }
       } else {
         if (Double.isNaN(m_FullMeansOrMediansOrModes[i])) {
-          valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(), true);
+          valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(),
+            true);
         } else {
-          valMeanMode =  pad((strVal = Utils.doubleToString(m_FullMeansOrMediansOrModes[i],
-                                                            maxWidth,4).trim()), 
-                             " ", maxWidth + 1 - strVal.length(), true);
+          valMeanMode = pad(
+            (strVal = Utils.doubleToString(m_FullMeansOrMediansOrModes[i],
+              maxWidth, 4).trim()), " ", maxWidth + 1 - strVal.length(), true);
         }
       }
       temp.append(valMeanMode);
@@ -1048,19 +1086,23 @@ public class SimpleKMeans
       for (int j = 0; j < m_NumClusters; j++) {
         if (m_ClusterCentroids.attribute(i).isNominal()) {
           if (m_ClusterCentroids.instance(j).isMissing(i)) {
-            valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(), true);
+            valMeanMode = pad("missing", " ",
+              maxWidth + 1 - "missing".length(), true);
           } else {
-            valMeanMode = 
-              pad((strVal = m_ClusterCentroids.attribute(i).value((int)m_ClusterCentroids.instance(j).value(i))),
-                  " ", maxWidth + 1 - strVal.length(), true);
+            valMeanMode = pad(
+              (strVal = m_ClusterCentroids.attribute(i).value(
+                (int) m_ClusterCentroids.instance(j).value(i))), " ", maxWidth
+                + 1 - strVal.length(), true);
           }
         } else {
           if (m_ClusterCentroids.instance(j).isMissing(i)) {
-            valMeanMode = pad("missing", " ", maxWidth + 1 - "missing".length(), true);
+            valMeanMode = pad("missing", " ",
+              maxWidth + 1 - "missing".length(), true);
           } else {
-            valMeanMode = pad((strVal = Utils.doubleToString(m_ClusterCentroids.instance(j).value(i),
-                                                             maxWidth,4).trim()), 
-                              " ", maxWidth + 1 - strVal.length(), true);
+            valMeanMode = pad(
+              (strVal = Utils.doubleToString(
+                m_ClusterCentroids.instance(j).value(i), maxWidth, 4).trim()),
+              " ", maxWidth + 1 - strVal.length(), true);
           }
         }
         temp.append(valMeanMode);
@@ -1079,25 +1121,25 @@ public class SimpleKMeans
             String val = "  " + a.value(j);
             temp.append(pad(val, " ", maxAttWidth + 1 - val.length(), false));
             int count = m_FullNominalCounts[i][j];
-            int percent = (int)((double)m_FullNominalCounts[i][j] /
-                                Utils.sum(m_ClusterSizes) * 100.0);
+            int percent = (int) ((double) m_FullNominalCounts[i][j]
+              / Utils.sum(m_ClusterSizes) * 100.0);
             String percentS = "" + percent + "%)";
             percentS = pad(percentS, " ", 5 - percentS.length(), true);
             stdDevVal = "" + count + " (" + percentS;
-            stdDevVal = 
-              pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(), true);
+            stdDevVal = pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(),
+              true);
             temp.append(stdDevVal);
 
             // Clusters
             for (int k = 0; k < m_NumClusters; k++) {
               count = m_ClusterNominalCounts[k][i][j];
-              percent = (int)((double)m_ClusterNominalCounts[k][i][j] /
-                              m_ClusterSizes[k] * 100.0);
+              percent = (int) ((double) m_ClusterNominalCounts[k][i][j]
+                / m_ClusterSizes[k] * 100.0);
               percentS = "" + percent + "%)";
               percentS = pad(percentS, " ", 5 - percentS.length(), true);
               stdDevVal = "" + count + " (" + percentS;
-              stdDevVal = 
-                pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(), true);
+              stdDevVal = pad(stdDevVal, " ",
+                maxWidth + 1 - stdDevVal.length(), true);
               temp.append(stdDevVal);
             }
             temp.append("\n");
@@ -1105,27 +1147,28 @@ public class SimpleKMeans
           // missing (if any)
           if (m_FullMissingCounts[i] > 0) {
             // Full data
-            temp.append(pad("  missing", " ", maxAttWidth + 1 - "  missing".length(), false));
+            temp.append(pad("  missing", " ",
+              maxAttWidth + 1 - "  missing".length(), false));
             int count = m_FullMissingCounts[i];
-            int percent = (int)((double)m_FullMissingCounts[i] /
-                                Utils.sum(m_ClusterSizes) * 100.0);
+            int percent = (int) ((double) m_FullMissingCounts[i]
+              / Utils.sum(m_ClusterSizes) * 100.0);
             String percentS = "" + percent + "%)";
             percentS = pad(percentS, " ", 5 - percentS.length(), true);
             stdDevVal = "" + count + " (" + percentS;
-            stdDevVal = 
-              pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(), true);
+            stdDevVal = pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(),
+              true);
             temp.append(stdDevVal);
-           
+
             // Clusters
             for (int k = 0; k < m_NumClusters; k++) {
               count = m_ClusterMissingCounts[k][i];
-              percent = (int)((double)m_ClusterMissingCounts[k][i] /
-                              m_ClusterSizes[k] * 100.0);
+              percent = (int) ((double) m_ClusterMissingCounts[k][i]
+                / m_ClusterSizes[k] * 100.0);
               percentS = "" + percent + "%)";
               percentS = pad(percentS, " ", 5 - percentS.length(), true);
               stdDevVal = "" + count + " (" + percentS;
-              stdDevVal = 
-                pad(stdDevVal, " ", maxWidth + 1 - stdDevVal.length(), true);
+              stdDevVal = pad(stdDevVal, " ",
+                maxWidth + 1 - stdDevVal.length(), true);
               temp.append(stdDevVal);
             }
 
@@ -1138,10 +1181,10 @@ public class SimpleKMeans
           if (Double.isNaN(m_FullMeansOrMediansOrModes[i])) {
             stdDevVal = pad("--", " ", maxAttWidth + maxWidth + 1 - 2, true);
           } else {
-            stdDevVal = pad((strVal = plusMinus 
-                             + Utils.doubleToString(m_FullStdDevs[i],
-                                                    maxWidth,4).trim()), 
-                            " ", maxWidth + maxAttWidth + 1 - strVal.length(), true);
+            stdDevVal = pad(
+              (strVal = plusMinus
+                + Utils.doubleToString(m_FullStdDevs[i], maxWidth, 4).trim()),
+              " ", maxWidth + maxAttWidth + 1 - strVal.length(), true);
           }
           temp.append(stdDevVal);
 
@@ -1150,11 +1193,11 @@ public class SimpleKMeans
             if (m_ClusterCentroids.instance(j).isMissing(i)) {
               stdDevVal = pad("--", " ", maxWidth + 1 - 2, true);
             } else {
-              stdDevVal = 
-                pad((strVal = plusMinus 
-                     + Utils.doubleToString(m_ClusterStdDevs.instance(j).value(i),
-                                            maxWidth,4).trim()), 
-                    " ", maxWidth + 1 - strVal.length(), true);
+              stdDevVal = pad(
+                (strVal = plusMinus
+                  + Utils.doubleToString(m_ClusterStdDevs.instance(j).value(i),
+                    maxWidth, 4).trim()), " ", maxWidth + 1 - strVal.length(),
+                true);
             }
             temp.append(stdDevVal);
           }
@@ -1167,18 +1210,17 @@ public class SimpleKMeans
     return temp.toString();
   }
 
-  private String pad(String source, String padChar, 
-                     int length, boolean leftPad) {
+  private String pad(String source, String padChar, int length, boolean leftPad) {
     StringBuffer temp = new StringBuffer();
 
     if (leftPad) {
-      for (int i = 0; i< length; i++) {
+      for (int i = 0; i < length; i++) {
         temp.append(padChar);
       }
       temp.append(source);
     } else {
       temp.append(source);
-      for (int i = 0; i< length; i++) {
+      for (int i = 0; i < length; i++) {
         temp.append(padChar);
       }
     }
@@ -1188,7 +1230,7 @@ public class SimpleKMeans
   /**
    * Gets the the cluster centroids
    * 
-   * @return		the cluster centroids
+   * @return the cluster centroids
    */
   public Instances getClusterCentroids() {
     return m_ClusterCentroids;
@@ -1197,27 +1239,26 @@ public class SimpleKMeans
   /**
    * Gets the standard deviations of the numeric attributes in each cluster
    * 
-   * @return		the standard deviations of the numeric attributes 
-   * 			in each cluster
+   * @return the standard deviations of the numeric attributes in each cluster
    */
   public Instances getClusterStandardDevs() {
     return m_ClusterStdDevs;
   }
 
   /**
-   * Returns for each cluster the frequency counts for the values of each 
+   * Returns for each cluster the frequency counts for the values of each
    * nominal attribute
    * 
-   * @return		the counts
+   * @return the counts
    */
-  public int [][][] getClusterNominalCounts() {
+  public int[][][] getClusterNominalCounts() {
     return m_ClusterNominalCounts;
   }
 
   /**
    * Gets the squared error for all clusters
    * 
-   * @return		the squared error
+   * @return the squared error
    */
   public double getSquaredError() {
     return Utils.sum(m_squaredErrors);
@@ -1226,44 +1267,48 @@ public class SimpleKMeans
   /**
    * Gets the number of instances in each cluster
    * 
-   * @return		The number of instances in each cluster
+   * @return The number of instances in each cluster
    */
-  public int [] getClusterSizes() {
+  public int[] getClusterSizes() {
     return m_ClusterSizes;
   }
-  
+
   /**
    * Gets the assignments for each instance
+   * 
    * @return Array of indexes of the centroid assigned to each instance
-   * @throws Exception if order of instances wasn't preserved or no assignments were made
+   * @throws Exception if order of instances wasn't preserved or no assignments
+   *           were made
    */
-  public int [] getAssignments() throws Exception{
-    if(!m_PreserveOrder){
-      throw new Exception("The assignments are only available when order of instances is preserved (-O)");
+  public int[] getAssignments() throws Exception {
+    if (!m_PreserveOrder) {
+      throw new Exception(
+        "The assignments are only available when order of instances is preserved (-O)");
     }
-    if(m_Assignments == null){
+    if (m_Assignments == null) {
       throw new Exception("No assignments made.");
     }
     return m_Assignments;
   }
-	
+
   /**
    * Returns the revision string.
    * 
-   * @return		the revision
+   * @return the revision
    */
+  @Override
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
 
   /**
    * Main method for testing this class.
-   *
-   * @param argv should contain the following arguments: <p>
-   * -t training file [-N number of clusters]
+   * 
+   * @param argv should contain the following arguments:
+   *          <p>
+   *          -t training file [-N number of clusters]
    */
-  public static void main (String[] argv) {
+  public static void main(String[] argv) {
     runClusterer(new SimpleKMeans(), argv);
   }
 }
-
