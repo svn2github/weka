@@ -137,11 +137,13 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import weka.core.Attribute;
+import weka.core.CapabilitiesHandler;
 import weka.core.Copyright;
 import weka.core.Environment;
 import weka.core.EnvironmentHandler;
 import weka.core.Instances;
 import weka.core.Memory;
+import weka.core.MultiInstanceCapabilitiesHandler;
 import weka.core.SerializedObject;
 import weka.core.Utils;
 import weka.core.WekaEnumeration;
@@ -155,6 +157,7 @@ import weka.gui.GenericObjectEditor;
 import weka.gui.GenericPropertiesCreator;
 import weka.gui.HierarchyPropertyParser;
 import weka.gui.LookAndFeel;
+import weka.gui.PropertySheetPanel;
 import weka.gui.beans.xml.XMLBeans;
 import weka.gui.visualize.PrintablePanel;
 
@@ -6996,6 +6999,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   public static String getGlobalInfo(Object tempBean) {
     // set tool tip text from global info if supplied
     String gi = null;
+    StringBuilder result = new StringBuilder();
     try {
       BeanInfo bi = Introspector.getBeanInfo(tempBean.getClass());
       MethodDescriptor[] methods = bi.getMethodDescriptors();
@@ -7038,25 +7042,52 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       if (addFirstBreaks) {
         firstLine += "<br><br>";
       }
+      result.append(firstLine);
 
       String[] parts = gi.split("\n");
       String remainder = "";
       for (String p : parts) {
         if (p.length() > 80) {
           p = p.replace(". ", ".<br>");
+          p = p.replace("\n", "");
         }
-        remainder += p + "<br>";
+        result.append(p
+          + (p.endsWith("<br>") || p.endsWith("<br> ") ? "" : "<br>"));
       }
 
-      return firstLine + remainder + "</html>";
+      result.append(remainder);
     }
 
+    if (tempBean instanceof CapabilitiesHandler) {
+      if (!result.toString().endsWith("<br><br>")) {
+        result.append("<br>");
+      }
+      String caps = PropertySheetPanel.addCapabilities(
+        "<font color=red>CAPABILITIES</font>",
+        ((CapabilitiesHandler) tempBean).getCapabilities());
+      caps = caps.replace("\n", "<br>");
+      result.append(caps);
+    }
+
+    if (tempBean instanceof MultiInstanceCapabilitiesHandler) {
+      result.append("<br>");
+      String caps = PropertySheetPanel.addCapabilities(
+        "<font color=red>MI CAPABILITIES</font>",
+        ((MultiInstanceCapabilitiesHandler) tempBean)
+          .getMultiInstanceCapabilities());
+      caps = caps.replace("\n", "<br>");
+      result.append(caps);
+    }
+
+    result.append("</html>");
     // gi = gi.replaceFirst("[.] ", ".<br><br>");
     /*
      * gi = gi.replace("\n", "<br>"); gi = "<html>" + gi + "</html>";
      */
-
-    return null;
+    if (result.length() == 0) {
+      return null;
+    }
+    return result.toString();
   }
 
   /**
@@ -7245,26 +7276,26 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void run() {
           while (true) {
-            try {
-              // System.out.println("Before sleeping");
-              this.sleep(10);
+            // try {
+            // System.out.println("Before sleeping");
+            // this.sleep(10);
 
-              if (m_Memory.isOutOfMemory()) {
-                // clean up
-                jf.dispose();
-                m_knowledgeFlow = null;
-                System.gc();
+            if (m_Memory.isOutOfMemory()) {
+              // clean up
+              jf.dispose();
+              m_knowledgeFlow = null;
+              System.gc();
 
-                // display error
-                System.err.println("\n[KnowledgeFlow] displayed message:");
-                m_Memory.showOutOfMemory();
-                System.err.println("\nexiting");
-                System.exit(-1);
-              }
-
-            } catch (InterruptedException ex) {
-              ex.printStackTrace();
+              // display error
+              System.err.println("\n[KnowledgeFlow] displayed message:");
+              m_Memory.showOutOfMemory();
+              System.err.println("\nexiting");
+              System.exit(-1);
             }
+
+            // } catch (InterruptedException ex) {
+            // ex.printStackTrace();
+            // }
           }
         }
       };
