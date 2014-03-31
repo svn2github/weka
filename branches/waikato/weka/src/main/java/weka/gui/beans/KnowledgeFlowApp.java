@@ -57,7 +57,6 @@ import java.beans.Customizer;
 import java.beans.EventSetDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.MethodDescriptor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.beancontext.BeanContextChild;
@@ -78,7 +77,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -137,13 +135,11 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import weka.core.Attribute;
-import weka.core.CapabilitiesHandler;
 import weka.core.Copyright;
 import weka.core.Environment;
 import weka.core.EnvironmentHandler;
 import weka.core.Instances;
 import weka.core.Memory;
-import weka.core.MultiInstanceCapabilitiesHandler;
 import weka.core.SerializedObject;
 import weka.core.Utils;
 import weka.core.WekaEnumeration;
@@ -157,7 +153,6 @@ import weka.gui.GenericObjectEditor;
 import weka.gui.GenericPropertiesCreator;
 import weka.gui.HierarchyPropertyParser;
 import weka.gui.LookAndFeel;
-import weka.gui.PropertySheetPanel;
 import weka.gui.beans.xml.XMLBeans;
 import weka.gui.visualize.PrintablePanel;
 
@@ -6997,97 +6992,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * @return the global help info or null if global info does not exist
    */
   public static String getGlobalInfo(Object tempBean) {
-    // set tool tip text from global info if supplied
-    String gi = null;
-    StringBuilder result = new StringBuilder();
-    try {
-      BeanInfo bi = Introspector.getBeanInfo(tempBean.getClass());
-      MethodDescriptor[] methods = bi.getMethodDescriptors();
-      for (MethodDescriptor method : methods) {
-        String name = method.getDisplayName();
-        Method meth = method.getMethod();
-        if (name.equals("globalInfo")) {
-          if (meth.getReturnType().equals(String.class)) {
-            Object args[] = {};
-            String globalInfo = (String) (meth.invoke(tempBean, args));
-            gi = globalInfo;
-            break;
-          }
-        }
-      }
-    } catch (Exception ex) {
-
-    }
-
-    if (gi != null && gi.length() > 0) {
-      String firstLine = "";
-      boolean addFirstBreaks = true;
-      if (gi.indexOf(". ") > 0) {
-        firstLine = gi.substring(0, gi.indexOf(". "));
-        if (gi.length() - gi.indexOf(". ") < 3) {
-          addFirstBreaks = false;
-        }
-        gi = gi.substring(gi.indexOf(". ") + 1, gi.length());
-      } else if (gi.indexOf(".") > 0) {
-        firstLine = gi.substring(0, gi.indexOf("."));
-        if (gi.length() - gi.indexOf(".") < 3) {
-          addFirstBreaks = false;
-        }
-        gi = gi.substring(gi.indexOf(".") + 1, gi.length());
-      } else {
-        firstLine = gi;
-        gi = "";
-      }
-      firstLine = "<html>" + "<font color=blue>" + firstLine + "</font>";
-      if (addFirstBreaks) {
-        firstLine += "<br><br>";
-      }
-      result.append(firstLine);
-
-      String[] parts = gi.split("\n");
-      String remainder = "";
-      for (String p : parts) {
-        if (p.length() > 80) {
-          p = p.replace(". ", ".<br>");
-          p = p.replace("\n", "");
-        }
-        result.append(p
-          + (p.endsWith("<br>") || p.endsWith("<br> ") ? "" : "<br>"));
-      }
-
-      result.append(remainder);
-    }
-
-    if (tempBean instanceof CapabilitiesHandler) {
-      if (!result.toString().endsWith("<br><br>")) {
-        result.append("<br>");
-      }
-      String caps = PropertySheetPanel.addCapabilities(
-        "<font color=red>CAPABILITIES</font>",
-        ((CapabilitiesHandler) tempBean).getCapabilities());
-      caps = caps.replace("\n", "<br>");
-      result.append(caps);
-    }
-
-    if (tempBean instanceof MultiInstanceCapabilitiesHandler) {
-      result.append("<br>");
-      String caps = PropertySheetPanel.addCapabilities(
-        "<font color=red>MI CAPABILITIES</font>",
-        ((MultiInstanceCapabilitiesHandler) tempBean)
-          .getMultiInstanceCapabilities());
-      caps = caps.replace("\n", "<br>");
-      result.append(caps);
-    }
-
-    result.append("</html>");
-    // gi = gi.replaceFirst("[.] ", ".<br><br>");
-    /*
-     * gi = gi.replace("\n", "<br>"); gi = "<html>" + gi + "</html>";
-     */
-    if (result.length() == 0) {
-      return null;
-    }
-    return result.toString();
+    return Utils.getGlobalInfo(tempBean, true);
   }
 
   /**

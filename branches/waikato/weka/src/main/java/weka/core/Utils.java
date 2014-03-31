@@ -21,6 +21,9 @@
 
 package weka.core;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.MethodDescriptor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.BreakIterator;
 import java.util.Enumeration;
@@ -37,6 +41,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import weka.Run;
+import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.
@@ -1080,8 +1085,12 @@ public final class Utils implements RevisionHandler {
     }
 
     if (matches.size() > 1) {
-      throw new Exception("More than one possibility matched '" + className
-        + "'");
+      StringBuffer sb = new StringBuffer("More than one possibility matched '"
+        + className + "':\n");
+      for (String s : matches) {
+        sb.append("  " + s + '\n');
+      }
+      throw new Exception(sb.toString());
     }
 
     className = matches.get(0);
@@ -2242,6 +2251,143 @@ public final class Utils implements RevisionHandler {
     }
 
     return result.toArray(new String[result.size()]);
+  }
+
+  /**
+   * Utility method for grabbing the global info help (if it exists) from an
+   * arbitrary object. Can also append capabilities information if the object is
+   * a CapabilitiesHandler.
+   * 
+   * @param object the object to grab global info from
+   * @param addCapabilities true if capabilities information is to be added to
+   *          the result
+   * @return the global help info or null if global info does not exist
+   */
+  public static String getGlobalInfo(Object object, boolean addCapabilities) {
+    // set tool tip text from global info if supplied
+    String gi = null;
+    StringBuilder result = new StringBuilder();
+    try {
+      BeanInfo bi = Introspector.getBeanInfo(object.getClass());
+      MethodDescriptor[] methods = bi.getMethodDescriptors();
+      for (MethodDescriptor method : methods) {
+        String name = method.getDisplayName();
+        Method meth = method.getMethod();
+        if (name.equals("globalInfo")) {
+          if (meth.getReturnType().equals(String.class)) {
+            Object args[] = {};
+            String globalInfo = (String) (meth.invoke(object, args));
+            gi = globalInfo;
+            break;
+          }
+        }
+      }
+    } catch (Exception ex) {
+
+    }
+
+    // Max. number of characters per line (may overflow)
+    int lineWidth = 180;
+
+    result.append("<html>");
+
+    if (gi != null && gi.length() > 0) {
+
+      StringBuilder firstLine = new StringBuilder();
+      firstLine.append("<font color=blue>");
+      boolean addFirstBreaks = true;
+      int indexOfDot = gi.indexOf(".");
+      if (indexOfDot > 0) {
+        firstLine.append(gi.substring(0, gi.indexOf(".")));
+        if (gi.length() - indexOfDot < 3) {
+          addFirstBreaks = false;
+        }
+        gi = gi.substring(indexOfDot + 1, gi.length());
+      } else {
+        firstLine.append(gi);
+        gi = "";
+      }
+      firstLine.append("</font>");
+      if ((addFirstBreaks) && !(gi.startsWith("\n\n"))) {
+        if (!gi.startsWith("\n")) {
+          firstLine.append("<br>");
+        }
+        firstLine.append("<br>");
+      }
+      result.append(Utils.lineWrap(firstLine.toString(), lineWidth));
+
+      result.append(Utils.lineWrap(gi, lineWidth).replace("\n", "<br>"));
+      result.append("<br>");
+    }
+
+    if (addCapabilities) {
+      if (object instanceof CapabilitiesHandler) {
+        if (!result.toString().endsWith("<br><br>")) {
+          result.append("<br>");
+        }
+        String caps = PropertySheetPanel.addCapabilities(
+          "<font color=red>CAPABILITIES</font>",
+          ((CapabilitiesHandler) object).getCapabilities());
+        caps = Utils.lineWrap(caps, lineWidth).replace("\n", "<br>");
+        result.append(caps);
+      }
+
+      if (object instanceof MultiInstanceCapabilitiesHandler) {
+        result.append("<br>");
+        String caps = PropertySheetPanel.addCapabilities(
+          "<font color=red>MI CAPABILITIES</font>",
+          ((MultiInstanceCapabilitiesHandler) object)
+            .getMultiInstanceCapabilities());
+        caps = Utils.lineWrap(caps, lineWidth).replace("\n", "<br>");
+        result.append(caps);
+      }
+    }
+
+    result.append("</html>");
+
+    if (result.toString().equals("<html></html>")) {
+      return null;
+    }
+    return result.toString();
+  }
+
+  /**
+   * Implements simple line breaking. Reformats the given string by introducing
+   * line breaks so that, ideally, no line exceeds the given number of
+   * characters. Line breaks are assumed to be indicated by newline characters.
+   * Existing line breaks are left in the input text.
+   * 
+   * @param input the string to line wrap
+   * @param maxLineWidth the maximum permitted number of characters in a line
+   * @return the processed string
+   */
+  public static String lineWrap(String input, int maxLineWidth) {
+
+    StringBuffer sb = new StringBuffer();
+    BreakIterator biterator = BreakIterator.getLineInstance();
+    biterator.setText(input);
+    int linestart = 0;
+    int previous = 0;
+    while (true) {
+      int next = biterator.next();
+      String toAdd = input.substring(linestart, previous);
+      if (next == BreakIterator.DONE) {
+        sb.append(toAdd);
+        break;
+      }
+      if (next - linestart > maxLineWidth) {
+        sb.append(toAdd + '\n');
+        linestart = previous;
+      } else {
+        int newLineIndex = toAdd.lastIndexOf('\n');
+        if (newLineIndex != -1) {
+          sb.append(toAdd.substring(0, newLineIndex + 1));
+          linestart += newLineIndex + 1;
+        }
+      }
+      previous = next;
+    }
+    return sb.toString();
   }
 
   /**
