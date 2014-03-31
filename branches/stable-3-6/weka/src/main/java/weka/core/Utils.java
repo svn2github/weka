@@ -22,11 +22,18 @@
 
 package weka.core;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.MethodDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.text.BreakIterator;
 import java.util.Properties;
 import java.util.Random;
+
+import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.
@@ -70,14 +77,14 @@ public final class Utils implements RevisionHandler {
       // jdk1.1/docs/guide/misc/resources.html
       // defaultProps.load(ClassLoader.getSystemResourceAsStream(resourceName));
       defaultProps.load((new Utils()).getClass().getClassLoader()
-          .getResourceAsStream(resourceName));
+        .getResourceAsStream(resourceName));
     } catch (Exception ex) {
       /*
        * throw new Exception("Problem reading default properties: " +
        * ex.getMessage());
        */
       System.err.println("Warning, unable to load properties file from "
-          + "system resource (Utils.java)");
+        + "system resource (Utils.java)");
     }
 
     // Hardcoded slash is OK here
@@ -90,7 +97,7 @@ public final class Utils implements RevisionHandler {
     // Allow a properties file in the home directory to override
     Properties userProps = new Properties(defaultProps);
     File propFile = new File(System.getProperties().getProperty("user.home")
-        + File.separatorChar + resourceName);
+      + File.separatorChar + resourceName);
     if (propFile.exists()) {
       try {
         userProps.load(new FileInputStream(propFile));
@@ -178,7 +185,7 @@ public final class Utils implements RevisionHandler {
    * @return the input string with occurrences of substring replaced.
    */
   public static String replaceSubstring(String inString, String subString,
-      String replaceString) {
+    String replaceString) {
 
     StringBuffer result = new StringBuffer();
     int oldLoc = 0, loc = 0;
@@ -229,7 +236,7 @@ public final class Utils implements RevisionHandler {
    * @return the output string
    */
   private static/* @pure@ */String fixStringLength(String inString, int length,
-      boolean right) {
+    boolean right) {
 
     if (inString.length() < length) {
       while (inString.length() < length) {
@@ -250,7 +257,7 @@ public final class Utils implements RevisionHandler {
    * @return the double as a formatted string
    */
   public static/* @pure@ */String doubleToString(double value,
-      int afterDecimalPoint) {
+    int afterDecimalPoint) {
 
     StringBuffer stringBuffer;
     double temp;
@@ -260,7 +267,7 @@ public final class Utils implements RevisionHandler {
     temp = value * Math.pow(10.0, afterDecimalPoint);
     if (Math.abs(temp) < Long.MAX_VALUE) {
       precisionValue = (temp > 0) ? (long) (temp + 0.5) : -(long) (Math
-          .abs(temp) + 0.5);
+        .abs(temp) + 0.5);
       if (precisionValue == 0) {
         stringBuffer = new StringBuffer(String.valueOf(0));
       } else {
@@ -286,7 +293,7 @@ public final class Utils implements RevisionHandler {
       }
       int currentPos = stringBuffer.length() - 1;
       while ((currentPos > dotPosition)
-          && (stringBuffer.charAt(currentPos) == '0')) {
+        && (stringBuffer.charAt(currentPos) == '0')) {
         stringBuffer.setCharAt(currentPos--, ' ');
       }
       if (stringBuffer.charAt(currentPos) == '.') {
@@ -308,7 +315,7 @@ public final class Utils implements RevisionHandler {
    * @return the double as a formatted string
    */
   public static/* @pure@ */String doubleToString(double value, int width,
-      int afterDecimalPoint) {
+    int afterDecimalPoint) {
 
     String tempString = doubleToString(value, afterDecimalPoint);
     char[] result;
@@ -369,10 +376,11 @@ public final class Utils implements RevisionHandler {
    * @return the class of the innermost elements
    */
   public static Class getArrayClass(Class c) {
-    if (c.getComponentType().isArray())
+    if (c.getComponentType().isArray()) {
       return getArrayClass(c.getComponentType());
-    else
+    } else {
       return c.getComponentType();
+    }
   }
 
   /**
@@ -384,10 +392,11 @@ public final class Utils implements RevisionHandler {
    * @return the dimensions of the array
    */
   public static int getArrayDimensions(Class array) {
-    if (array.getComponentType().isArray())
+    if (array.getComponentType().isArray()) {
       return 1 + getArrayDimensions(array.getComponentType());
-    else
+    } else {
       return 1;
+    }
   }
 
   /**
@@ -422,17 +431,20 @@ public final class Utils implements RevisionHandler {
       result = "null";
     } else if (dimensions == 1) {
       for (i = 0; i < Array.getLength(array); i++) {
-        if (i > 0)
+        if (i > 0) {
           result += ",";
-        if (Array.get(array, i) == null)
+        }
+        if (Array.get(array, i) == null) {
           result += "null";
-        else
+        } else {
           result += Array.get(array, i).toString();
+        }
       }
     } else {
       for (i = 0; i < Array.getLength(array); i++) {
-        if (i > 0)
+        if (i > 0) {
           result += ",";
+        }
         result += "[" + arrayToString(Array.get(array, i)) + "]";
       }
     }
@@ -458,7 +470,7 @@ public final class Utils implements RevisionHandler {
    * @exception Exception if there are any non-empty options
    */
   public static void checkForRemainingOptions(String[] options)
-      throws Exception {
+    throws Exception {
 
     int illegalOptionsFound = 0;
     StringBuffer text = new StringBuffer();
@@ -466,10 +478,10 @@ public final class Utils implements RevisionHandler {
     if (options == null) {
       return;
     }
-    for (int i = 0; i < options.length; i++) {
-      if (options[i].length() > 0) {
+    for (String option : options) {
+      if (option.length() > 0) {
         illegalOptionsFound++;
-        text.append(options[i] + ' ');
+        text.append(option + ' ');
       }
     }
     if (illegalOptionsFound > 0) {
@@ -506,8 +518,9 @@ public final class Utils implements RevisionHandler {
 
     int pos = getOptionPos(flag, options);
 
-    if (pos > -1)
+    if (pos > -1) {
       options[pos] = "";
+    }
 
     return (pos > -1);
   }
@@ -523,7 +536,7 @@ public final class Utils implements RevisionHandler {
    * @exception Exception if the option indicated by the flag can't be found
    */
   public static/* @non_null@ */String getOption(char flag, String[] options)
-      throws Exception {
+    throws Exception {
 
     return getOption("" + flag, options);
   }
@@ -539,7 +552,7 @@ public final class Utils implements RevisionHandler {
    * @exception Exception if the option indicated by the flag can't be found
    */
   public static/* @non_null@ */String getOption(String flag, String[] options)
-      throws Exception {
+    throws Exception {
 
     String newString;
     int i = getOptionPos(flag, options);
@@ -583,8 +596,9 @@ public final class Utils implements RevisionHandler {
    * @return the position if found, or -1 otherwise
    */
   public static int getOptionPos(String flag, String[] options) {
-    if (options == null)
+    if (options == null) {
       return -1;
+    }
 
     for (int i = 0; i < options.length; i++) {
       if ((options[i].length() > 0) && (options[i].charAt(0) == '-')) {
@@ -593,11 +607,13 @@ public final class Utils implements RevisionHandler {
           Double.valueOf(options[i]);
         } catch (NumberFormatException e) {
           // found?
-          if (options[i].equals("-" + flag))
+          if (options[i].equals("-" + flag)) {
             return i;
+          }
           // did we reach "--"?
-          if (options[i].charAt(1) == '-')
+          if (options[i].charAt(1) == '-') {
             return -1;
+          }
         }
       }
     }
@@ -629,9 +645,9 @@ public final class Utils implements RevisionHandler {
 
     // backquote the following characters
     if ((string.indexOf('\n') != -1) || (string.indexOf('\r') != -1)
-        || (string.indexOf('\'') != -1) || (string.indexOf('"') != -1)
-        || (string.indexOf('\\') != -1) || (string.indexOf('\t') != -1)
-        || (string.indexOf('%') != -1) || (string.indexOf('\u001E') != -1)) {
+      || (string.indexOf('\'') != -1) || (string.indexOf('"') != -1)
+      || (string.indexOf('\\') != -1) || (string.indexOf('\t') != -1)
+      || (string.indexOf('%') != -1) || (string.indexOf('\u001E') != -1)) {
       string = backQuoteChars(string);
       quote = true;
     }
@@ -639,9 +655,9 @@ public final class Utils implements RevisionHandler {
     // Enclose the string in 's if the string contains a recently added
     // backquote or contains one of the following characters.
     if ((quote == true) || (string.indexOf('{') != -1)
-        || (string.indexOf('}') != -1) || (string.indexOf(',') != -1)
-        || (string.equals("?")) || (string.indexOf(' ') != -1)
-        || (string.equals(""))) {
+      || (string.indexOf('}') != -1) || (string.indexOf(',') != -1)
+      || (string.equals("?")) || (string.indexOf(' ') != -1)
+      || (string.equals(""))) {
       string = ("'".concat(string)).concat("'");
     }
 
@@ -661,9 +677,9 @@ public final class Utils implements RevisionHandler {
       string = string.substring(1, string.length() - 1);
 
       if ((string.indexOf("\\n") != -1) || (string.indexOf("\\r") != -1)
-          || (string.indexOf("\\'") != -1) || (string.indexOf("\\\"") != -1)
-          || (string.indexOf("\\\\") != -1) || (string.indexOf("\\t") != -1)
-          || (string.indexOf("\\%") != -1) || (string.indexOf("\\u001E") != -1)) {
+        || (string.indexOf("\\'") != -1) || (string.indexOf("\\\"") != -1)
+        || (string.indexOf("\\\\") != -1) || (string.indexOf("\\t") != -1)
+        || (string.indexOf("\\%") != -1) || (string.indexOf("\\u001E") != -1)) {
         string = unbackQuoteChars(string);
       }
     }
@@ -687,7 +703,7 @@ public final class Utils implements RevisionHandler {
     // replace each of the following characters with the backquoted version
     char charsFind[] = { '\\', '\'', '\t', '\n', '\r', '"', '%', '\u001E' };
     String charsReplace[] = { "\\\\", "\\'", "\\t", "\\n", "\\r", "\\\"",
-        "\\%", "\\u001E" };
+      "\\%", "\\u001E" };
     for (int i = 0; i < charsFind.length; i++) {
       if (string.indexOf(charsFind[i]) != -1) {
         newStringBuffer = new StringBuffer();
@@ -837,7 +853,7 @@ public final class Utils implements RevisionHandler {
 
     // replace each of the following characters with the backquoted version
     String charsFind[] = { "\\\\", "\\'", "\\t", "\\n", "\\r", "\\\"", "\\%",
-        "\\u001E" };
+      "\\u001E" };
     char charsReplace[] = { '\\', '\'', '\t', '\n', '\r', '"', '%', '\u001E' };
     int pos[] = new int[charsFind.length];
     int curPos;
@@ -880,7 +896,7 @@ public final class Utils implements RevisionHandler {
    *           parse error
    */
   public static String[] splitOptions(String quotedOptionString)
-      throws Exception {
+    throws Exception {
 
     FastVector optionsVec = new FastVector();
     String str = new String(quotedOptionString);
@@ -890,13 +906,15 @@ public final class Utils implements RevisionHandler {
 
       // trimLeft
       i = 0;
-      while ((i < str.length()) && (Character.isWhitespace(str.charAt(i))))
+      while ((i < str.length()) && (Character.isWhitespace(str.charAt(i)))) {
         i++;
+      }
       str = str.substring(i);
 
       // stop when str is empty
-      if (str.length() == 0)
+      if (str.length() == 0) {
         break;
+      }
 
       // if str start with a double quote
       if (str.charAt(0) == '"') {
@@ -904,17 +922,20 @@ public final class Utils implements RevisionHandler {
         // find the first not anti-slached double quote
         i = 1;
         while (i < str.length()) {
-          if (str.charAt(i) == str.charAt(0))
+          if (str.charAt(i) == str.charAt(0)) {
             break;
+          }
           if (str.charAt(i) == '\\') {
             i += 1;
-            if (i >= str.length())
+            if (i >= str.length()) {
               throw new Exception("String should not finish with \\");
+            }
           }
           i += 1;
         }
-        if (i >= str.length())
+        if (i >= str.length()) {
           throw new Exception("Quote parse error.");
+        }
 
         // add the founded string to the option vector (without quotes)
         String optStr = str.substring(1, i);
@@ -924,8 +945,9 @@ public final class Utils implements RevisionHandler {
       } else {
         // find first whiteSpace
         i = 0;
-        while ((i < str.length()) && (!Character.isWhitespace(str.charAt(i))))
+        while ((i < str.length()) && (!Character.isWhitespace(str.charAt(i)))) {
           i++;
+        }
 
         // add the founded string to the option vector
         String optStr = str.substring(0, i);
@@ -952,21 +974,21 @@ public final class Utils implements RevisionHandler {
   public static String joinOptions(String[] optionArray) {
 
     String optionString = "";
-    for (int i = 0; i < optionArray.length; i++) {
-      if (optionArray[i].equals("")) {
+    for (String element : optionArray) {
+      if (element.equals("")) {
         continue;
       }
       boolean escape = false;
-      for (int n = 0; n < optionArray[i].length(); n++) {
-        if (Character.isWhitespace(optionArray[i].charAt(n))) {
+      for (int n = 0; n < element.length(); n++) {
+        if (Character.isWhitespace(element.charAt(n))) {
           escape = true;
           break;
         }
       }
       if (escape) {
-        optionString += '"' + backQuoteChars(optionArray[i]) + '"';
+        optionString += '"' + backQuoteChars(element) + '"';
       } else {
-        optionString += optionArray[i];
+        optionString += element;
       }
       optionString += " ";
     }
@@ -1000,7 +1022,7 @@ public final class Utils implements RevisionHandler {
    *              are not acceptable to the object
    */
   public static Object forName(Class classType, String className,
-      String[] options) throws Exception {
+    String[] options) throws Exception {
 
     Class c = null;
     try {
@@ -1010,7 +1032,7 @@ public final class Utils implements RevisionHandler {
     }
     if (!classType.isAssignableFrom(c)) {
       throw new Exception(classType.getName() + " is not assignable from "
-          + className);
+        + className);
     }
     Object o = c.newInstance();
     if ((o instanceof OptionHandler) && (options != null)) {
@@ -1031,9 +1053,9 @@ public final class Utils implements RevisionHandler {
 
     int total = 0;
     double x = 0;
-    for (int j = 0; j < counts.length; j++) {
-      x -= xlogx(counts[j]);
-      total += counts[j];
+    for (int count : counts) {
+      x -= xlogx(count);
+      total += count;
     }
     return x + xlogx(total);
   }
@@ -1176,8 +1198,8 @@ public final class Utils implements RevisionHandler {
     if (vector.length == 0) {
       return 0;
     }
-    for (int i = 0; i < vector.length; i++) {
-      sum += vector[i];
+    for (double element : vector) {
+      sum += element;
     }
     return sum / vector.length;
   }
@@ -1235,8 +1257,8 @@ public final class Utils implements RevisionHandler {
   public static void normalize(double[] doubles) {
 
     double sum = 0;
-    for (int i = 0; i < doubles.length; i++) {
-      sum += doubles[i];
+    for (double d : doubles) {
+      sum += d;
     }
     normalize(doubles, sum);
   }
@@ -1298,7 +1320,7 @@ public final class Utils implements RevisionHandler {
 
     if (gr(prob, 1) || (sm(prob, 0))) {
       throw new IllegalArgumentException("probToLogOdds: probability must "
-          + "be in [0,1] " + prob);
+        + "be in [0,1] " + prob);
     }
     double p = SMALL + (1.0 - 2 * SMALL) * prob;
     return Math.log(p / (1 - p));
@@ -1314,7 +1336,7 @@ public final class Utils implements RevisionHandler {
   public static/* @pure@ */int round(double value) {
 
     int roundedValue = value > 0 ? (int) (value + 0.5) : -(int) (Math
-        .abs(value) + 0.5);
+      .abs(value) + 0.5);
 
     return roundedValue;
   }
@@ -1373,7 +1395,7 @@ public final class Utils implements RevisionHandler {
    * @return the double rounded to the given precision
    */
   public static/* @pure@ */double roundDouble(double value,
-      int afterDecimalPoint) {
+    int afterDecimalPoint) {
 
     double mask = Math.pow(10.0, afterDecimalPoint);
 
@@ -1458,7 +1480,7 @@ public final class Utils implements RevisionHandler {
    * @return an array of integers with the positions in the sorted array.
    */
   public static/* @pure@ */int[] sortWithNoMissingValues(
-      /* @non_null@ */double[] array) {
+  /* @non_null@ */double[] array) {
 
     int[] index = initialIndex(array.length);
     if (array.length > 1) {
@@ -1496,15 +1518,18 @@ public final class Utils implements RevisionHandler {
       while (i < index.length) {
         numEqual = 1;
         for (int j = i + 1; ((j < index.length) && Utils.eq(array[index[i]],
-            array[index[j]])); j++)
+          array[index[j]])); j++) {
           numEqual++;
+        }
         if (numEqual > 1) {
           helpIndex = new int[numEqual];
-          for (int j = 0; j < numEqual; j++)
+          for (int j = 0; j < numEqual; j++) {
             helpIndex[j] = i + j;
+          }
           quickSort(index, helpIndex, 0, numEqual - 1);
-          for (int j = 0; j < numEqual; j++)
+          for (int j = 0; j < numEqual; j++) {
             newIndex[i + j] = index[helpIndex[j]];
+          }
           i += numEqual;
         } else {
           newIndex[i] = index[i];
@@ -1530,12 +1555,12 @@ public final class Utils implements RevisionHandler {
     if (vector.length <= 1) {
       return 0;
     }
-    for (int i = 0; i < vector.length; i++) {
-      sum += vector[i];
-      sumSquared += (vector[i] * vector[i]);
+    for (double element : vector) {
+      sum += element;
+      sumSquared += (element * element);
     }
     double result = (sumSquared - (sum * sum / vector.length))
-        / (vector.length - 1);
+      / (vector.length - 1);
 
     // We don't like negative variance
     if (result < 0) {
@@ -1555,8 +1580,8 @@ public final class Utils implements RevisionHandler {
 
     double sum = 0;
 
-    for (int i = 0; i < doubles.length; i++) {
-      sum += doubles[i];
+    for (double d : doubles) {
+      sum += d;
     }
     return sum;
   }
@@ -1571,8 +1596,8 @@ public final class Utils implements RevisionHandler {
 
     int sum = 0;
 
-    for (int i = 0; i < ints.length; i++) {
-      sum += ints[i];
+    for (int j : ints) {
+      sum += j;
     }
     return sum;
   }
@@ -1608,7 +1633,7 @@ public final class Utils implements RevisionHandler {
    * pivot.
    */
   private static int sortLeftRightAndCenter(double[] array, int[] index, int l,
-      int r) {
+    int r) {
 
     int c = (l + r) / 2;
     conditionalSwap(array, index, l, c);
@@ -1631,7 +1656,7 @@ public final class Utils implements RevisionHandler {
    * Conditional swap for quick sort.
    */
   private static void conditionalSwap(double[] array, int[] index, int left,
-      int right) {
+    int right) {
 
     if (array[index[left]] > array[index[right]]) {
       int help = index[left];
@@ -1652,14 +1677,16 @@ public final class Utils implements RevisionHandler {
    * @return the index of the middle element
    */
   private static int partition(double[] array, int[] index, int l, int r,
-      double pivot) {
+    double pivot) {
 
     r--;
     while (true) {
-      while ((array[index[++l]] < pivot))
+      while ((array[index[++l]] < pivot)) {
         ;
-      while ((array[index[--r]] > pivot))
+      }
+      while ((array[index[--r]] > pivot)) {
         ;
+      }
       if (l >= r) {
         return l;
       }
@@ -1720,7 +1747,7 @@ public final class Utils implements RevisionHandler {
   // @ requires array != index;
   // assignable index;
   private static void quickSort(/* @non_null@ */double[] array, /* @non_null@ */
-      int[] index, int left, int right) {
+    int[] index, int left, int right) {
 
     int diff = right - left;
 
@@ -1771,7 +1798,7 @@ public final class Utils implements RevisionHandler {
   // @ requires array != index;
   // assignable index;
   private static void quickSort(/* @non_null@ */int[] array, /* @non_null@ */
-      int[] index, int left, int right) {
+    int[] index, int left, int right) {
 
     if (left < right) {
       int middle = partition(array, index, left, right);
@@ -1794,7 +1821,7 @@ public final class Utils implements RevisionHandler {
    */
   // @ requires 0 <= first && first <= right && right < array.length;
   private static int select(/* @non_null@ */double[] array, /* @non_null@ */
-      int[] index, int left, int right, int k) {
+    int[] index, int left, int right, int k) {
 
     int diff = right - left;
     switch (diff) {
@@ -1878,7 +1905,7 @@ public final class Utils implements RevisionHandler {
     File userDir = new File(System.getProperty("user.dir"));
     String userPath = userDir.getAbsolutePath() + File.separator;
     String targetPath = (new File(absolute.getParent())).getPath()
-        + File.separator;
+      + File.separator;
     String fileName = absolute.getName();
     StringBuffer relativePath = new StringBuffer();
     // relativePath.append("."+File.separator);
@@ -1925,7 +1952,7 @@ public final class Utils implements RevisionHandler {
       if (tcount == -1) {
         // then target file is probably on another drive (under windows)
         throw new Exception("Can't construct a path to file relative to user "
-            + "dir.");
+          + "dir.");
       }
       if (targetTemp.indexOf(File.separator) == -1) {
         targetTemp = "";
@@ -1953,7 +1980,7 @@ public final class Utils implements RevisionHandler {
    */
   // @ requires 0 <= first && first <= right && right < array.length;
   private static int select(/* @non_null@ */int[] array, /* @non_null@ */
-      int[] index, int left, int right, int k) {
+    int[] index, int left, int right, int k) {
 
     if (left == right) {
       return left;
@@ -1968,10 +1995,148 @@ public final class Utils implements RevisionHandler {
   }
 
   /**
+   * Utility method for grabbing the global info help (if it exists) from an
+   * arbitrary object. Can also append capabilities information if the object is
+   * a CapabilitiesHandler.
+   * 
+   * @param object the object to grab global info from
+   * @param addCapabilities true if capabilities information is to be added to
+   *          the result
+   * @return the global help info or null if global info does not exist
+   */
+  public static String getGlobalInfo(Object object, boolean addCapabilities) {
+    // set tool tip text from global info if supplied
+    String gi = null;
+    StringBuilder result = new StringBuilder();
+    try {
+      BeanInfo bi = Introspector.getBeanInfo(object.getClass());
+      MethodDescriptor[] methods = bi.getMethodDescriptors();
+      for (MethodDescriptor method : methods) {
+        String name = method.getDisplayName();
+        Method meth = method.getMethod();
+        if (name.equals("globalInfo")) {
+          if (meth.getReturnType().equals(String.class)) {
+            Object args[] = {};
+            String globalInfo = (String) (meth.invoke(object, args));
+            gi = globalInfo;
+            break;
+          }
+        }
+      }
+    } catch (Exception ex) {
+
+    }
+
+    // Max. number of characters per line (may overflow)
+    int lineWidth = 180;
+
+    result.append("<html>");
+
+    if (gi != null && gi.length() > 0) {
+
+      StringBuilder firstLine = new StringBuilder();
+      firstLine.append("<font color=blue>");
+      boolean addFirstBreaks = true;
+      int indexOfDot = gi.indexOf(".");
+      if (indexOfDot > 0) {
+        firstLine.append(gi.substring(0, gi.indexOf(".")));
+        if (gi.length() - indexOfDot < 3) {
+          addFirstBreaks = false;
+        }
+        gi = gi.substring(indexOfDot + 1, gi.length());
+      } else {
+        firstLine.append(gi);
+        gi = "";
+      }
+      firstLine.append("</font>");
+      if ((addFirstBreaks) && !(gi.startsWith("\n\n"))) {
+        if (!gi.startsWith("\n")) {
+          firstLine.append("<br>");
+        }
+        firstLine.append("<br>");
+      }
+      result.append(Utils.lineWrap(firstLine.toString(), lineWidth));
+
+      result.append(Utils.lineWrap(gi, lineWidth).replace("\n", "<br>"));
+      result.append("<br>");
+    }
+
+    if (addCapabilities) {
+      if (object instanceof CapabilitiesHandler) {
+        if (!result.toString().endsWith("<br><br>")) {
+          result.append("<br>");
+        }
+        String caps = PropertySheetPanel.addCapabilities(
+          "<font color=red>CAPABILITIES</font>",
+          ((CapabilitiesHandler) object).getCapabilities());
+        caps = Utils.lineWrap(caps, lineWidth).replace("\n", "<br>");
+        result.append(caps);
+      }
+
+      if (object instanceof MultiInstanceCapabilitiesHandler) {
+        result.append("<br>");
+        String caps = PropertySheetPanel.addCapabilities(
+          "<font color=red>MI CAPABILITIES</font>",
+          ((MultiInstanceCapabilitiesHandler) object)
+            .getMultiInstanceCapabilities());
+        caps = Utils.lineWrap(caps, lineWidth).replace("\n", "<br>");
+        result.append(caps);
+      }
+    }
+
+    result.append("</html>");
+
+    if (result.toString().equals("<html></html>")) {
+      return null;
+    }
+    return result.toString();
+  }
+
+  /**
+   * Implements simple line breaking. Reformats the given string by introducing
+   * line breaks so that, ideally, no line exceeds the given number of
+   * characters. Line breaks are assumed to be indicated by newline characters.
+   * Existing line breaks are left in the input text.
+   * 
+   * @param input the string to line wrap
+   * @param maxLineWidth the maximum permitted number of characters in a line
+   * @return the processed string
+   */
+  public static String lineWrap(String input, int maxLineWidth) {
+
+    StringBuffer sb = new StringBuffer();
+    BreakIterator biterator = BreakIterator.getLineInstance();
+    biterator.setText(input);
+    int linestart = 0;
+    int previous = 0;
+    while (true) {
+      int next = biterator.next();
+      String toAdd = input.substring(linestart, previous);
+      if (next == BreakIterator.DONE) {
+        sb.append(toAdd);
+        break;
+      }
+      if (next - linestart > maxLineWidth) {
+        sb.append(toAdd + '\n');
+        linestart = previous;
+      } else {
+        int newLineIndex = toAdd.lastIndexOf('\n');
+        if (newLineIndex != -1) {
+          sb.append(toAdd.substring(0, newLineIndex + 1));
+          linestart += newLineIndex + 1;
+        }
+      }
+      previous = next;
+    }
+    return sb.toString();
+  }
+
+  /**
    * Returns the revision string.
    * 
    * @return the revision
    */
+  @Override
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
@@ -1993,42 +2158,42 @@ public final class Utils implements RevisionHandler {
       System.out.println("First option split up:");
       if (ops.length > 0) {
         String[] firstOptionSplitUp = Utils.splitOptions(ops[0]);
-        for (int i = 0; i < firstOptionSplitUp.length; i++) {
-          System.out.println(firstOptionSplitUp[i]);
+        for (String element : firstOptionSplitUp) {
+          System.out.println(element);
         }
       }
       System.out.println("Partitioned options: ");
       String[] partitionedOptions = Utils.partitionOptions(ops);
-      for (int i = 0; i < partitionedOptions.length; i++) {
-        System.out.println(partitionedOptions[i]);
+      for (String partitionedOption : partitionedOptions) {
+        System.out.println(partitionedOption);
       }
       System.out.println("Get position of flag -f: "
-          + Utils.getOptionPos('f', ops));
+        + Utils.getOptionPos('f', ops));
       System.out.println("Get flag -f: " + Utils.getFlag('f', ops));
       System.out.println("Get position of option -o: "
-          + Utils.getOptionPos('o', ops));
+        + Utils.getOptionPos('o', ops));
       System.out.println("Get option -o: " + Utils.getOption('o', ops));
       System.out.println("Checking for remaining options... ");
       Utils.checkForRemainingOptions(ops);
 
       // Statistics
       System.out.println("Original array with NaN (doubles): ");
-      for (int i = 0; i < doublesWithNaN.length; i++) {
-        System.out.print(doublesWithNaN[i] + " ");
+      for (double element : doublesWithNaN) {
+        System.out.print(element + " ");
       }
       System.out.println();
       System.out.println("Original array (doubles): ");
-      for (int i = 0; i < doubles.length; i++) {
-        System.out.print(doubles[i] + " ");
+      for (double d : doubles) {
+        System.out.print(d + " ");
       }
       System.out.println();
       System.out.println("Original array (ints): ");
-      for (int i = 0; i < ints.length; i++) {
-        System.out.print(ints[i] + " ");
+      for (int j : ints) {
+        System.out.print(j + " ");
       }
       System.out.println();
       System.out.println("Correlation: "
-          + Utils.correlation(doubles, doubles, doubles.length));
+        + Utils.correlation(doubles, doubles, doubles.length));
       System.out.println("Mean: " + Utils.mean(doubles));
       System.out.println("Variance: " + Utils.variance(doubles));
       System.out.println("Sum (doubles): " + Utils.sum(doubles));
@@ -2038,9 +2203,9 @@ public final class Utils implements RevisionHandler {
       System.out.println("Min index (doubles): " + Utils.minIndex(doubles));
       System.out.println("Min index (ints): " + Utils.minIndex(ints));
       System.out.println("Median (doubles): "
-          + Utils.kthSmallestValue(doubles, doubles.length / 2));
+        + Utils.kthSmallestValue(doubles, doubles.length / 2));
       System.out.println("Median (ints): "
-          + Utils.kthSmallestValue(ints, ints.length / 2));
+        + Utils.kthSmallestValue(ints, ints.length / 2));
 
       // Sorting and normalizing
       System.out.println("Sorted array with NaN (doubles): ");
@@ -2075,14 +2240,14 @@ public final class Utils implements RevisionHandler {
       System.out.println();
       System.out.println("Normalized array (doubles): ");
       Utils.normalize(doubles);
-      for (int i = 0; i < doubles.length; i++) {
-        System.out.print(doubles[i] + " ");
+      for (double d : doubles) {
+        System.out.print(d + " ");
       }
       System.out.println();
       System.out.println("Normalized again (doubles): ");
       Utils.normalize(doubles, Utils.sum(doubles));
-      for (int i = 0; i < doubles.length; i++) {
-        System.out.print(doubles[i] + " ");
+      for (double d : doubles) {
+        System.out.print(d + " ");
       }
       System.out.println();
 
@@ -2103,16 +2268,16 @@ public final class Utils implements RevisionHandler {
       System.out.println("5 * log(5): " + Utils.xlogx(5));
       System.out.println("5.5 rounded: " + Utils.round(5.5));
       System.out.println("5.55555 rounded to 2 decimal places: "
-          + Utils.roundDouble(5.55555, 2));
+        + Utils.roundDouble(5.55555, 2));
 
       // Arrays
       System.out.println("Array-Dimensions of 'new int[][]': "
-          + Utils.getArrayDimensions(new int[][] {}));
+        + Utils.getArrayDimensions(new int[][] {}));
       System.out.println("Array-Dimensions of 'new int[][]{{1,2,3},{4,5,6}}': "
-          + Utils.getArrayDimensions(new int[][] { { 1, 2, 3 }, { 4, 5, 6 } }));
+        + Utils.getArrayDimensions(new int[][] { { 1, 2, 3 }, { 4, 5, 6 } }));
       String[][][] s = new String[3][4][];
       System.out.println("Array-Dimensions of 'new String[3][4][]': "
-          + Utils.getArrayDimensions(s));
+        + Utils.getArrayDimensions(s));
     } catch (Exception e) {
       e.printStackTrace();
     }
