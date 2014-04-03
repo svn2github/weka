@@ -50,15 +50,28 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
 /**
- <!-- globalinfo-start -->
- * Cluster data using the capopy clustering algorithm, which requires just one pass over the data. Can run in eitherbatch or incremental mode. Results are generally not as good when running incrementally as the min/max for each numeric attribute is not known in advance. Has a heuristic (based on attribute std. deviations), that can be used in batch mode, for setting the T2 distance. The T2 distance determines how many canopies (clusters) are formed. When the user specifies a specific number (N) of clusters to generate, the algorithm will return the top N canopies (as determined by T2 density) when N &lt; number of canopies (this applies to both batch and incremental learning); when N &gt; number of canopies, the difference is made up by selecting training instances randomly (this can only be done when batch training). For more information see:<br/>
+ * <!-- globalinfo-start --> Cluster data using the capopy clustering algorithm,
+ * which requires just one pass over the data. Can run in eitherbatch or
+ * incremental mode. Results are generally not as good when running
+ * incrementally as the min/max for each numeric attribute is not known in
+ * advance. Has a heuristic (based on attribute std. deviations), that can be
+ * used in batch mode, for setting the T2 distance. The T2 distance determines
+ * how many canopies (clusters) are formed. When the user specifies a specific
+ * number (N) of clusters to generate, the algorithm will return the top N
+ * canopies (as determined by T2 density) when N &lt; number of canopies (this
+ * applies to both batch and incremental learning); when N &gt; number of
+ * canopies, the difference is made up by selecting training instances randomly
+ * (this can only be done when batch training). For more information see:<br/>
  * <br/>
- * A. McCallum, K. Nigam, L.H. Ungar: Efficient Clustering of High Dimensional Data Sets with Application to Reference Matching. In: Proceedings of the sixth ACM SIGKDD internation conference on knowledge discovery and data mining ACM-SIAM symposium on Discrete algorithms, 169-178, 2000.
+ * A. McCallum, K. Nigam, L.H. Ungar: Efficient Clustering of High Dimensional
+ * Data Sets with Application to Reference Matching. In: Proceedings of the
+ * sixth ACM SIGKDD internation conference on knowledge discovery and data
+ * mining ACM-SIAM symposium on Discrete algorithms, 169-178, 2000.
  * <p/>
- <!-- globalinfo-end -->
+ * <!-- globalinfo-end -->
  * 
- <!-- technical-bibtex-start -->
- * BibTeX:
+ * <!-- technical-bibtex-start --> BibTeX:
+ * 
  * <pre>
  * &#64;inproceedings{McCallum2000,
  *    author = {A. McCallum and K. Nigam and L.H. Ungar},
@@ -69,34 +82,43 @@ import weka.filters.unsupervised.attribute.ReplaceMissingValues;
  * }
  * </pre>
  * <p/>
- <!-- technical-bibtex-end -->
+ * <!-- technical-bibtex-end -->
  * 
- <!-- options-start -->
- * Valid options are: <p/>
+ * <!-- options-start --> Valid options are:
+ * <p/>
  * 
- * <pre> -N &lt;num&gt;
+ * <pre>
+ * -N &lt;num&gt;
  *  Number of clusters.
- *  (default 2).</pre>
+ *  (default 2).
+ * </pre>
  * 
- * <pre> -t2
+ * <pre>
+ * -t2
  *  The T2 distance to use. Values &lt; 0 indicate that
  *  a heuristic based on attribute std. deviation should be used to set this.
  *  Note that this heuristic can only be used when batch training
- *  (default = -1.0)</pre>
+ *  (default = -1.0)
+ * </pre>
  * 
- * <pre> -t1
+ * <pre>
+ * -t1
  *  The T1 distance to use. A value &lt; 0 is taken as a
- *  positive multiplier for T2. (default = -1.5)</pre>
+ *  positive multiplier for T2. (default = -1.5)
+ * </pre>
  * 
- * <pre> -M
+ * <pre>
+ * -M
  *  Don't replace missing values with mean/mode when running in batch mode.
  * </pre>
  * 
- * <pre> -S &lt;num&gt;
+ * <pre>
+ * -S &lt;num&gt;
  *  Random number seed.
- *  (default 1)</pre>
+ *  (default 1)
+ * </pre>
  * 
- <!-- options-end -->
+ * <!-- options-end -->
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
@@ -266,32 +288,41 @@ public class Canopy extends RandomizableClusterer implements
    * Parses a given list of options.
    * <p/>
    * 
-   <!-- options-start -->
-   * Valid options are: <p/>
+   * <!-- options-start --> Valid options are:
+   * <p/>
    * 
-   * <pre> -N &lt;num&gt;
+   * <pre>
+   * -N &lt;num&gt;
    *  Number of clusters.
-   *  (default 2).</pre>
+   *  (default 2).
+   * </pre>
    * 
-   * <pre> -t2
+   * <pre>
+   * -t2
    *  The T2 distance to use. Values &lt; 0 indicate that
    *  a heuristic based on attribute std. deviation should be used to set this.
    *  Note that this heuristic can only be used when batch training
-   *  (default = -1.0)</pre>
+   *  (default = -1.0)
+   * </pre>
    * 
-   * <pre> -t1
+   * <pre>
+   * -t1
    *  The T1 distance to use. A value &lt; 0 is taken as a
-   *  positive multiplier for T2. (default = -1.5)</pre>
+   *  positive multiplier for T2. (default = -1.5)
+   * </pre>
    * 
-   * <pre> -M
+   * <pre>
+   * -M
    *  Don't replace missing values with mean/mode when running in batch mode.
    * </pre>
    * 
-   * <pre> -S &lt;num&gt;
+   * <pre>
+   * -S &lt;num&gt;
    *  Random number seed.
-   *  (default 1)</pre>
+   *  (default 1)
+   * </pre>
    * 
-   <!-- options-end -->
+   * <!-- options-end -->
    * 
    * @param options the list of options as an array of strings throws Exception
    *          if an option is not supported
@@ -401,9 +432,6 @@ public class Canopy extends RandomizableClusterer implements
 
     int numLongs = m_canopies.size() / 64 + 1;
     long[] assigned = new long[numLongs];
-    // for (int i = 0; i < numLongs; i++) {
-    // assigned.add(new long[1]);
-    // }
 
     double minDist = Double.MAX_VALUE;
     double bitsSet = 0;
@@ -533,45 +561,13 @@ public class Canopy extends RandomizableClusterer implements
     }
   }
 
-  @Override
-  public void updateFinished() {
-    if (m_canopies == null || m_canopies.numInstances() == 0) {
-      return;
-    }
-
-    // set the final canopy centers and weights
-    double[] densities = new double[m_canopies.size()];
-    for (int i = 0; i < m_canopies.numInstances(); i++) {
-      double[] density = m_canopyT2Density.get(i);
-      double[][] centerSums = m_canopyCenters.get(i);
-      double[] numMissingForNumerics = m_canopyNumMissingForNumerics.get(i);
-      double[] finalCenter = new double[m_canopies.numAttributes()];
-      for (int j = 0; j < m_canopies.numAttributes(); j++) {
-        if (m_canopies.attribute(j).isNumeric()) {
-          if (numMissingForNumerics[j] == density[0]) {
-            finalCenter[j] = Utils.missingValue();
-          } else {
-            finalCenter[j] = centerSums[j][0]
-              / (density[0] - numMissingForNumerics[j]);
-          }
-        } else if (m_canopies.attribute(j).isNominal()) {
-          int mode = Utils.maxIndex(centerSums[j]);
-          if (mode == centerSums[j].length - 1) {
-            finalCenter[j] = Utils.missingValue();
-          } else {
-            finalCenter[j] = mode;
-          }
-        }
-      }
-
-      Instance finalCenterInst = m_canopies.instance(i) instanceof SparseInstance ? new SparseInstance(
-        1.0, finalCenter) : new DenseInstance(1.0, finalCenter);
-      m_canopies.set(i, finalCenterInst);
-
-      m_canopies.instance(i).setWeight(density[0]);
-      densities[i] = density[0];
-    }
-
+  /**
+   * Adjust the final number of canopies to match the user-requested number (if
+   * possible)
+   * 
+   * @param densities the density of each of the canopies
+   */
+  protected void adjustCanopies(double[] densities) {
     if (m_numClustersRequested < 0) {
       assignCanopiesToCanopyCenters();
 
@@ -638,6 +634,48 @@ public class Canopy extends RandomizableClusterer implements
 
     // save memory
     m_trainingData = new Instances(m_canopies, 0);
+  }
+
+  @Override
+  public void updateFinished() {
+    if (m_canopies == null || m_canopies.numInstances() == 0) {
+      return;
+    }
+
+    // set the final canopy centers and weights
+    double[] densities = new double[m_canopies.size()];
+    for (int i = 0; i < m_canopies.numInstances(); i++) {
+      double[] density = m_canopyT2Density.get(i);
+      double[][] centerSums = m_canopyCenters.get(i);
+      double[] numMissingForNumerics = m_canopyNumMissingForNumerics.get(i);
+      double[] finalCenter = new double[m_canopies.numAttributes()];
+      for (int j = 0; j < m_canopies.numAttributes(); j++) {
+        if (m_canopies.attribute(j).isNumeric()) {
+          if (numMissingForNumerics[j] == density[0]) {
+            finalCenter[j] = Utils.missingValue();
+          } else {
+            finalCenter[j] = centerSums[j][0]
+              / (density[0] - numMissingForNumerics[j]);
+          }
+        } else if (m_canopies.attribute(j).isNominal()) {
+          int mode = Utils.maxIndex(centerSums[j]);
+          if (mode == centerSums[j].length - 1) {
+            finalCenter[j] = Utils.missingValue();
+          } else {
+            finalCenter[j] = mode;
+          }
+        }
+      }
+
+      Instance finalCenterInst = m_canopies.instance(i) instanceof SparseInstance ? new SparseInstance(
+        1.0, finalCenter) : new DenseInstance(1.0, finalCenter);
+      m_canopies.set(i, finalCenterInst);
+
+      m_canopies.instance(i).setWeight(density[0]);
+      densities[i] = density[0];
+    }
+
+    adjustCanopies(densities);
   }
 
   /**
@@ -789,20 +827,20 @@ public class Canopy extends RandomizableClusterer implements
   public void setClusterCanopyAssignments(List<long[]> clusterCanopies) {
     m_clusterCanopies = clusterCanopies;
   }
-  
+
   /**
-   * Get the actual value of T2 (which may be different from the initial value if
-   * the heuristic is used)
+   * Get the actual value of T2 (which may be different from the initial value
+   * if the heuristic is used)
    * 
    * @return the actual value of T2
    */
   public double getActualT2() {
     return m_t2;
   }
-  
+
   /**
-   * Get the actual value of T1 (which may be different from the initial value if
-   * the heuristic is used)
+   * Get the actual value of T1 (which may be different from the initial value
+   * if the heuristic is used)
    * 
    * @return the actual value of T1
    */
@@ -1012,8 +1050,121 @@ public class Canopy extends RandomizableClusterer implements
     return toString(true);
   }
 
+  /**
+   * Save memory
+   */
+  public void cleanUp() {
+    m_canopyNumMissingForNumerics = null;
+    m_canopyT2Density = null;
+    m_canopyCenters = null;
+  }
+
+  /**
+   * Aggregate the canopies from a list of Canopy clusterers together into one
+   * final model.
+   * 
+   * @param canopies the list of Canopy clusterers to aggregate
+   * @param aggregationT1 the T1 distance to use for the aggregated classifier
+   * @param aggregationT2 the T2 distance to use when aggregating canopies
+   * @param finalDistanceFunction the distance function to use with the final
+   *          Canopy clusterer
+   * @param missingValuesReplacer the missing value replacement filter to use
+   *          with the final clusterer (can be null for no missing value
+   *          replacement)
+   * @param finalNumCanopies the final number of canopies
+   * @return a Canopy clusterer that aggregates all the canopies
+   */
+  public static Canopy aggregateCanopies(List<Canopy> canopies,
+    double aggregationT1, double aggregationT2,
+    NormalizableDistance finalDistanceFunction, Filter missingValuesReplacer,
+    int finalNumCanopies) {
+
+    Instances collectedCanopies = new Instances(canopies.get(0).getCanopies(),
+      0);
+    Instances finalCanopies = new Instances(collectedCanopies, 0);
+
+    List<double[][]> finalCenters = new ArrayList<double[][]>();
+    List<double[]> finalMissingNumerics = new ArrayList<double[]>();
+    List<double[]> finalT2Densities = new ArrayList<double[]>();
+    List<Instance> finalCanopiesList = new ArrayList<Instance>();
+    List<double[][]> centersForEachCanopy = new ArrayList<double[][]>();
+    List<double[]> numMissingNumericsForEachCanopy = new ArrayList<double[]>();
+
+    for (Canopy c : canopies) {
+      Instances tempC = c.getCanopies();
+      // System.err.println("A canopy clusterer:\n " + c.toString());
+      for (int i = 0; i < tempC.numInstances(); i++) {
+        collectedCanopies.add(tempC.instance(i));
+        centersForEachCanopy.add(c.m_canopyCenters.get(i));
+        numMissingNumericsForEachCanopy.add(c.m_canopyNumMissingForNumerics
+          .get(i));
+      }
+    }
+
+    for (int i = 0; i < collectedCanopies.numInstances(); i++) {
+      boolean addPoint = true;
+      Instance candidate = collectedCanopies.instance(i);
+      double[][] candidateCenter = centersForEachCanopy.get(i);
+      double[] candidateMissingNumerics = numMissingNumericsForEachCanopy
+        .get(i);
+
+      for (int j = 0; j < finalCanopiesList.size(); j++) {
+        Instance fc = finalCanopiesList.get(j);
+
+        if (finalDistanceFunction.distance(candidate, fc) < aggregationT2) {
+          addPoint = false;
+
+          // now absorb candidate into fc
+          double[][] center = finalCenters.get(j);
+          double[] missingNumerics = finalMissingNumerics.get(j);
+          // double newDensity = fc.weight() + candidate.weight();
+          finalT2Densities.get(j)[0] += candidate.weight();
+
+          for (int k = 0; k < candidate.numAttributes(); k++) {
+            missingNumerics[k] += candidateMissingNumerics[k];
+            for (int l = 0; l < center[k].length; l++) {
+              center[k][l] += candidateCenter[k][l];
+            }
+          }
+
+          break;
+        }
+      }
+
+      if (addPoint) {
+        finalCanopiesList.add(candidate);
+        finalCanopies.add(candidate);
+        finalCenters.add(candidateCenter);
+        finalMissingNumerics.add(candidateMissingNumerics);
+        double[] dens = new double[1];
+        dens[0] = candidate.weight();
+        finalT2Densities.add(dens);
+      }
+    }
+
+    // now construct a new Canopy encapsulating the final set of canopies
+    // System.err.println(finalCanopies);
+    Canopy finalC = new Canopy();
+    finalC.setCanopies(finalCanopies);
+    finalC.setMissingValuesReplacer(missingValuesReplacer);
+    finalC.m_distanceFunction = finalDistanceFunction;
+    finalC.m_canopyCenters = finalCenters;
+    finalC.m_canopyNumMissingForNumerics = finalMissingNumerics;
+    finalC.m_canopyT2Density = finalT2Densities;
+    finalC.m_t2 = aggregationT2;
+    finalC.m_t1 = aggregationT1;
+    try {
+      finalC.setNumClusters(finalNumCanopies);
+    } catch (Exception e) {
+      // can safely ignore as Canopy does not generate an exception
+    }
+
+    finalC.updateFinished();
+
+    return finalC;
+  }
+
   public static void main(String[] args) {
     runClusterer(new Canopy(), args);
   }
 }
-
