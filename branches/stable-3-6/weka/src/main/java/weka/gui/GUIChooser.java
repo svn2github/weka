@@ -105,8 +105,8 @@ public class GUIChooser extends JFrame {
     try {
       Object MacApp = Class.forName("com.apple.eawt.Application").newInstance();
 
-      Object macArffHandler = Class.forName("weka.gui.MacArffOpenFilesHandler")
-        .newInstance();
+      Object macArffHandler =
+        Class.forName("weka.gui.MacArffOpenFilesHandler").newInstance();
 
       Class fileHandlerClass = Class.forName("com.apple.eawt.OpenFilesHandler");
       Class[] paramClass = new Class[1];
@@ -290,9 +290,10 @@ public class GUIChooser extends JFrame {
         + Messages.getInstance().getString("GUIChooser_ARFF_Files_Text_End")));
 
     // general layout
-    m_Icon = Toolkit.getDefaultToolkit().getImage(
-      GUIChooser.class.getClassLoader().getResource(
-        "weka/gui/weka_icon_new_48.png"));
+    m_Icon =
+      Toolkit.getDefaultToolkit().getImage(
+        GUIChooser.class.getClassLoader().getResource(
+          "weka/gui/weka_icon_new_48.png"));
     setIconImage(m_Icon);
     this.getContentPane().setLayout(new BorderLayout());
 
@@ -316,20 +317,12 @@ public class GUIChooser extends JFrame {
     ImageIcon wii = new ImageIcon(m_weka);
     JLabel wekaLab = new JLabel(wii);
     wekaPan.add(wekaLab, BorderLayout.CENTER);
-    String infoString = Messages.getInstance().getString(
-      "GUIChooser_Information_Text_Front")
-      + " "
-      + Version.VERSION
-      + "<br>"
-      + "(c) "
-      + Copyright.getFromYear()
-      + " - "
-      + Copyright.getToYear()
-      + "<br>"
-      + Copyright.getOwner()
-      + "<br>"
-      + Copyright.getAddress()
-      + Messages.getInstance().getString("GUIChooser_Information_Text_End");
+    String infoString =
+      Messages.getInstance().getString("GUIChooser_Information_Text_Front")
+        + " " + Version.VERSION + "<br>" + "(c) " + Copyright.getFromYear()
+        + " - " + Copyright.getToYear() + "<br>" + Copyright.getOwner()
+        + "<br>" + Copyright.getAddress()
+        + Messages.getInstance().getString("GUIChooser_Information_Text_End");
 
     JLabel infoLab = new JLabel(infoString);
     infoLab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -377,8 +370,9 @@ public class GUIChooser extends JFrame {
         if (m_MemoryUsageFrame == null) {
           final MemoryUsagePanel panel = new MemoryUsagePanel();
           jMenuItemProgramMemUsage.setEnabled(false);
-          m_MemoryUsageFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_Memory_Usage_List_Text"));
+          m_MemoryUsageFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_Memory_Usage_List_Text"));
           m_MemoryUsageFrame.setIconImage(m_Icon);
           m_MemoryUsageFrame.getContentPane().setLayout(new BorderLayout());
           m_MemoryUsageFrame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -496,9 +490,10 @@ public class GUIChooser extends JFrame {
         }
 
         // create frame
-        final JFrame frame = new JFrame(Messages.getInstance().getString(
-          "GUIChooser_Plot_PlotName_Text")
-          + filenames);
+        final JFrame frame =
+          new JFrame(Messages.getInstance().getString(
+            "GUIChooser_Plot_PlotName_Text")
+            + filenames);
         frame.setIconImage(m_Icon);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -574,9 +569,10 @@ public class GUIChooser extends JFrame {
           return;
         }
 
-        final JFrame frame = new JFrame(Messages.getInstance().getString(
-          "GUIChooser_ROC_File_Text")
-          + filename);
+        final JFrame frame =
+          new JFrame(Messages.getInstance().getString(
+            "GUIChooser_ROC_File_Text")
+            + filename);
         frame.setIconImage(m_Icon);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(vmc, BorderLayout.CENTER);
@@ -614,8 +610,8 @@ public class GUIChooser extends JFrame {
         }
 
         // build tree
-        String filename = m_FileChooserTreeVisualizer.getSelectedFile()
-          .getAbsolutePath();
+        String filename =
+          m_FileChooserTreeVisualizer.getSelectedFile().getAbsolutePath();
         TreeBuild builder = new TreeBuild();
         Node top = null;
         NodePlace arrange = new PlaceNode2();
@@ -635,9 +631,10 @@ public class GUIChooser extends JFrame {
         }
 
         // create frame
-        final JFrame frame = new JFrame(Messages.getInstance().getString(
-          "GUIChooser_TreeVisualizer_File_Text")
-          + filename);
+        final JFrame frame =
+          new JFrame(Messages.getInstance().getString(
+            "GUIChooser_TreeVisualizer_File_Text")
+            + filename);
         frame.setIconImage(m_Icon);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(new TreeVisualizer(null, top, arrange),
@@ -676,8 +673,8 @@ public class GUIChooser extends JFrame {
         }
 
         // build graph
-        String filename = m_FileChooserGraphVisualizer.getSelectedFile()
-          .getAbsolutePath();
+        String filename =
+          m_FileChooserGraphVisualizer.getSelectedFile().getAbsolutePath();
         GraphVisualizer panel = new GraphVisualizer();
         try {
           if (filename.toLowerCase().endsWith(".xml")
@@ -700,9 +697,10 @@ public class GUIChooser extends JFrame {
         }
 
         // create frame
-        final JFrame frame = new JFrame(Messages.getInstance().getString(
-          "GUIChooser_GraphVisualizer_File_Text")
-          + filename);
+        final JFrame frame =
+          new JFrame(Messages.getInstance().getString(
+            "GUIChooser_GraphVisualizer_File_Text")
+            + filename);
         frame.setIconImage(m_Icon);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -735,8 +733,9 @@ public class GUIChooser extends JFrame {
       public void actionPerformed(ActionEvent e) {
         if (m_BoundaryVisualizerFrame == null) {
           jMenuItemVisualizationBoundary.setEnabled(false);
-          m_BoundaryVisualizerFrame = new JFrame(Messages.getInstance()
-            .getString("GUIChooser_BoundaryVisualizer_JFrame_Text"));
+          m_BoundaryVisualizerFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_BoundaryVisualizer_JFrame_Text"));
           m_BoundaryVisualizerFrame.setIconImage(m_Icon);
           m_BoundaryVisualizerFrame.getContentPane().setLayout(
             new BorderLayout());
@@ -766,26 +765,28 @@ public class GUIChooser extends JFrame {
     });
 
     // Extensions
-    JMenu jMenuExtensions = new JMenu(Messages.getInstance().getString(
-      "GUIChooser_Extensions_Text"));
+    JMenu jMenuExtensions =
+      new JMenu(Messages.getInstance().getString("GUIChooser_Extensions_Text"));
     jMenuExtensions.setMnemonic(java.awt.event.KeyEvent.VK_E);
     m_jMenuBar.add(jMenuExtensions);
     jMenuExtensions.setVisible(false);
 
-    String extensions = GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
-      MainMenuExtension.class.getName(), "");
+    String extensions =
+      GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
+        MainMenuExtension.class.getName(), "");
 
     if (extensions.length() > 0) {
       jMenuExtensions.setVisible(true);
-      String[] classnames = GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
-        MainMenuExtension.class.getName(), "").split(",");
+      String[] classnames =
+        GenericObjectEditor.EDITOR_PROPERTIES.getProperty(
+          MainMenuExtension.class.getName(), "").split(",");
       Hashtable<String, JMenu> submenus = new Hashtable<String, JMenu>();
 
       // add all extensions
       for (String classname : classnames) {
         try {
-          MainMenuExtension ext = (MainMenuExtension) Class.forName(classname)
-            .newInstance();
+          MainMenuExtension ext =
+            (MainMenuExtension) Class.forName(classname).newInstance();
 
           // menuitem in a submenu?
           JMenu submenu = null;
@@ -812,8 +813,9 @@ public class GUIChooser extends JFrame {
             menuitem.addActionListener(new ActionListener() {
               @Override
               public void actionPerformed(ActionEvent e) {
-                Component frame = createFrame(m_Self, finalMenuitem.getText(),
-                  null, null, null, -1, -1, null, false, false);
+                Component frame =
+                  createFrame(m_Self, finalMenuitem.getText(), null, null,
+                    null, -1, -1, null, false, false);
                 finalExt.fillFrame(frame);
                 frame.setVisible(true);
               }
@@ -879,8 +881,9 @@ public class GUIChooser extends JFrame {
         if (m_SqlViewerFrame == null) {
           jMenuItemToolsSql.setEnabled(false);
           final SqlViewer sql = new SqlViewer(null);
-          m_SqlViewerFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_SqlViewer_JFrame_Text"));
+          m_SqlViewerFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_SqlViewer_JFrame_Text"));
           m_SqlViewerFrame.setIconImage(m_Icon);
           m_SqlViewerFrame.getContentPane().setLayout(new BorderLayout());
           m_SqlViewerFrame.getContentPane().add(sql, BorderLayout.CENTER);
@@ -914,8 +917,9 @@ public class GUIChooser extends JFrame {
           jMenuItemBayesNet.setEnabled(false);
           final GUI bayesNetGUI = new GUI();
           JMenuBar bayesBar = bayesNetGUI.getMenuBar();
-          m_BayesNetGUIFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_BayesNetworkEditor_JFrame_Text"));
+          m_BayesNetGUIFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_BayesNetworkEditor_JFrame_Text"));
           m_BayesNetGUIFrame.setIconImage(m_Icon);
           m_BayesNetGUIFrame.setJMenuBar(bayesBar);
           m_BayesNetGUIFrame.getContentPane().add(bayesNetGUI,
@@ -1008,8 +1012,9 @@ public class GUIChooser extends JFrame {
       public void actionPerformed(ActionEvent e) {
         if (m_SystemInfoFrame == null) {
           jMenuItemHelpSysInfo.setEnabled(false);
-          m_SystemInfoFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_SystemInfo_JFrame_Text"));
+          m_SystemInfoFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_SystemInfo_JFrame_Text"));
           m_SystemInfoFrame.setIconImage(m_Icon);
           m_SystemInfoFrame.getContentPane().setLayout(new BorderLayout());
 
@@ -1031,11 +1036,12 @@ public class GUIChooser extends JFrame {
             data[i][1] = info.get(data[i][0]).toString();
           }
 
-          String[] titles = new String[] {
-            Messages.getInstance().getString(
-              "GUIChooser_SystemInfo_TitleKey_Text"),
-            Messages.getInstance().getString(
-              "GUIChooser_SystemInfo_TitleValue_Text") };
+          String[] titles =
+            new String[] {
+              Messages.getInstance().getString(
+                "GUIChooser_SystemInfo_TitleKey_Text"),
+              Messages.getInstance().getString(
+                "GUIChooser_SystemInfo_TitleValue_Text") };
           JTable table = new JTable(data, titles);
 
           m_SystemInfoFrame.getContentPane().add(new JScrollPane(table),
@@ -1072,8 +1078,9 @@ public class GUIChooser extends JFrame {
           System.out.println("CALLED ExperimentEnvironment");
 
           m_ExperimenterBut.setEnabled(false);
-          m_ExperimenterFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_WekaExperimentEnvironment_JFrame_Text"));
+          m_ExperimenterFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_WekaExperimentEnvironment_JFrame_Text"));
           m_ExperimenterFrame.setIconImage(m_Icon);
           m_ExperimenterFrame.getContentPane().setLayout(new BorderLayout());
           m_ExperimenterFrame.getContentPane().add(new Experimenter(false),
@@ -1106,8 +1113,9 @@ public class GUIChooser extends JFrame {
               m_pendingKnowledgeFlowLoad);
             m_pendingKnowledgeFlowLoad = null;
           }
-          m_KnowledgeFlowFrame = new JFrame(Messages.getInstance().getString(
-            "GUIChooser_WekaKnowledgeFlowEnvironment_JFrame_Text"));
+          m_KnowledgeFlowFrame =
+            new JFrame(Messages.getInstance().getString(
+              "GUIChooser_WekaKnowledgeFlowEnvironment_JFrame_Text"));
           m_KnowledgeFlowFrame.setIconImage(m_Icon);
           m_KnowledgeFlowFrame.getContentPane().setLayout(new BorderLayout());
           m_KnowledgeFlowFrame.getContentPane().add(kna, BorderLayout.CENTER);
@@ -1234,8 +1242,8 @@ public class GUIChooser extends JFrame {
 
     if (fileToLoad != null) {
       try {
-        weka.core.converters.AbstractFileLoader loader = weka.core.converters.ConverterUtils
-          .getLoaderForFile(fileToLoad);
+        weka.core.converters.AbstractFileLoader loader =
+          weka.core.converters.ConverterUtils.getLoaderForFile(fileToLoad);
         loader.setFile(new File(fileToLoad));
         expl.getPreprocessPanel().setInstancesFromFile(loader);
       } catch (Exception ex) {
@@ -1430,13 +1438,13 @@ public class GUIChooser extends JFrame {
   protected void createTitle(String title) {
     String newTitle;
 
-    newTitle = Messages.getInstance().getString(
-      "GUIChooser_CreateTitle_Text_Front")
-      + new Version();
+    newTitle =
+      Messages.getInstance().getString("GUIChooser_CreateTitle_Text_Front")
+        + new Version();
     if (title.length() != 0) {
-      newTitle += Messages.getInstance().getString(
-        "GUIChooser_CreateTitle_Text_End")
-        + title;
+      newTitle +=
+        Messages.getInstance().getString("GUIChooser_CreateTitle_Text_End")
+          + title;
     }
 
     setTitle(newTitle);
@@ -1528,7 +1536,7 @@ public class GUIChooser extends JFrame {
             // //System.out.println("before sleeping");
             // this.sleep(4000);
 
-            System.gc();
+            // System.gc();
 
             if (m_Memory.isOutOfMemory()) {
               // clean up
