@@ -72,20 +72,18 @@ import weka.gui.Logger;
  * @see TestSetListener
  */
 public class Classifier extends JPanel implements BeanCommon, Visible,
-    WekaWrapper, EventConstraints, Serializable, UserRequestAcceptor,
-    TrainingSetListener, TestSetListener, InstanceListener {
+  WekaWrapper, EventConstraints, Serializable, UserRequestAcceptor,
+  TrainingSetListener, TestSetListener, InstanceListener {
 
   /** for serialization */
   private static final long serialVersionUID = 659603893917736008L;
 
   protected BeanVisual m_visual = new BeanVisual("Classifier",
-      BeanVisual.ICON_PATH + "DefaultClassifier.gif", BeanVisual.ICON_PATH
-          + "DefaultClassifier_animated.gif");
+    BeanVisual.ICON_PATH + "DefaultClassifier.gif", BeanVisual.ICON_PATH
+      + "DefaultClassifier_animated.gif");
 
   private static int IDLE = 0;
   private static int BUILDING_MODEL = 1;
-  private static int CLASSIFYING = 2;
-
   private int m_state = IDLE;
 
   // private Thread m_buildThread = null;
@@ -126,13 +124,12 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * be asked to predict in the future.
    */
   private Instances m_trainingSet;
-  private transient Instances m_testingSet;
   private weka.classifiers.Classifier m_Classifier = new ZeroR();
   /** Template used for creating copies when building in parallel */
   private weka.classifiers.Classifier m_ClassifierTemplate = m_Classifier;
 
-  private final IncrementalClassifierEvent m_ie = new IncrementalClassifierEvent(
-      this);
+  private final IncrementalClassifierEvent m_ie =
+    new IncrementalClassifierEvent(this);
 
   /** the extension for serialized models (binary Java serialization) */
   public final static String FILE_EXTENSION = "model";
@@ -140,27 +137,27 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   private transient JFileChooser m_fileChooser = null;
 
   protected FileFilter m_binaryFilter = new ExtensionFileFilter("."
-      + FILE_EXTENSION, Messages.getInstance().getString(
-      "Classifier_BinaryFilter_ExtensionFileFilter_Text_First")
-      + FILE_EXTENSION
-      + Messages.getInstance().getString(
-          "Classifier_BinaryFilter_ExtensionFileFilter_Text_Second"));
+    + FILE_EXTENSION, Messages.getInstance().getString(
+    "Classifier_BinaryFilter_ExtensionFileFilter_Text_First")
+    + FILE_EXTENSION
+    + Messages.getInstance().getString(
+      "Classifier_BinaryFilter_ExtensionFileFilter_Text_Second"));
 
   protected FileFilter m_KOMLFilter = new ExtensionFileFilter(
-      KOML.FILE_EXTENSION + FILE_EXTENSION, Messages.getInstance().getString(
-          "Classifier_KOMLFilter_ExtensionFileFilter_Text_First")
-          + KOML.FILE_EXTENSION
-          + FILE_EXTENSION
-          + Messages.getInstance().getString(
-              "Classifier_KOMLFilter_ExtensionFileFilter_Text_Second"));
+    KOML.FILE_EXTENSION + FILE_EXTENSION, Messages.getInstance().getString(
+      "Classifier_KOMLFilter_ExtensionFileFilter_Text_First")
+      + KOML.FILE_EXTENSION
+      + FILE_EXTENSION
+      + Messages.getInstance().getString(
+        "Classifier_KOMLFilter_ExtensionFileFilter_Text_Second"));
 
   protected FileFilter m_XStreamFilter = new ExtensionFileFilter(
-      XStream.FILE_EXTENSION + FILE_EXTENSION, Messages.getInstance()
-          .getString("Classifier_XStreamFilter_ExtensionFileFilter_Text_First")
-          + XStream.FILE_EXTENSION
-          + FILE_EXTENSION
-          + Messages.getInstance().getString(
-              "Classifier_XStreamFilter_ExtensionFileFilter_Text_Second"));
+    XStream.FILE_EXTENSION + FILE_EXTENSION, Messages.getInstance().getString(
+      "Classifier_XStreamFilter_ExtensionFileFilter_Text_First")
+      + XStream.FILE_EXTENSION
+      + FILE_EXTENSION
+      + Messages.getInstance().getString(
+        "Classifier_XStreamFilter_ExtensionFileFilter_Text_Second"));
 
   /**
    * If the classifier is an incremental classifier, should we update it (ie
@@ -241,8 +238,9 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       m_executorPool.shutdownNow();
     }
 
-    m_executorPool = new ThreadPoolExecutor(m_executionSlots, m_executionSlots,
-        120, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    m_executorPool =
+      new ThreadPoolExecutor(m_executionSlots, m_executionSlots, 120,
+        TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
   /**
@@ -250,6 +248,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param name the name to use
    */
+  @Override
   public void setCustomName(String name) {
     m_visual.setText(name);
   }
@@ -259,13 +258,15 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @return the custom name (or the default name)
    */
+  @Override
   public String getCustomName() {
     return m_visual.getText();
   }
 
   protected void setupFileChooser() {
     if (m_fileChooser == null) {
-      m_fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
+      m_fileChooser =
+        new JFileChooser(new File(System.getProperty("user.dir")));
     }
 
     m_fileChooser.addChoosableFileFilter(m_binaryFilter);
@@ -304,7 +305,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   public void setClassifierTemplate(weka.classifiers.Classifier c) {
     boolean loadImages = true;
     if (c.getClass().getName()
-        .compareTo(m_ClassifierTemplate.getClass().getName()) == 0) {
+      .compareTo(m_ClassifierTemplate.getClass().getName()) == 0) {
       loadImages = false;
     } else {
       // classifier has changed so any batch training status is now
@@ -313,27 +314,28 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
     }
     m_ClassifierTemplate = c;
     String classifierName = c.getClass().toString();
-    classifierName = classifierName.substring(
-        classifierName.lastIndexOf('.') + 1, classifierName.length());
+    classifierName =
+      classifierName.substring(classifierName.lastIndexOf('.') + 1,
+        classifierName.length());
     if (loadImages) {
       if (!m_visual.loadIcons(BeanVisual.ICON_PATH + classifierName + ".gif",
-          BeanVisual.ICON_PATH + classifierName + "_animated.gif")) {
+        BeanVisual.ICON_PATH + classifierName + "_animated.gif")) {
         useDefaultVisual();
       }
       m_visual.setText(classifierName);
     }
 
     if (!(m_ClassifierTemplate instanceof weka.classifiers.UpdateableClassifier)
-        && (m_listenees.containsKey("instance"))) {
+      && (m_listenees.containsKey("instance"))) {
       if (m_log != null) {
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_SetClassifierTemplate_LogMessage_Text_First")
-            + statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_SetClassifierTemplate_LogMessage_Text_Second")
-            + getCustomName()
-            + Messages.getInstance().getString(
-                "Classifier_SetClassifierTemplate_LogMessage_Text_Third"));
+          "Classifier_SetClassifierTemplate_LogMessage_Text_First")
+          + statusMessagePrefix()
+          + Messages.getInstance().getString(
+            "Classifier_SetClassifierTemplate_LogMessage_Text_Second")
+          + getCustomName()
+          + Messages.getInstance().getString(
+            "Classifier_SetClassifierTemplate_LogMessage_Text_Third"));
       }
     }
     // get global info
@@ -350,19 +352,19 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   }
 
   private void setTrainedClassifier(weka.classifiers.Classifier tc)
-      throws Exception {
+    throws Exception {
 
     // set the template
     weka.classifiers.Classifier newTemplate = null;
 
     String[] options = tc.getOptions();
-    newTemplate = weka.classifiers.Classifier.forName(tc.getClass().getName(),
-        options);
+    newTemplate =
+      weka.classifiers.Classifier.forName(tc.getClass().getName(), options);
 
     if (!newTemplate.getClass().equals(m_ClassifierTemplate.getClass())) {
       throw new Exception("Classifier model " + tc.getClass().getName()
-          + " is not the same type " + "of classifier as this one ("
-          + m_ClassifierTemplate.getClass().getName() + ")");
+        + " is not the same type " + "of classifier as this one ("
+        + m_ClassifierTemplate.getClass().getName() + ")");
     }
     setClassifierTemplate(newTemplate);
 
@@ -396,7 +398,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       return false;
     }
     if (m_listenees.containsKey("trainingSet")
-        || m_listenees.containsKey("testSet")) {
+      || m_listenees.containsKey("testSet")) {
       return true;
     }
     return false;
@@ -417,15 +419,13 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param algorithm an <code>Object</code> value
    * @exception IllegalArgumentException if an error occurs
    */
+  @Override
   public void setWrappedAlgorithm(Object algorithm) {
 
     if (!(algorithm instanceof weka.classifiers.Classifier)) {
-      throw new IllegalArgumentException(
-          algorithm.getClass()
-              + Messages
-                  .getInstance()
-                  .getString(
-                      "Classifier_SetWrappedAlgorithm_IllegalArgumentException_Text_First"));
+      throw new IllegalArgumentException(algorithm.getClass()
+        + Messages.getInstance().getString(
+          "Classifier_SetWrappedAlgorithm_IllegalArgumentException_Text_First"));
     }
     setClassifierTemplate((weka.classifiers.Classifier) algorithm);
   }
@@ -435,6 +435,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @return an <code>Object</code> value
    */
+  @Override
   public Object getWrappedAlgorithm() {
     return getClassifierTemplate();
   }
@@ -464,6 +465,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param e an <code>InstanceEvent</code> value
    */
+  @Override
   public void acceptInstance(InstanceEvent e) {
     m_incrementalEvent = e;
     handleIncrementalEvent();
@@ -474,19 +476,20 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    */
   private void handleIncrementalEvent() {
     if (m_executorPool != null
-        && (m_executorPool.getQueue().size() > 0 || m_executorPool
-            .getActiveCount() > 0)) {
+      && (m_executorPool.getQueue().size() > 0 || m_executorPool
+        .getActiveCount() > 0)) {
 
-      String messg = Messages.getInstance().getString(
+      String messg =
+        Messages.getInstance().getString(
           "Classifier_HandleIncrementalEvent_Messg_Text_First")
           + statusMessagePrefix()
           + Messages.getInstance().getString(
-              "Classifier_HandleIncrementalEvent_Messg_Text_Second");
+            "Classifier_HandleIncrementalEvent_Messg_Text_Second");
       if (m_log != null) {
         m_log.logMessage(messg);
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_HandleIncrementalEvent_StatusMessage_Text_First"));
+          + Messages.getInstance().getString(
+            "Classifier_HandleIncrementalEvent_StatusMessage_Text_First"));
       } else {
         System.err.println(messg);
       }
@@ -504,24 +507,25 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // default to the last column if no class is set
       if (dataset.classIndex() < 0) {
         stop();
-        String errorMessage = statusMessagePrefix()
+        String errorMessage =
+          statusMessagePrefix()
             + Messages.getInstance().getString(
-                "Classifier_HandleIncrementalEvent_ErrorMessage_Text_First");
+              "Classifier_HandleIncrementalEvent_ErrorMessage_Text_First");
         if (m_log != null) {
           m_log.statusMessage(errorMessage);
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_HandleIncrementalEvent_LogMessage_Text_First")
-              + getCustomName()
-              + Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_LogMessage_Text_Second")
-              + errorMessage);
+            "Classifier_HandleIncrementalEvent_LogMessage_Text_First")
+            + getCustomName()
+            + Messages.getInstance().getString(
+              "Classifier_HandleIncrementalEvent_LogMessage_Text_Second")
+            + errorMessage);
         } else {
           System.err.println(Messages.getInstance().getString(
-              "Classifier_HandleIncrementalEvent_Error_Text_First")
-              + getCustomName()
-              + Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_Error_Text_Second")
-              + errorMessage);
+            "Classifier_HandleIncrementalEvent_Error_Text_First")
+            + getCustomName()
+            + Messages.getInstance().getString(
+              "Classifier_HandleIncrementalEvent_Error_Text_Second")
+            + errorMessage);
         }
         return;
 
@@ -536,27 +540,29 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           if (!(m_ClassifierTemplate instanceof weka.classifiers.UpdateableClassifier)) {
             stop(); // stop all processing
             if (m_log != null) {
-              String msg = (m_trainingSet == null) ? statusMessagePrefix()
+              String msg =
+                (m_trainingSet == null) ? statusMessagePrefix()
                   + Messages.getInstance().getString(
-                      "Classifier_HandleIncrementalEvent_Msg_Text_First")
+                    "Classifier_HandleIncrementalEvent_Msg_Text_First")
                   : statusMessagePrefix()
-                      + Messages.getInstance().getString(
-                          "Classifier_HandleIncrementalEvent_Msg_Text_Second");
+                    + Messages.getInstance().getString(
+                      "Classifier_HandleIncrementalEvent_Msg_Text_Second");
               m_log.logMessage(Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_LogMessage_Text_Third")
-                  + msg);
+                "Classifier_HandleIncrementalEvent_LogMessage_Text_Third")
+                + msg);
               m_log.statusMessage(msg);
             }
             return;
           }
           if (m_trainingSet != null && (!dataset.equalHeaders(m_trainingSet))) {
             if (m_log != null) {
-              String msg = statusMessagePrefix()
+              String msg =
+                statusMessagePrefix()
                   + Messages.getInstance().getString(
-                      "Classifier_HandleIncrementalEvent_Msg_Text_Third");
+                    "Classifier_HandleIncrementalEvent_Msg_Text_Third");
               m_log.logMessage(Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_LogMessage_Text_Fourth")
-                  + msg);
+                "Classifier_HandleIncrementalEvent_LogMessage_Text_Fourth")
+                + msg);
               m_log.statusMessage(msg);
             }
             m_trainingSet = null;
@@ -564,26 +570,23 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           if (m_trainingSet == null) {
             // initialize the classifier if it hasn't been trained yet
             m_trainingSet = new Instances(dataset, 0);
-            m_Classifier = weka.classifiers.Classifier
-                .makeCopy(m_ClassifierTemplate);
+            m_Classifier =
+              weka.classifiers.Classifier.makeCopy(m_ClassifierTemplate);
             m_Classifier.buildClassifier(m_trainingSet);
           }
         }
       } catch (Exception ex) {
         stop();
         if (m_log != null) {
-          m_log
-              .statusMessage(statusMessagePrefix()
-                  + Messages
-                      .getInstance()
-                      .getString(
-                          "Classifier_HandleIncrementalEvent_StatusMessage_Text_Second"));
+          m_log.statusMessage(statusMessagePrefix()
+            + Messages.getInstance().getString(
+              "Classifier_HandleIncrementalEvent_StatusMessage_Text_Second"));
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_HandleIncrementalEvent_LogMessage_Text_Fifth")
-              + statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_LogMessage_Text_Sixth")
-              + ex.getMessage());
+            "Classifier_HandleIncrementalEvent_LogMessage_Text_Fifth")
+            + statusMessagePrefix()
+            + Messages.getInstance().getString(
+              "Classifier_HandleIncrementalEvent_LogMessage_Text_Sixth")
+            + ex.getMessage());
         }
         ex.printStackTrace();
         return;
@@ -610,10 +613,10 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       if (m_incrementalEvent.getInstance().dataset().classIndex() < 0) {
         // System.err.println("Classifier : setting class index...");
         m_incrementalEvent
-            .getInstance()
-            .dataset()
-            .setClassIndex(
-                m_incrementalEvent.getInstance().dataset().numAttributes() - 1);
+          .getInstance()
+          .dataset()
+          .setClassIndex(
+            m_incrementalEvent.getInstance().dataset().numAttributes() - 1);
       }
 
       int status = IncrementalClassifierEvent.WITHIN_BATCH;
@@ -635,27 +638,30 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // is updateable and user has specified that classifier is to be
       // updated)
       if (m_ClassifierTemplate instanceof weka.classifiers.UpdateableClassifier
-          && m_updateIncrementalClassifier == true
-          && !(m_incrementalEvent.getInstance().isMissing(m_incrementalEvent
-              .getInstance().dataset().classIndex()))) {
+        && m_updateIncrementalClassifier == true
+        && !(m_incrementalEvent.getInstance().isMissing(m_incrementalEvent
+          .getInstance().dataset().classIndex()))) {
         ((weka.classifiers.UpdateableClassifier) m_Classifier)
-            .updateClassifier(m_incrementalEvent.getInstance());
+          .updateClassifier(m_incrementalEvent.getInstance());
       }
       if (m_incrementalEvent.getStatus() == InstanceEvent.BATCH_FINISHED) {
         if (m_textListeners.size() > 0) {
           String modelString = m_Classifier.toString();
           String titleString = m_Classifier.getClass().getName();
 
-          titleString = titleString.substring(titleString.lastIndexOf('.') + 1,
+          titleString =
+            titleString.substring(titleString.lastIndexOf('.') + 1,
               titleString.length());
-          modelString = Messages.getInstance().getString(
+          modelString =
+            Messages.getInstance().getString(
               "Classifier_HandleIncrementalEvent_ModelString_Text_First")
               + titleString
               + "\n"
               + Messages.getInstance().getString(
-                  "Classifier_HandleIncrementalEvent_ModelString_Text_Second")
+                "Classifier_HandleIncrementalEvent_ModelString_Text_Second")
               + m_trainingSet.relationName() + "\n\n" + modelString;
-          titleString = Messages.getInstance().getString(
+          titleString =
+            Messages.getInstance().getString(
               "Classifier_HandleIncrementalEvent_TitleString_Text_First")
               + titleString;
           TextEvent nt = new TextEvent(this, modelString, titleString);
@@ -666,11 +672,11 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       stop();
       if (m_log != null) {
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_HandleIncrementalEvent_LogMessage_Text_Seventh")
-            + statusMessagePrefix() + ex.getMessage());
+          "Classifier_HandleIncrementalEvent_LogMessage_Text_Seventh")
+          + statusMessagePrefix() + ex.getMessage());
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_HandleIncrementalEvent_StatusMessage_Text_Third"));
+          + Messages.getInstance().getString(
+            "Classifier_HandleIncrementalEvent_StatusMessage_Text_Third"));
         ex.printStackTrace();
       } else {
         ex.printStackTrace();
@@ -687,7 +693,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
     private final TaskStatusInfo m_taskInfo = new TaskStatusInfo();
 
     public TrainingTask(int runNum, int maxRunNum, int setNum, int maxSetNum,
-        Instances train) {
+      Instances train) {
       m_runNum = runNum;
       m_maxRunNum = maxRunNum;
       m_setNum = setNum;
@@ -696,28 +702,31 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       m_taskInfo.setExecutionStatus(TaskStatusInfo.TO_BE_RUN);
     }
 
+    @Override
     public void run() {
       execute();
     }
 
+    @Override
     public void execute() {
       try {
         if (m_train != null) {
           if (m_train.classIndex() < 0) {
             // stop all processing
             stop();
-            String errorMessage = statusMessagePrefix()
+            String errorMessage =
+              statusMessagePrefix()
                 + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_ErrorMessage_Text_First");
+                  "Classifier_TrainingTask_Execute_ErrorMessage_Text_First");
             if (m_log != null) {
               m_log.statusMessage(errorMessage);
               m_log.logMessage(Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_LogMessage_Text_First")
-                  + errorMessage);
+                "Classifier_TrainingTask_Execute_LogMessage_Text_First")
+                + errorMessage);
             } else {
               System.err.println(Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_Error_Text_First")
-                  + errorMessage);
+                "Classifier_TrainingTask_Execute_Error_Text_First")
+                + errorMessage);
             }
             return;
 
@@ -739,12 +748,13 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
 
           // m_visual.setAnimated();
           // m_visual.setText("Building model...");
-          String msg = statusMessagePrefix()
+          String msg =
+            statusMessagePrefix()
               + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_Msg_Text_First")
+                "Classifier_TrainingTask_Execute_Msg_Text_First")
               + m_runNum
               + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_Msg_Text_Second") + m_setNum;
+                "Classifier_TrainingTask_Execute_Msg_Text_Second") + m_setNum;
           if (m_log != null) {
             m_log.statusMessage(msg);
           } else {
@@ -753,8 +763,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           // buildClassifier();
 
           // copy the classifier configuration
-          weka.classifiers.Classifier classifierCopy = weka.classifiers.Classifier
-              .makeCopy(m_ClassifierTemplate);
+          weka.classifiers.Classifier classifierCopy =
+            weka.classifiers.Classifier.makeCopy(m_ClassifierTemplate);
 
           // build this model
           classifierCopy.buildClassifier(m_train);
@@ -768,10 +778,11 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           // if (m_batchClassifierListeners.size() > 0) {
           // notify anyone who might be interested in just the model
           // and training set.
-          BatchClassifierEvent ce = new BatchClassifierEvent(Classifier.this,
-              classifierCopy, new DataSetEvent(this, m_train), null, // no test
-                                                                     // set
-                                                                     // (yet)
+          BatchClassifierEvent ce =
+            new BatchClassifierEvent(Classifier.this, classifierCopy,
+              new DataSetEvent(this, m_train), null, // no test
+                                                     // set
+                                                     // (yet)
               m_setNum, m_maxSetNum);
           ce.setGroupIdentifier(m_currentBatchIdentifier.getTime());
           notifyBatchClassifierListeners(ce);
@@ -781,18 +792,20 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           // }
 
           if (classifierCopy instanceof weka.core.Drawable
-              && m_graphListeners.size() > 0) {
+            && m_graphListeners.size() > 0) {
             String grphString = ((weka.core.Drawable) classifierCopy).graph();
             int grphType = ((weka.core.Drawable) classifierCopy).graphType();
             String grphTitle = classifierCopy.getClass().getName();
-            grphTitle = grphTitle.substring(grphTitle.lastIndexOf('.') + 1,
+            grphTitle =
+              grphTitle.substring(grphTitle.lastIndexOf('.') + 1,
                 grphTitle.length());
-            grphTitle = Messages.getInstance().getString(
+            grphTitle =
+              Messages.getInstance().getString(
                 "Classifier_TrainingTask_Execute_GrphTitle_Text_First")
                 + m_setNum + " (" + m_train.relationName() + ") " + grphTitle;
 
-            GraphEvent ge = new GraphEvent(Classifier.this, grphString,
-                grphTitle, grphType);
+            GraphEvent ge =
+              new GraphEvent(Classifier.this, grphString, grphTitle, grphType);
             notifyGraphListeners(ge);
           }
 
@@ -800,24 +813,28 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
             String modelString = classifierCopy.toString();
             String titleString = classifierCopy.getClass().getName();
 
-            titleString = titleString.substring(
-                titleString.lastIndexOf('.') + 1, titleString.length());
-            modelString = Messages.getInstance().getString(
+            titleString =
+              titleString.substring(titleString.lastIndexOf('.') + 1,
+                titleString.length());
+            modelString =
+              Messages.getInstance().getString(
                 "Classifier_TrainingTask_Execute_ModelString_Text_First")
                 + titleString
                 + "\n"
                 + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_ModelString_Text_Second")
+                  "Classifier_TrainingTask_Execute_ModelString_Text_Second")
                 + m_train.relationName()
                 + ((m_maxSetNum > 1) ? Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_ModelString_Text_Third")
-                    + m_setNum : "") + "\n\n" + modelString;
-            titleString = Messages.getInstance().getString(
+                  "Classifier_TrainingTask_Execute_ModelString_Text_Third")
+                  + m_setNum : "") + "\n\n" + modelString;
+            titleString =
+              Messages.getInstance().getString(
                 "Classifier_TrainingTask_Execute_TitleString_Text_First")
                 + titleString;
 
-            TextEvent nt = new TextEvent(Classifier.this, modelString,
-                titleString);
+            TextEvent nt =
+              new TextEvent(Classifier.this, modelString, titleString
+                + (m_maxSetNum > 1 ? (" (fold " + m_setNum + ")") : ""));
             notifyTextListeners(nt);
           }
         }
@@ -826,25 +843,27 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         stop();
         ex.printStackTrace();
         if (m_log != null) {
-          String titleString = Messages.getInstance().getString(
+          String titleString =
+            Messages.getInstance().getString(
               "Classifier_TrainingTask_Execute_TitleString_Text_Second")
               + statusMessagePrefix();
 
-          titleString += Messages.getInstance().getString(
+          titleString +=
+            Messages.getInstance().getString(
               "Classifier_TrainingTask_Execute_TitleString_Text_Third")
               + m_runNum
               + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_TitleString_Text_Fourth")
+                "Classifier_TrainingTask_Execute_TitleString_Text_Fourth")
               + m_setNum
               + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_TitleString_Text_Fifth");
+                "Classifier_TrainingTask_Execute_TitleString_Text_Fifth");
           m_log.logMessage(titleString
-              + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_LogMessage_Text_Fourth")
-              + ex.getMessage());
+            + Messages.getInstance().getString(
+              "Classifier_TrainingTask_Execute_LogMessage_Text_Fourth")
+            + ex.getMessage());
           m_log.statusMessage(statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_StatusMessage_Text_First"));
+            + Messages.getInstance().getString(
+              "Classifier_TrainingTask_Execute_StatusMessage_Text_First"));
           ex.printStackTrace();
         }
         m_taskInfo.setExecutionStatus(TaskStatusInfo.FAILED);
@@ -852,8 +871,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         m_visual.setStatic();
         if (m_log != null) {
           m_log.statusMessage(statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_TrainingTask_Execute_StatusMessage_Text_Second"));
+            + Messages.getInstance().getString(
+              "Classifier_TrainingTask_Execute_StatusMessage_Text_Second"));
         }
         m_state = IDLE;
 
@@ -861,22 +880,23 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           // prevent any classifier events from being fired
           m_trainingSet = null;
           if (m_log != null) {
-            String titleString = Messages.getInstance().getString(
+            String titleString =
+              Messages.getInstance().getString(
                 "Classifier_TrainingTask_Execute_TitleString_Text_Sixth")
                 + statusMessagePrefix();
 
             m_log.logMessage(titleString
-                + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_LogMessage_Text_Fifth")
-                + m_runNum
-                + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_LogMessage_Text_Sixth")
-                + m_setNum
-                + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_LogMessage_Text_Seventh"));
+              + Messages.getInstance().getString(
+                "Classifier_TrainingTask_Execute_LogMessage_Text_Fifth")
+              + m_runNum
+              + Messages.getInstance().getString(
+                "Classifier_TrainingTask_Execute_LogMessage_Text_Sixth")
+              + m_setNum
+              + Messages.getInstance().getString(
+                "Classifier_TrainingTask_Execute_LogMessage_Text_Seventh"));
             m_log.statusMessage(statusMessagePrefix()
-                + Messages.getInstance().getString(
-                    "Classifier_TrainingTask_Execute_LogMessage_Text_Seventh"));
+              + Messages.getInstance().getString(
+                "Classifier_TrainingTask_Execute_LogMessage_Text_Seventh"));
 
             /*
              * // are we the last active thread? if
@@ -909,6 +929,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       }
     }
 
+    @Override
     public TaskStatusInfo getTaskStatus() {
       // TODO
       return null;
@@ -920,6 +941,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param e a <code>TrainingSetEvent</code> value
    */
+  @Override
   public void acceptTrainingSet(final TrainingSetEvent e) {
 
     if (e.isStructureOnly()) {
@@ -927,9 +949,10 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // BatchClassifierEvent in order to pass on instance structure to
       // any listeners - eg. PredictionAppender can use it to determine
       // the final structure of instances with predictions appended
-      BatchClassifierEvent ce = new BatchClassifierEvent(this, m_Classifier,
-          new DataSetEvent(this, e.getTrainingSet()), new DataSetEvent(this,
-              e.getTrainingSet()), e.getSetNumber(), e.getMaxSetNumber());
+      BatchClassifierEvent ce =
+        new BatchClassifierEvent(this, m_Classifier, new DataSetEvent(this,
+          e.getTrainingSet()), new DataSetEvent(this, e.getTrainingSet()),
+          e.getSetNumber(), e.getMaxSetNumber());
 
       notifyBatchClassifierListeners(ce);
       return;
@@ -939,13 +962,13 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // block(true);
       if (m_log != null) {
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_AcceptTrainingSet_StatusMessage_Text_First"));
+          + Messages.getInstance().getString(
+            "Classifier_AcceptTrainingSet_StatusMessage_Text_First"));
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_AcceptTrainingSet_LogMessage_Text_First")
-            + statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_AcceptTrainingSet_LogMessage_Text_Second"));
+          "Classifier_AcceptTrainingSet_LogMessage_Text_First")
+          + statusMessagePrefix()
+          + Messages.getInstance().getString(
+            "Classifier_AcceptTrainingSet_LogMessage_Text_Second"));
       }
       return;
     }
@@ -957,14 +980,15 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       m_trainingSet = new Instances(e.getTrainingSet(), 0);
       m_state = BUILDING_MODEL;
 
-      String msg = Messages.getInstance().getString(
+      String msg =
+        Messages.getInstance().getString(
           "Classifier_AcceptTrainingSet_Msg_Text_First")
           + statusMessagePrefix()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTrainingSet_Msg_Text_Second")
+            "Classifier_AcceptTrainingSet_Msg_Text_Second")
           + getExecutionSlots()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTrainingSet_Msg_Text_Third");
+            "Classifier_AcceptTrainingSet_Msg_Text_Third");
       if (m_log != null) {
         m_log.logMessage(msg);
       } else {
@@ -979,11 +1003,12 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // }
 
       // setup output queues
-      msg = Messages.getInstance().getString(
+      msg =
+        Messages.getInstance().getString(
           "Classifier_AcceptTrainingSet_Msg_Text_Fourth")
           + statusMessagePrefix()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTrainingSet_Msg_Text_Fifth");
+            "Classifier_AcceptTrainingSet_Msg_Text_Fifth");
       if (m_log != null) {
         m_log.logMessage(msg);
       } else {
@@ -991,8 +1016,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       }
 
       if (!m_batchStarted) {
-        m_outputQueues = new BatchClassifierEvent[e.getMaxRunNumber()][e
-            .getMaxSetNumber()];
+        m_outputQueues =
+          new BatchClassifierEvent[e.getMaxRunNumber()][e.getMaxSetNumber()];
         m_completedSets = new boolean[e.getMaxRunNumber()][e.getMaxSetNumber()];
         m_currentBatchIdentifier = new Date();
         m_batchStarted = true;
@@ -1000,20 +1025,21 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
     }
 
     // create a new task and schedule for execution
-    TrainingTask newTask = new TrainingTask(e.getRunNumber(),
-        e.getMaxRunNumber(), e.getSetNumber(), e.getMaxSetNumber(),
-        e.getTrainingSet());
-    String msg = Messages.getInstance().getString(
+    TrainingTask newTask =
+      new TrainingTask(e.getRunNumber(), e.getMaxRunNumber(), e.getSetNumber(),
+        e.getMaxSetNumber(), e.getTrainingSet());
+    String msg =
+      Messages.getInstance().getString(
         "Classifier_AcceptTrainingSet_Msg_Text_Sixth")
         + statusMessagePrefix()
         + Messages.getInstance().getString(
-            "Classifier_AcceptTrainingSet_Msg_Text_Seventh")
+          "Classifier_AcceptTrainingSet_Msg_Text_Seventh")
         + e.getRunNumber()
         + Messages.getInstance().getString(
-            "Classifier_AcceptTrainingSet_Msg_Text_Eighth")
+          "Classifier_AcceptTrainingSet_Msg_Text_Eighth")
         + e.getSetNumber()
         + Messages.getInstance().getString(
-            "Classifier_AcceptTrainingSet_Msg_Text_Nineth");
+          "Classifier_AcceptTrainingSet_Msg_Text_Nineth");
     if (m_log != null) {
       m_log.logMessage(msg);
     } else {
@@ -1032,19 +1058,20 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param e a <code>TestSetEvent</code> value
    */
+  @Override
   public synchronized void acceptTestSet(TestSetEvent e) {
 
     if (m_block) {
       // block(true);
       if (m_log != null) {
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_AcceptTrainingSet_StatusMessage_Text_Second"));
+          + Messages.getInstance().getString(
+            "Classifier_AcceptTrainingSet_StatusMessage_Text_Second"));
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_AcceptTrainingSet_Msg_Text_Nineth")
-            + statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_AcceptTrainingSet_StatusMessage_Text_Second"));
+          "Classifier_AcceptTrainingSet_Msg_Text_Nineth")
+          + statusMessagePrefix()
+          + Messages.getInstance().getString(
+            "Classifier_AcceptTrainingSet_StatusMessage_Text_Second"));
       }
       return;
     }
@@ -1055,18 +1082,19 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         // testSet.setClassIndex(testSet.numAttributes() - 1);
         // stop all processing
         stop();
-        String errorMessage = statusMessagePrefix()
+        String errorMessage =
+          statusMessagePrefix()
             + Messages.getInstance().getString(
-                "Classifier_AcceptTestSet_ErrorMessage_Text_First");
+              "Classifier_AcceptTestSet_ErrorMessage_Text_First");
         if (m_log != null) {
           m_log.statusMessage(errorMessage);
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_LogMessage_Text_First")
-              + errorMessage);
+            "Classifier_AcceptTestSet_LogMessage_Text_First")
+            + errorMessage);
         } else {
           System.err.println(Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_Error_Text_First")
-              + errorMessage);
+            "Classifier_AcceptTestSet_Error_Text_First")
+            + errorMessage);
         }
         return;
       }
@@ -1077,7 +1105,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
     // currently building a model), then use the
     // last saved model
     if (m_Classifier != null && m_state == IDLE
-        && (!m_listenees.containsKey("trainingSet"))) {
+      && (!m_listenees.containsKey("trainingSet"))) {
 
       // if this is structure only then just return at this point
       if (e.getTestSet() != null && e.isStructureOnly()) {
@@ -1088,18 +1116,19 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       // then it means that no model has been loaded
       if (m_trainingSet == null) {
         stop();
-        String errorMessage = statusMessagePrefix()
+        String errorMessage =
+          statusMessagePrefix()
             + Messages.getInstance().getString(
-                "Classifier_AcceptTestSet_ErrorMessage_Text_First_Alpha");
+              "Classifier_AcceptTestSet_ErrorMessage_Text_First_Alpha");
         if (m_log != null) {
           m_log.statusMessage(errorMessage);
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_LogMessage_Text_Second")
-              + errorMessage);
+            "Classifier_AcceptTestSet_LogMessage_Text_Second")
+            + errorMessage);
         } else {
           System.err.println(Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_Error_Text_Second")
-              + errorMessage);
+            "Classifier_AcceptTestSet_Error_Text_Second")
+            + errorMessage);
         }
         return;
       }
@@ -1116,16 +1145,17 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
          */
 
         if (m_trainingSet.equalHeaders(testSet)) {
-          BatchClassifierEvent ce = new BatchClassifierEvent(this,
-              m_Classifier, new DataSetEvent(this, m_trainingSet),
-              new DataSetEvent(this, e.getTestSet()), e.getRunNumber(),
-              e.getMaxRunNumber(), e.getSetNumber(), e.getMaxSetNumber());
+          BatchClassifierEvent ce =
+            new BatchClassifierEvent(this, m_Classifier, new DataSetEvent(this,
+              m_trainingSet), new DataSetEvent(this, e.getTestSet()),
+              e.getRunNumber(), e.getMaxRunNumber(), e.getSetNumber(),
+              e.getMaxSetNumber());
           ce.setGroupIdentifier(m_currentBatchIdentifier.getTime());
 
           if (m_log != null && !e.isStructureOnly()) {
             m_log.statusMessage(statusMessagePrefix()
-                + Messages.getInstance().getString(
-                    "Classifier_AcceptTestSet_StatusMessage_Text_First"));
+              + Messages.getInstance().getString(
+                "Classifier_AcceptTestSet_StatusMessage_Text_First"));
           }
           m_batchStarted = false;
           notifyBatchClassifierListeners(ce);
@@ -1138,10 +1168,10 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
        */
       if (e.getRunNumber() == 1 && e.getSetNumber() == 1) {
         if (!m_batchStarted) {
-          m_outputQueues = new BatchClassifierEvent[e.getMaxRunNumber()][e
-              .getMaxSetNumber()];
-          m_completedSets = new boolean[e.getMaxRunNumber()][e
-              .getMaxSetNumber()];
+          m_outputQueues =
+            new BatchClassifierEvent[e.getMaxRunNumber()][e.getMaxSetNumber()];
+          m_completedSets =
+            new boolean[e.getMaxRunNumber()][e.getMaxSetNumber()];
           m_currentBatchIdentifier = new Date();
           m_batchStarted = true;
         }
@@ -1150,13 +1180,13 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       if (m_outputQueues[e.getRunNumber() - 1][e.getSetNumber() - 1] == null) {
         // store an event with a null model and training set (to be filled in
         // later)
-        m_outputQueues[e.getRunNumber() - 1][e.getSetNumber() - 1] = new BatchClassifierEvent(
-            this, null, null, new DataSetEvent(this, e.getTestSet()),
-            e.getRunNumber(), e.getMaxRunNumber(), e.getSetNumber(),
-            e.getMaxSetNumber());
+        m_outputQueues[e.getRunNumber() - 1][e.getSetNumber() - 1] =
+          new BatchClassifierEvent(this, null, null, new DataSetEvent(this,
+            e.getTestSet()), e.getRunNumber(), e.getMaxRunNumber(),
+            e.getSetNumber(), e.getMaxSetNumber());
 
         if (e.getRunNumber() == e.getMaxRunNumber()
-            && e.getSetNumber() == e.getMaxSetNumber()) {
+          && e.getSetNumber() == e.getMaxSetNumber()) {
 
           // block on the last fold of the last run
           /*
@@ -1170,9 +1200,9 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       } else {
         // Otherwise, there is a model here waiting for a test set...
         m_outputQueues[e.getRunNumber() - 1][e.getSetNumber() - 1]
-            .setTestSet(new DataSetEvent(this, e.getTestSet()));
+          .setTestSet(new DataSetEvent(this, e.getTestSet()));
         checkCompletedRun(e.getRunNumber(), e.getMaxRunNumber(),
-            e.getMaxSetNumber());
+          e.getMaxSetNumber());
       }
     }
   }
@@ -1180,14 +1210,15 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   private synchronized void classifierTrainingComplete(BatchClassifierEvent ce) {
     // check the output queues if we have an incoming test set connection
     if (m_listenees.containsKey("testSet")) {
-      String msg = Messages.getInstance().getString(
+      String msg =
+        Messages.getInstance().getString(
           "Classifier_AcceptTestSet_Msg_Text_First")
           + statusMessagePrefix()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_Msg_Text_Second")
+            "Classifier_AcceptTestSet_Msg_Text_Second")
           + ce.getRunNumber()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_Msg_Text_Third") + ce.getSetNumber();
+            "Classifier_AcceptTestSet_Msg_Text_Third") + ce.getSetNumber();
       if (m_log != null) {
         m_log.logMessage(msg);
       } else {
@@ -1200,34 +1231,35 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       } else {
         // there is a test set here waiting for a model and training set
         m_outputQueues[ce.getRunNumber() - 1][ce.getSetNumber() - 1]
-            .setClassifier(ce.getClassifier());
+          .setClassifier(ce.getClassifier());
         m_outputQueues[ce.getRunNumber() - 1][ce.getSetNumber() - 1]
-            .setTrainSet(ce.getTrainSet());
+          .setTrainSet(ce.getTrainSet());
 
       }
       checkCompletedRun(ce.getRunNumber(), ce.getMaxRunNumber(),
-          ce.getMaxSetNumber());
+        ce.getMaxSetNumber());
     }
   }
 
   private synchronized void checkCompletedRun(int runNum, int maxRunNum,
-      int maxSets) {
+    int maxSets) {
     // look to see if there are any completed classifiers that we can pass
     // on for evaluation
     for (int i = 0; i < maxSets; i++) {
       if (m_outputQueues[runNum - 1][i] != null) {
         if (m_outputQueues[runNum - 1][i].getClassifier() != null
-            && m_outputQueues[runNum - 1][i].getTestSet() != null) {
-          String msg = Messages.getInstance().getString(
+          && m_outputQueues[runNum - 1][i].getTestSet() != null) {
+          String msg =
+            Messages.getInstance().getString(
               "Classifier_AcceptTestSet_Msg_Text_Fourth")
               + statusMessagePrefix()
               + Messages.getInstance().getString(
-                  "Classifier_AcceptTestSet_Msg_Text_Fifth")
+                "Classifier_AcceptTestSet_Msg_Text_Fifth")
               + runNum
               + "/"
               + (i + 1)
               + Messages.getInstance().getString(
-                  "Classifier_AcceptTestSet_Msg_Text_Sixth");
+                "Classifier_AcceptTestSet_Msg_Text_Sixth");
           if (m_log != null) {
             m_log.logMessage(msg);
           } else {
@@ -1236,7 +1268,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
 
           // dispatch this one
           m_outputQueues[runNum - 1][i]
-              .setGroupIdentifier(m_currentBatchIdentifier.getTime());
+            .setGroupIdentifier(m_currentBatchIdentifier.getTime());
           notifyBatchClassifierListeners(m_outputQueues[runNum - 1][i]);
           // save memory
           m_outputQueues[runNum - 1][i] = null;
@@ -1261,11 +1293,12 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
     }
 
     if (done) {
-      String msg = Messages.getInstance().getString(
+      String msg =
+        Messages.getInstance().getString(
           "Classifier_AcceptTestSet_Msg_Text_Seventh")
           + statusMessagePrefix()
           + Messages.getInstance().getString(
-              "Classifier_AcceptTestSet_Msg_Text_Eighth");
+            "Classifier_AcceptTestSet_Msg_Text_Eighth");
 
       if (m_log != null) {
         m_log.logMessage(msg);
@@ -1276,8 +1309,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
 
       if (m_log != null) {
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_AcceptTestSet_StatusMessage_Text_Second"));
+          + Messages.getInstance().getString(
+            "Classifier_AcceptTestSet_StatusMessage_Text_Second"));
       }
       // m_outputQueues = null; // free memory
 
@@ -1318,6 +1351,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param newVisual a <code>BeanVisual</code> value
    */
+  @Override
   public void setVisual(BeanVisual newVisual) {
     m_visual = newVisual;
   }
@@ -1325,6 +1359,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   /**
    * Gets the visual appearance of this wrapper bean
    */
+  @Override
   public BeanVisual getVisual() {
     return m_visual;
   }
@@ -1332,17 +1367,19 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   /**
    * Use the default visual appearance for this bean
    */
+  @Override
   public void useDefaultVisual() {
     // try to get a default for this package of classifiers
     String name = m_ClassifierTemplate.getClass().toString();
     String packageName = name.substring(0, name.lastIndexOf('.'));
-    packageName = packageName.substring(packageName.lastIndexOf('.') + 1,
+    packageName =
+      packageName.substring(packageName.lastIndexOf('.') + 1,
         packageName.length());
     if (!m_visual.loadIcons(BeanVisual.ICON_PATH + "Default_" + packageName
-        + "Classifier.gif", BeanVisual.ICON_PATH + "Default_" + packageName
-        + "Classifier_animated.gif")) {
+      + "Classifier.gif", BeanVisual.ICON_PATH + "Default_" + packageName
+      + "Classifier_animated.gif")) {
       m_visual.loadIcons(BeanVisual.ICON_PATH + "DefaultClassifier.gif",
-          BeanVisual.ICON_PATH + "DefaultClassifier_animated.gif");
+        BeanVisual.ICON_PATH + "DefaultClassifier_animated.gif");
     }
   }
 
@@ -1361,7 +1398,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param cl a <code>BatchClassifierListener</code> value
    */
   public synchronized void removeBatchClassifierListener(
-      BatchClassifierListener cl) {
+    BatchClassifierListener cl) {
     m_batchClassifierListeners.remove(cl);
   }
 
@@ -1464,7 +1501,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param cl an <code>IncrementalClassifierListener</code> value
    */
   public synchronized void addIncrementalClassifierListener(
-      IncrementalClassifierListener cl) {
+    IncrementalClassifierListener cl) {
     m_incrementalClassifierListeners.add(cl);
   }
 
@@ -1474,7 +1511,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param cl an <code>IncrementalClassifierListener</code> value
    */
   public synchronized void removeIncrementalClassifierListener(
-      IncrementalClassifierListener cl) {
+    IncrementalClassifierListener cl) {
     m_incrementalClassifierListeners.remove(cl);
   }
 
@@ -1485,7 +1522,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param ce an <code>IncrementalClassifierEvent</code> value
    */
   private void notifyIncrementalClassifierListeners(
-      IncrementalClassifierEvent ce) {
+    IncrementalClassifierEvent ce) {
     // don't do anything if the thread that we've been running in has been
     // interrupted
     if (Thread.currentThread().isInterrupted()) {
@@ -1510,6 +1547,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param eventName the event
    * @return true if the object will accept a connection
    */
+  @Override
   public boolean connectionAllowed(String eventName) {
     /*
      * if (eventName.compareTo("instance") == 0) { if (!(m_Classifier instanceof
@@ -1528,6 +1566,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param esd the EventSetDescriptor
    * @return true if the object will accept a connection
    */
+  @Override
   public boolean connectionAllowed(EventSetDescriptor esd) {
     return connectionAllowed(esd.getName());
   }
@@ -1540,20 +1579,22 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param source the source with which this object has been registered as a
    *          listener
    */
+  @Override
   public synchronized void connectionNotification(String eventName,
-      Object source) {
+    Object source) {
     if (eventName.compareTo("instance") == 0) {
       if (!(m_ClassifierTemplate instanceof weka.classifiers.UpdateableClassifier)) {
         if (m_log != null) {
-          String msg = statusMessagePrefix()
+          String msg =
+            statusMessagePrefix()
               + Messages.getInstance().getString(
-                  "Classifier_ConnectionNotification_Msg_Text_First")
+                "Classifier_ConnectionNotification_Msg_Text_First")
               + m_ClassifierTemplate.getClass().getName()
               + Messages.getInstance().getString(
-                  "Classifier_ConnectionNotification_Msg_Text_Second");
+                "Classifier_ConnectionNotification_Msg_Text_Second");
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_ConnectionNotification_LogMessage_Text_First")
-              + msg);
+            "Classifier_ConnectionNotification_LogMessage_Text_First")
+            + msg);
           m_log.statusMessage(msg);
         }
       }
@@ -1576,8 +1617,9 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param source the source with which this object has been registered as a
    *          listener
    */
+  @Override
   public synchronized void disconnectionNotification(String eventName,
-      Object source) {
+    Object source) {
     m_listenees.remove(eventName);
     if (eventName.compareTo("instance") == 0) {
       stop(); // kill the incremental handler thread if it is running
@@ -1608,6 +1650,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
   /**
    * Stop any classifier action
    */
+  @Override
   public void stop() {
     // tell all listenees (upstream beans) to stop
     Enumeration en = m_listenees.keys();
@@ -1651,19 +1694,22 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         // add extension if necessary
         if (m_fileChooser.getFileFilter() == m_binaryFilter) {
           if (!loadFrom.getName().toLowerCase().endsWith("." + FILE_EXTENSION)) {
-            loadFrom = new File(loadFrom.getParent(), loadFrom.getName() + "."
+            loadFrom =
+              new File(loadFrom.getParent(), loadFrom.getName() + "."
                 + FILE_EXTENSION);
           }
         } else if (m_fileChooser.getFileFilter() == m_KOMLFilter) {
           if (!loadFrom.getName().toLowerCase()
-              .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION)) {
-            loadFrom = new File(loadFrom.getParent(), loadFrom.getName()
+            .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION)) {
+            loadFrom =
+              new File(loadFrom.getParent(), loadFrom.getName()
                 + KOML.FILE_EXTENSION + FILE_EXTENSION);
           }
         } else if (m_fileChooser.getFileFilter() == m_XStreamFilter) {
           if (!loadFrom.getName().toLowerCase()
-              .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION)) {
-            loadFrom = new File(loadFrom.getParent(), loadFrom.getName()
+            .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION)) {
+            loadFrom =
+              new File(loadFrom.getParent(), loadFrom.getName()
                 + XStream.FILE_EXTENSION + FILE_EXTENSION);
           }
         }
@@ -1672,8 +1718,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         Instances tempHeader = null;
         // KOML ?
         if ((KOML.isPresent())
-            && (loadFrom.getAbsolutePath().toLowerCase()
-                .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION))) {
+          && (loadFrom.getAbsolutePath().toLowerCase()
+            .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION))) {
           Vector v = (Vector) KOML.read(loadFrom.getAbsolutePath());
           temp = (weka.classifiers.Classifier) v.elementAt(0);
           if (v.size() == 2) {
@@ -1681,8 +1727,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
             tempHeader = (Instances) v.elementAt(1);
           }
         } /* XStream */else if ((XStream.isPresent())
-            && (loadFrom.getAbsolutePath().toLowerCase()
-                .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION))) {
+          && (loadFrom.getAbsolutePath().toLowerCase()
+            .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION))) {
           Vector v = (Vector) XStream.read(loadFrom.getAbsolutePath());
           temp = (weka.classifiers.Classifier) v.elementAt(0);
           if (v.size() == 2) {
@@ -1691,8 +1737,9 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           }
         } /* binary */else {
 
-          ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(
-              new FileInputStream(loadFrom)));
+          ObjectInputStream is =
+            new ObjectInputStream(new BufferedInputStream(new FileInputStream(
+              loadFrom)));
           // try and read the model
           temp = (weka.classifiers.Classifier) is.readObject();
           // try and read the header (if present)
@@ -1711,43 +1758,40 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         m_trainingSet = tempHeader;
 
         if (m_log != null) {
-          m_log
-              .statusMessage(statusMessagePrefix()
-                  + Messages
-                      .getInstance()
-                      .getString(
-                          "Classifier_ConnectionNotification_StatusMessage_Text_First"));
+          m_log.statusMessage(statusMessagePrefix()
+            + Messages.getInstance().getString(
+              "Classifier_ConnectionNotification_StatusMessage_Text_First"));
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_ConnectionNotification_LogMessage_Text_Second")
-              + statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_ConnectionNotification_LogMessage_Text_Third")
-              + m_Classifier.getClass().toString());
+            "Classifier_ConnectionNotification_LogMessage_Text_Second")
+            + statusMessagePrefix()
+            + Messages.getInstance().getString(
+              "Classifier_ConnectionNotification_LogMessage_Text_Third")
+            + m_Classifier.getClass().toString());
         }
       }
     } catch (Exception ex) {
       JOptionPane
-          .showMessageDialog(
-              Classifier.this,
-              Messages
-                  .getInstance()
-                  .getString(
-                      "Classifier_ConnectionNotification_JOptionPane_ShowMessageDialog_Text_First"),
-              Messages
-                  .getInstance()
-                  .getString(
-                      "Classifier_ConnectionNotification_JOptionPane_ShowMessageDialog_Text_Second"),
-              JOptionPane.ERROR_MESSAGE);
+        .showMessageDialog(
+          Classifier.this,
+          Messages
+            .getInstance()
+            .getString(
+              "Classifier_ConnectionNotification_JOptionPane_ShowMessageDialog_Text_First"),
+          Messages
+            .getInstance()
+            .getString(
+              "Classifier_ConnectionNotification_JOptionPane_ShowMessageDialog_Text_Second"),
+          JOptionPane.ERROR_MESSAGE);
       if (m_log != null) {
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_ConnectionNotification_StatusMessage_Text_Second"));
+          + Messages.getInstance().getString(
+            "Classifier_ConnectionNotification_StatusMessage_Text_Second"));
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_ConnectionNotification_LogMessage_Text_Fourth")
-            + statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_ConnectionNotification_LogMessage_Text_Fifth")
-            + ex.getMessage());
+          "Classifier_ConnectionNotification_LogMessage_Text_Fourth")
+          + statusMessagePrefix()
+          + Messages.getInstance().getString(
+            "Classifier_ConnectionNotification_LogMessage_Text_Fifth")
+          + ex.getMessage());
       }
     }
   }
@@ -1772,7 +1816,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
           }
         } else if (m_fileChooser.getFileFilter() == m_XStreamFilter) {
           if (!fn.toLowerCase().endsWith(
-              XStream.FILE_EXTENSION + FILE_EXTENSION)) {
+            XStream.FILE_EXTENSION + FILE_EXTENSION)) {
             fn += XStream.FILE_EXTENSION + FILE_EXTENSION;
           }
         }
@@ -1781,29 +1825,30 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         // now serialize model
         // KOML?
         if ((KOML.isPresent())
-            && saveTo.getAbsolutePath().toLowerCase()
-                .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION)) {
+          && saveTo.getAbsolutePath().toLowerCase()
+            .endsWith(KOML.FILE_EXTENSION + FILE_EXTENSION)) {
           SerializedModelSaver.saveKOML(saveTo, m_Classifier,
-              (m_trainingSet != null) ? new Instances(m_trainingSet, 0) : null);
+            (m_trainingSet != null) ? new Instances(m_trainingSet, 0) : null);
           /*
            * Vector v = new Vector(); v.add(m_Classifier); if (m_trainingSet !=
            * null) { v.add(new Instances(m_trainingSet, 0)); } v.trimToSize();
            * KOML.write(saveTo.getAbsolutePath(), v);
            */
         } /* XStream */else if ((XStream.isPresent())
-            && saveTo.getAbsolutePath().toLowerCase()
-                .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION)) {
+          && saveTo.getAbsolutePath().toLowerCase()
+            .endsWith(XStream.FILE_EXTENSION + FILE_EXTENSION)) {
 
           SerializedModelSaver.saveXStream(saveTo, m_Classifier,
-              (m_trainingSet != null) ? new Instances(m_trainingSet, 0) : null);
+            (m_trainingSet != null) ? new Instances(m_trainingSet, 0) : null);
           /*
            * Vector v = new Vector(); v.add(m_Classifier); if (m_trainingSet !=
            * null) { v.add(new Instances(m_trainingSet, 0)); } v.trimToSize();
            * XStream.write(saveTo.getAbsolutePath(), v);
            */
         } else /* binary */{
-          ObjectOutputStream os = new ObjectOutputStream(
-              new BufferedOutputStream(new FileOutputStream(saveTo)));
+          ObjectOutputStream os =
+            new ObjectOutputStream(new BufferedOutputStream(
+              new FileOutputStream(saveTo)));
           os.writeObject(m_Classifier);
           if (m_trainingSet != null) {
             Instances header = new Instances(m_trainingSet, 0);
@@ -1813,39 +1858,34 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
         }
         if (m_log != null) {
           m_log.statusMessage(statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_SaveModel_StatusMessage_Text_First"));
+            + Messages.getInstance().getString(
+              "Classifier_SaveModel_StatusMessage_Text_First"));
           m_log.logMessage(Messages.getInstance().getString(
-              "Classifier_SaveModel_LogMessage_Text_First")
-              + statusMessagePrefix()
-              + Messages.getInstance().getString(
-                  "Classifier_SaveModel_LogMessage_Text_Second")
-              + getCustomName());
+            "Classifier_SaveModel_LogMessage_Text_First")
+            + statusMessagePrefix()
+            + Messages.getInstance().getString(
+              "Classifier_SaveModel_LogMessage_Text_Second") + getCustomName());
         }
       }
     } catch (Exception ex) {
-      JOptionPane
-          .showMessageDialog(
-              Classifier.this,
-              Messages
-                  .getInstance()
-                  .getString(
-                      "Classifier_SaveModel_JOptionPane_ShowMessageDialog_Text_First"),
-              Messages
-                  .getInstance()
-                  .getString(
-                      "Classifier_SaveModel_JOptionPane_ShowMessageDialog_Text_Second"),
-              JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+        Classifier.this,
+        Messages.getInstance().getString(
+          "Classifier_SaveModel_JOptionPane_ShowMessageDialog_Text_First"),
+        Messages.getInstance().getString(
+          "Classifier_SaveModel_JOptionPane_ShowMessageDialog_Text_Second"),
+        JOptionPane.ERROR_MESSAGE);
       if (m_log != null) {
         m_log.statusMessage(statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_SaveModel_StatusMessage_Text_Second"));
+          + Messages.getInstance().getString(
+            "Classifier_SaveModel_StatusMessage_Text_Second"));
         m_log.logMessage(Messages.getInstance().getString(
-            "Classifier_SaveModel_LogMessage_Text_Third")
-            + statusMessagePrefix()
-            + Messages.getInstance().getString(
-                "Classifier_SaveModel_LogMessage_Text_Fourth")
-            + getCustomName() + ex.getMessage());
+          "Classifier_SaveModel_LogMessage_Text_Third")
+          + statusMessagePrefix()
+          + Messages.getInstance().getString(
+            "Classifier_SaveModel_LogMessage_Text_Fourth")
+          + getCustomName()
+          + ex.getMessage());
       }
     }
   }
@@ -1855,6 +1895,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @param logger a <code>Logger</code> value
    */
+  @Override
   public void setLog(Logger logger) {
     m_log = logger;
   }
@@ -1864,22 +1905,23 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @return an <code>Enumeration</code> value
    */
+  @Override
   public Enumeration enumerateRequests() {
     Vector newVector = new Vector(0);
     if (m_executorPool != null
-        && (m_executorPool.getQueue().size() > 0 || m_executorPool
-            .getActiveCount() > 0)) {
+      && (m_executorPool.getQueue().size() > 0 || m_executorPool
+        .getActiveCount() > 0)) {
       newVector.addElement("Stop");
     }
 
     if ((m_executorPool == null || (m_executorPool.getQueue().size() == 0 && m_executorPool
-        .getActiveCount() == 0)) && m_Classifier != null) {
+      .getActiveCount() == 0)) && m_Classifier != null) {
       newVector.addElement("Save model");
     }
 
     if (m_executorPool == null
-        || (m_executorPool.getQueue().size() == 0 && m_executorPool
-            .getActiveCount() == 0)) {
+      || (m_executorPool.getQueue().size() == 0 && m_executorPool
+        .getActiveCount() == 0)) {
       newVector.addElement("Load model");
     }
     return newVector.elements();
@@ -1891,6 +1933,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param request the request to perform
    * @exception IllegalArgumentException if an error occurs
    */
+  @Override
   public void performRequest(String request) {
     if (request.compareTo("Stop") == 0) {
       stop();
@@ -1900,8 +1943,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
       loadModel();
     } else {
       throw new IllegalArgumentException(request
-          + Messages.getInstance().getString(
-              "Classifier_PerformRequest_IllegalArgumentException_Text"));
+        + Messages.getInstance().getString(
+          "Classifier_PerformRequest_IllegalArgumentException_Text"));
     }
   }
 
@@ -1924,8 +1967,8 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    */
   private boolean generatableEvent(String eventName) {
     if (eventName.compareTo("graph") == 0 || eventName.compareTo("text") == 0
-        || eventName.compareTo("batchClassifier") == 0
-        || eventName.compareTo("incrementalClassifier") == 0) {
+      || eventName.compareTo("batchClassifier") == 0
+      || eventName.compareTo("incrementalClassifier") == 0) {
       return true;
     }
     return false;
@@ -1939,6 +1982,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * @param eventName the name of the event in question
    * @return true if the named event could be generated at this point in time
    */
+  @Override
   public boolean eventGeneratable(String eventName) {
     if (!generatableEvent(eventName)) {
       return false;
@@ -1970,7 +2014,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
        * return false; }
        */
       if (!m_listenees.containsKey("testSet")
-          && !m_listenees.containsKey("trainingSet")) {
+        && !m_listenees.containsKey("trainingSet")) {
         return false;
       }
       Object source = m_listenees.get("testSet");
@@ -1989,7 +2033,7 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
 
     if (eventName.compareTo("text") == 0) {
       if (!m_listenees.containsKey("trainingSet")
-          && !m_listenees.containsKey("instance")) {
+        && !m_listenees.containsKey("instance")) {
         return false;
       }
       Object source = m_listenees.get("trainingSet");
@@ -2030,10 +2074,11 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
    * 
    * @return true if the bean is busy.
    */
+  @Override
   public boolean isBusy() {
     if (m_executorPool == null
-        || (m_executorPool.getQueue().size() == 0 && m_executorPool
-            .getActiveCount() == 0) && m_state == IDLE) {
+      || (m_executorPool.getQueue().size() == 0 && m_executorPool
+        .getActiveCount() == 0) && m_state == IDLE) {
       return false;
     }
     /*
@@ -2045,12 +2090,12 @@ public class Classifier extends JPanel implements BeanCommon, Visible,
 
   private String statusMessagePrefix() {
     return getCustomName()
-        + "$"
-        + hashCode()
-        + "|"
-        + ((m_Classifier instanceof OptionHandler && Utils.joinOptions(
-            ((OptionHandler) m_ClassifierTemplate).getOptions()).length() > 0) ? Utils
-            .joinOptions(((OptionHandler) m_ClassifierTemplate).getOptions())
-            + "|" : "");
+      + "$"
+      + hashCode()
+      + "|"
+      + ((m_Classifier instanceof OptionHandler && Utils.joinOptions(
+        ((OptionHandler) m_ClassifierTemplate).getOptions()).length() > 0) ? Utils
+        .joinOptions(((OptionHandler) m_ClassifierTemplate).getOptions()) + "|"
+        : "");
   }
 }
