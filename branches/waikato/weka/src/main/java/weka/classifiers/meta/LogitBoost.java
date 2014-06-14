@@ -25,12 +25,15 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.Vector;
+import java.util.ArrayList;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.RandomizableIteratedSingleClassifierEnhancer;
 import weka.classifiers.Sourcable;
+import weka.classifiers.IterativeClassifier;
+
 import weka.core.Attribute;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
@@ -81,14 +84,6 @@ import weka.core.UnassignedClassException;
  *  Percentage of weight mass to base training on.
  *  (default 100, reduce to around 90 speed up)</pre>
  * 
- * <pre> -F &lt;num&gt;
- *  Number of folds for internal cross-validation.
- *  (default 0 -- no cross-validation)</pre>
- * 
- * <pre> -R &lt;num&gt;
- *  Number of runs for internal cross-validation.
- *  (default 1)</pre>
- * 
  * <pre> -L &lt;num&gt;
  *  Threshold on the improvement of the likelihood.
  *  (default -Double.MAX_VALUE)</pre>
@@ -96,6 +91,10 @@ import weka.core.UnassignedClassException;
  * <pre> -H &lt;num&gt;
  *  Shrinkage parameter.
  *  (default 1)</pre>
+ * 
+ * <pre> -Z &lt;num&gt;
+ *  Z max threshold for responses.
+ *  (default 3)</pre>
  * 
  * <pre> -S &lt;num&gt;
  *  Random number seed.
@@ -105,21 +104,29 @@ import weka.core.UnassignedClassException;
  *  Number of iterations.
  *  (default 10)</pre>
  * 
- * <pre> -D
- *  If set, classifier is run in debug mode and
- *  may output additional info to the console</pre>
- * 
  * <pre> -W
  *  Full name of base classifier.
  *  (default: weka.classifiers.trees.DecisionStump)</pre>
+ * 
+ * <pre> -output-debug-info
+ *  If set, classifier is run in debug mode and
+ *  may output additional info to the console</pre>
+ * 
+ * <pre> -do-not-check-capabilities
+ *  If set, classifier capabilities are not checked before classifier is built
+ *  (use with caution).</pre>
  * 
  * <pre> 
  * Options specific to classifier weka.classifiers.trees.DecisionStump:
  * </pre>
  * 
- * <pre> -D
+ * <pre> -output-debug-info
  *  If set, classifier is run in debug mode and
  *  may output additional info to the console</pre>
+ * 
+ * <pre> -do-not-check-capabilities
+ *  If set, classifier capabilities are not checked before classifier is built
+ *  (use with caution).</pre>
  * 
  <!-- options-end -->
  *
@@ -131,26 +138,21 @@ import weka.core.UnassignedClassException;
  */
 public class LogitBoost 
   extends RandomizableIteratedSingleClassifierEnhancer
-  implements Sourcable, WeightedInstancesHandler, TechnicalInformationHandler {
+  implements Sourcable, WeightedInstancesHandler, TechnicalInformationHandler,
+             IterativeClassifier {
 
   /** for serialization */
   static final long serialVersionUID = -1105660358715833753L;
   
-  /** Array for storing the generated base classifiers. 
+  /** ArrayList for storing the generated base classifiers. 
    Note: we are hiding the variable from IteratedSingleClassifierEnhancer*/
-  protected Classifier [][] m_Classifiers;
+  protected ArrayList<Classifier[]> m_Classifiers;
 
   /** The number of classes */
   protected int m_NumClasses;
 
   /** The number of successfully generated base classifiers. */
   protected int m_NumGenerated;
-
-  /** The number of folds for the internal cross-validation. */
-  protected int m_NumFolds = 0;
-
-  /** The number of runs for the internal cross-validation. */
-  protected int m_NumRuns = 1;
 
   /** Weight thresholding. The percentage of weight mass used in training */
   protected int m_WeightThreshold = 100;
@@ -185,7 +187,25 @@ public class LogitBoost
   
   /** The Z max value to use */
   protected double m_zMax = DEFAULT_Z_MAX;
-    
+
+  /** The y values used during the training process. */
+  protected double[][] m_trainYs;
+
+  /** The F scores used during the training process. */
+  protected double[][] m_trainFs;
+
+  /** The probabilities used during the training process. */
+  protected double[][] m_probs;
+
+  /** The current loglikelihood. */
+  protected double m_logLikelihood;
+
+  /** The total weight of the data. */
+  protected double m_sumOfWeights;
+
+  /** The training data. */
+  protected Instances m_data;
+
   /**
    * Returns a string describing classifier
    * @return a description suitable for
@@ -289,7 +309,7 @@ public class LogitBoost
    */
   public Enumeration<Option> listOptions() {
 
-    Vector<Option> newVector = new Vector<Option>(6);
+    Vector<Option> newVector = new Vector<Option>(5);
 
     newVector.addElement(new Option(
 	      "\tUse resampling instead of reweighting for boosting.",
@@ -298,14 +318,6 @@ public class LogitBoost
 	      "\tPercentage of weight mass to base training on.\n"
 	      +"\t(default 100, reduce to around 90 speed up)",
 	      "P", 1, "-P <percent>"));
-    newVector.addElement(new Option(
-	      "\tNumber of folds for internal cross-validation.\n"
-	      +"\t(default 0 -- no cross-validation)",
-	      "F", 1, "-F <num>"));
-    newVector.addElement(new Option(
-	      "\tNumber of runs for internal cross-validation.\n"
-	      +"\t(default 1)",
-	      "R", 1, "-R <num>"));
     newVector.addElement(new Option(
 	      "\tThreshold on the improvement of the likelihood.\n"
 	      +"\t(default -Double.MAX_VALUE)",
@@ -336,14 +348,6 @@ public class LogitBoost
    *  Percentage of weight mass to base training on.
    *  (default 100, reduce to around 90 speed up)</pre>
    * 
-   * <pre> -F &lt;num&gt;
-   *  Number of folds for internal cross-validation.
-   *  (default 0 -- no cross-validation)</pre>
-   * 
-   * <pre> -R &lt;num&gt;
-   *  Number of runs for internal cross-validation.
-   *  (default 1)</pre>
-   * 
    * <pre> -L &lt;num&gt;
    *  Threshold on the improvement of the likelihood.
    *  (default -Double.MAX_VALUE)</pre>
@@ -351,6 +355,10 @@ public class LogitBoost
    * <pre> -H &lt;num&gt;
    *  Shrinkage parameter.
    *  (default 1)</pre>
+   * 
+   * <pre> -Z &lt;num&gt;
+   *  Z max threshold for responses.
+   *  (default 3)</pre>
    * 
    * <pre> -S &lt;num&gt;
    *  Random number seed.
@@ -360,21 +368,29 @@ public class LogitBoost
    *  Number of iterations.
    *  (default 10)</pre>
    * 
-   * <pre> -D
-   *  If set, classifier is run in debug mode and
-   *  may output additional info to the console</pre>
-   * 
    * <pre> -W
    *  Full name of base classifier.
    *  (default: weka.classifiers.trees.DecisionStump)</pre>
+   * 
+   * <pre> -output-debug-info
+   *  If set, classifier is run in debug mode and
+   *  may output additional info to the console</pre>
+   * 
+   * <pre> -do-not-check-capabilities
+   *  If set, classifier capabilities are not checked before classifier is built
+   *  (use with caution).</pre>
    * 
    * <pre> 
    * Options specific to classifier weka.classifiers.trees.DecisionStump:
    * </pre>
    * 
-   * <pre> -D
+   * <pre> -output-debug-info
    *  If set, classifier is run in debug mode and
    *  may output additional info to the console</pre>
+   * 
+   * <pre> -do-not-check-capabilities
+   *  If set, classifier capabilities are not checked before classifier is built
+   *  (use with caution).</pre>
    * 
    <!-- options-end -->
    *
@@ -384,20 +400,6 @@ public class LogitBoost
    * @throws Exception if an option is not supported
    */
   public void setOptions(String[] options) throws Exception {
-    
-    String numFolds = Utils.getOption('F', options);
-    if (numFolds.length() != 0) {
-      setNumFolds(Integer.parseInt(numFolds));
-    } else {
-      setNumFolds(0);
-    }
-    
-    String numRuns = Utils.getOption('R', options);
-    if (numRuns.length() != 0) {
-      setNumRuns(Integer.parseInt(numRuns));
-    } else {
-      setNumRuns(1);
-    }
 
     String thresholdString = Utils.getOption('P', options);
     if (thresholdString.length() != 0) {
@@ -453,8 +455,6 @@ public class LogitBoost
         options.add("-P"); 
         options.add("" + getWeightThreshold());
     }
-    options.add("-F"); options.add("" + getNumFolds());
-    options.add("-R"); options.add("" + getNumRuns());
     options.add("-L"); options.add("" + getLikelihoodThreshold());
     options.add("-H"); options.add("" + getShrinkage());
     options.add("-Z"); options.add("" + getZMax());
@@ -556,65 +556,6 @@ public class LogitBoost
    * @return tip text for this property suitable for
    * displaying in the explorer/experimenter gui
    */
-  public String numRunsTipText() {
-    return "Number of runs for internal cross-validation.";
-  }
-  
-  /**
-   * Get the value of NumRuns.
-   *
-   * @return Value of NumRuns.
-   */
-  public int getNumRuns() {
-    
-    return m_NumRuns;
-  }
-  
-  /**
-   * Set the value of NumRuns.
-   *
-   * @param newNumRuns Value to assign to NumRuns.
-   */
-  public void setNumRuns(int newNumRuns) {
-    
-    m_NumRuns = newNumRuns;
-  }
-  
-  /**
-   * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
-   */
-  public String numFoldsTipText() {
-    return "Number of folds for internal cross-validation (default 0 "
-      + "means no cross-validation is performed).";
-  }
-  
-  /**
-   * Get the value of NumFolds.
-   *
-   * @return Value of NumFolds.
-   */
-  public int getNumFolds() {
-    
-    return m_NumFolds;
-  }
-  
-  /**
-   * Set the value of NumFolds.
-   *
-   * @param newNumFolds Value to assign to NumFolds.
-   */
-  public void setNumFolds(int newNumFolds) {
-    
-    m_NumFolds = newNumFolds;
-  }
-  
-  /**
-   * Returns the tip text for this property
-   * @return tip text for this property suitable for
-   * displaying in the explorer/experimenter gui
-   */
   public String useResamplingTipText() {
     return "Whether resampling is used instead of reweighting.";
   }
@@ -686,12 +627,31 @@ public class LogitBoost
   }
 
   /**
+   * Method used to build the classifier.
+   */
+  public void buildClassifier(Instances data) throws Exception {
+
+    // Initialize classifier
+    initializeClassifier(data);
+
+    // For the given number of iterations
+    for (int i = 0; i < m_NumIterations; i++) {
+      if (!next()) {
+        break;
+      }
+    }
+
+    // Clean up
+    done();
+  }
+
+  /**
    * Builds the boosted classifier
    * 
    * @param data the data to train the classifier with
    * @throws Exception if building fails, e.g., can't handle data
    */
-  public void buildClassifier(Instances data) throws Exception {
+  public void initializeClassifier(Instances data) throws Exception {
 
     m_RandomInstance = new Random(m_Seed);
     int classIndex = data.classIndex();
@@ -713,143 +673,83 @@ public class LogitBoost
     }
 
     // remove instances with missing class
-    data = new Instances(data);
-    data.deleteWithMissingClass();
+    m_data = new Instances(data);
+    m_data.deleteWithMissingClass();
     
     // only class? -> build ZeroR model
-    if (data.numAttributes() == 1) {
+    if (m_data.numAttributes() == 1) {
       System.err.println(
 	  "Cannot build model (only class attribute present in data!), "
 	  + "using ZeroR model instead!");
       m_ZeroR = new weka.classifiers.rules.ZeroR();
-      m_ZeroR.buildClassifier(data);
+      m_ZeroR.buildClassifier(m_data);
       return;
     }
     else {
       m_ZeroR = null;
     }
     
-    m_NumClasses = data.numClasses();
-    m_ClassAttribute = data.classAttribute();
+    m_NumClasses = m_data.numClasses();
+    m_ClassAttribute = m_data.classAttribute();
 
     // Create the base classifiers
     if (m_Debug) {
       System.err.println("Creating base classifiers");
     }
-    m_Classifiers = new Classifier [m_NumClasses][];
-    for (int j = 0; j < m_NumClasses; j++) {
-      m_Classifiers[j] = AbstractClassifier.makeCopies(m_Classifier,
-					       getNumIterations());
-    }
-
-    // Do we want to select the appropriate number of iterations
-    // using cross-validation?
-    int bestNumIterations = getNumIterations();
-    if (m_NumFolds > 1) {
-      if (m_Debug) {
-	System.err.println("Processing first fold.");
-      }
-
-      // Array for storing the results
-      double[] results = new double[getNumIterations()];
-
-      // Iterate throught the cv-runs
-      for (int r = 0; r < m_NumRuns; r++) {
-
-	// Stratify the data
-	data.randomize(m_RandomInstance);
-	data.stratify(m_NumFolds);
-	
-	// Perform the cross-validation
-	for (int i = 0; i < m_NumFolds; i++) {
-	  
-	  // Get train and test folds
-	  Instances train = data.trainCV(m_NumFolds, i, m_RandomInstance);
-	  Instances test = data.testCV(m_NumFolds, i);
-	  
-	  // Make class numeric
-	  Instances trainN = new Instances(train);
-	  trainN.setClassIndex(-1);
-	  trainN.replaceAttributeAt(new Attribute("'pseudo class'"), classIndex);
-	  trainN.setClassIndex(classIndex);
-	  m_NumericClassData = new Instances(trainN, 0);
-	  
-	  // Get class values
-	  int numInstances = train.numInstances();
-	  double [][] trainFs = new double [numInstances][m_NumClasses];
-	  double [][] trainYs = new double [numInstances][m_NumClasses];
-	  for (int j = 0; j < m_NumClasses; j++) {
-	    for (int k = 0; k < numInstances; k++) {
-	      trainYs[k][j] = (train.instance(k).classValue() == j) ? 
-		1.0 - m_Offset: 0.0 + (m_Offset / (double)m_NumClasses);
-	    }
-	  }
-	  
-	  // Perform iterations
-	  double[][] probs = initialProbs(numInstances);
-	  m_NumGenerated = 0;
-	  double sumOfWeights = train.sumOfWeights();
-	  for (int j = 0; j < getNumIterations(); j++) {
-	    performIteration(trainYs, trainFs, probs, trainN, sumOfWeights);
-	    Evaluation eval = new Evaluation(train);
-	    eval.evaluateModel(this, test);
-	    results[j] += eval.correct();
-	  }
-	}
-      }
-      
-      // Find the number of iterations with the lowest error
-      double bestResult = -Double.MAX_VALUE;
-      for (int j = 0; j < getNumIterations(); j++) {
-	if (results[j] > bestResult) {
-	  bestResult = results[j];
-	  bestNumIterations = j;
-	}
-      }
-      if (m_Debug) {
-	System.err.println("Best result for " + 
-			   bestNumIterations + " iterations: " +
-			   bestResult);
-      }
-    }
+    m_Classifiers = new ArrayList<Classifier[]>();
 
     // Build classifier on all the data
-    int numInstances = data.numInstances();
-    double [][] trainFs = new double [numInstances][m_NumClasses];
-    double [][] trainYs = new double [numInstances][m_NumClasses];
+    int numInstances = m_data.numInstances();
+    m_trainFs = new double [numInstances][m_NumClasses];
+    m_trainYs = new double [numInstances][m_NumClasses];
     for (int j = 0; j < m_NumClasses; j++) {
       for (int i = 0, k = 0; i < numInstances; i++, k++) {
-	trainYs[i][j] = (data.instance(k).classValue() == j) ? 
+	m_trainYs[i][j] = (m_data.instance(k).classValue() == j) ? 
 	  1.0 - m_Offset: 0.0 + (m_Offset / (double)m_NumClasses);
       }
     }
     
     // Make class numeric
-    data.setClassIndex(-1);
-    data.deleteAttributeAt(classIndex);
-    data.insertAttributeAt(new Attribute("'pseudo class'"), classIndex);
-    data.setClassIndex(classIndex);
-    m_NumericClassData = new Instances(data, 0);
+    m_data.setClassIndex(-1);
+    m_data.deleteAttributeAt(classIndex);
+    m_data.insertAttributeAt(new Attribute("'pseudo class'"), classIndex);
+    m_data.setClassIndex(classIndex);
+    m_NumericClassData = new Instances(m_data, 0);
 	
     // Perform iterations
-    double[][] probs = initialProbs(numInstances);
-    double logLikelihood = logLikelihood(trainYs, probs);
+    m_probs = initialProbs(numInstances);
+    m_logLikelihood = logLikelihood(m_trainYs, m_probs);
     m_NumGenerated = 0;
     if (m_Debug) {
-      System.err.println("Avg. log-likelihood: " + logLikelihood);
+      System.err.println("Avg. log-likelihood: " + m_logLikelihood);
     }
-    double sumOfWeights = data.sumOfWeights();
-    for (int j = 0; j < bestNumIterations; j++) {
-      double previousLoglikelihood = logLikelihood;
-      performIteration(trainYs, trainFs, probs, data, sumOfWeights);
-      logLikelihood = logLikelihood(trainYs, probs);
-      if (m_Debug) {
-	System.err.println("Avg. log-likelihood: " + logLikelihood);
-      }
-      if (Math.abs(previousLoglikelihood - logLikelihood) < m_Precision) {
-	return;
-      }
+    m_sumOfWeights = m_data.sumOfWeights();
+  }
+
+  /**
+   * Perform another iteration of boosting.
+   */
+  public boolean next() throws Exception {
+
+    double previousLoglikelihood = m_logLikelihood;
+    performIteration(m_trainYs, m_trainFs, m_probs, m_data, m_sumOfWeights);
+    m_logLikelihood = logLikelihood(m_trainYs, m_probs);
+    if (m_Debug) {
+      System.err.println("Avg. log-likelihood: " + m_logLikelihood);
     }
+    if (Math.abs(previousLoglikelihood - m_logLikelihood) < m_Precision) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Clean up after boosting.
+   */
+  public void done() {
+    
+    m_trainYs = m_trainFs = m_probs = null;
+    m_data = null;
   }
 
   /**
@@ -909,6 +809,9 @@ public class LogitBoost
     if (m_Debug) {
       System.err.println("Training classifier " + (m_NumGenerated + 1));
     }
+      
+    // Make space for classifiers
+    Classifier[] classifiers = new Classifier[m_NumClasses];
 
     // Build the new models
     for (int j = 0; j < m_NumClasses; j++) {
@@ -920,7 +823,7 @@ public class LogitBoost
     
       // Make copy because we want to save the weights
       Instances boostData = new Instances(data);
-      
+
       // Set instance pseudoclass and weights
       for (int i = 0; i < probs.length; i++) {
 
@@ -971,20 +874,29 @@ public class LogitBoost
       }
       
       // Build the classifier
-      m_Classifiers[j][m_NumGenerated].buildClassifier(trainData);
-    }      
+      classifiers[j] = AbstractClassifier.makeCopy(m_Classifier);
+      classifiers[j].buildClassifier(trainData);
+      if (m_NumClasses == 2) {
+        break; // Don't actually need to build the other model in the two-class case
+      }
+    }
+    m_Classifiers.add(classifiers);
     
     // Evaluate / increment trainFs from the classifier
     for (int i = 0; i < trainFs.length; i++) {
       double [] pred = new double [m_NumClasses];
       double predSum = 0;
       for (int j = 0; j < m_NumClasses; j++) {
-        double tempPred = m_Shrinkage * m_Classifiers[j][m_NumGenerated]
+        double tempPred = m_Shrinkage * classifiers[j]
 	  .classifyInstance(data.instance(i));
         if (Utils.isMissingValue(tempPred)) {
           throw new UnassignedClassException("LogitBoost: base learner predicted missing value.");
         }
 	pred[j] = tempPred;
+        if (m_NumClasses == 2) {
+          pred[1] = -tempPred; // Can treat 2 classes as special case
+          break;
+        }
 	predSum += pred[j];
       }
       predSum /= m_NumClasses;
@@ -1008,14 +920,7 @@ public class LogitBoost
    */
   public Classifier[][] classifiers() {
 
-    Classifier[][] classifiers = 
-      new Classifier[m_NumClasses][m_NumGenerated];
-    for (int j = 0; j < m_NumClasses; j++) {
-      for (int i = 0; i < m_NumGenerated; i++) {
-	classifiers[j][i] = m_Classifiers[j][i];
-      }
-    }
-    return classifiers;
+    return m_Classifiers.toArray(new Classifier[0][0]);
   }
 
   /**
@@ -1065,11 +970,15 @@ public class LogitBoost
     for (int i = 0; i < m_NumGenerated; i++) {
       double predSum = 0;
       for (int j = 0; j < m_NumClasses; j++) {
-	double tempPred = m_Shrinkage * m_Classifiers[j][i].classifyInstance(instance);
+	double tempPred = m_Shrinkage * m_Classifiers.get(i)[j].classifyInstance(instance);
         if (Utils.isMissingValue(tempPred)) {
           throw new UnassignedClassException("LogitBoost: base learner predicted missing value.");
         }
         pred[j] = tempPred;
+        if (m_NumClasses == 2) {
+          pred[1] = -tempPred; // Can treat 2 classes as special case
+          break;
+        }
 	predSum += pred[j];
       }
       predSum /= m_NumClasses;
@@ -1094,7 +1003,7 @@ public class LogitBoost
     if (m_NumGenerated == 0) {
       throw new Exception("No model built yet");
     }
-    if (!(m_Classifiers[0][0] instanceof Sourcable)) {
+    if (!(m_Classifiers.get(0)[0] instanceof Sourcable)) {
       throw new Exception("Base learner " + m_Classifier.getClass().getName()
 			  + " is not Sourcable");
     }
@@ -1131,6 +1040,10 @@ public class LogitBoost
       for (int j = 0; j < m_NumClasses; j++) {
 	text.append("    Fi[" + j + "] = " + className + '_' +j + '_' + i 
 		    + ".classify(i); Fsum += Fi[" + j + "];\n");
+        if (m_NumClasses == 2) {
+          text.append("    Fi[1] = -Fi[0];\n"); // 2-class case is special
+          break;
+        }
       }
       text.append("    Fsum /= " + m_NumClasses + ";\n");
       text.append("    for (int j = 0; j < " + m_NumClasses + "; j++) {");
@@ -1144,10 +1057,13 @@ public class LogitBoost
 		"    }\n    return dist;\n");
     text.append("  }\n}\n");
 
-    for (int i = 0; i < m_Classifiers.length; i++) {
-      for (int j = 0; j < m_Classifiers[i].length; j++) {
-	text.append(((Sourcable)m_Classifiers[i][j])
+    for (int i = 0; i < m_Classifiers.get(0).length; i++) {
+      for (int j = 0; j < m_Classifiers.size(); j++) {
+	text.append(((Sourcable)m_Classifiers.get(j)[i])
 		    .toSource(className + '_' + i + '_' + j));
+      }
+      if (m_NumClasses == 2) {
+        break; // Only need one classifier per iteration in this case
       }
     }
     return text.toString();
@@ -1183,7 +1099,13 @@ public class LogitBoost
 	  text.append("\n\tClass " + (j + 1) 
 		      + " (" + m_ClassAttribute.name() 
 		      + "=" + m_ClassAttribute.value(j) + ")\n\n"
-		      + m_Classifiers[j][i].toString() + "\n");
+		      + m_Classifiers.get(i)[j].toString() + "\n");
+          if (m_NumClasses == 2) {
+            text.append("Two-class case: second classifier predicts " +
+                        "additive inverse of first classifier and " +
+                        "is not explicitly computed.\n\n");
+            break;
+          }
 	}
       }
       text.append("Number of performed iterations: " +
@@ -1211,3 +1133,4 @@ public class LogitBoost
     runClassifier(new LogitBoost(), argv);
   }
 }
+
