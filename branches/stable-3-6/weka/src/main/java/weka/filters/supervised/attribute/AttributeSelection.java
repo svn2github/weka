@@ -29,8 +29,6 @@ import weka.attributeSelection.AttributeTransformer;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.attributeSelection.Ranker;
-import weka.attributeSelection.UnsupervisedAttributeEvaluator;
-import weka.attributeSelection.UnsupervisedSubsetEvaluator;
 import weka.core.Capabilities;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -120,6 +118,9 @@ public class AttributeSelection
 
   /** holds the selected attributes  */
   private int [] m_SelectedAttributes;
+  
+  /** True if the input format has a class attribute set */
+  protected boolean m_hasClass;
 
   /**
    * Returns a string describing this filter
@@ -451,6 +452,8 @@ public class AttributeSelection
     }
 
     if (!isOutputFormatDefined()) {
+      m_hasClass = (getInputFormat().classIndex() >= 0);
+      
       m_trainSelector.setEvaluator(m_ASEvaluator);
       m_trainSelector.setSearch(m_ASSearch);
       m_trainSelector.SelectAttributes(getInputFormat());
@@ -506,8 +509,9 @@ public class AttributeSelection
       new Instances(getInputFormat().relationName(), attributes, 0);
 
 
-    if (!(m_ASEvaluator instanceof UnsupervisedSubsetEvaluator) &&
-	!(m_ASEvaluator instanceof UnsupervisedAttributeEvaluator)) {
+//    if (!(m_ASEvaluator instanceof UnsupervisedSubsetEvaluator) &&
+//	!(m_ASEvaluator instanceof UnsupervisedAttributeEvaluator)) {
+    if (m_hasClass) {
       outputFormat.setClassIndex(m_SelectedAttributes.length - 1);
     }
     
