@@ -32,7 +32,7 @@ import java.util.Map;
  * evaluation metrics.
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision: 10877 $
+ * @version $Revision: 10886 $
  */
 public class EvaluationMetricHelper {
 
@@ -190,7 +190,7 @@ public class EvaluationMetricHelper {
       return true;
     case 16:
       // size of predicted regions
-      return true;
+      return false;
     case 17:
       // TPR
       return true;
