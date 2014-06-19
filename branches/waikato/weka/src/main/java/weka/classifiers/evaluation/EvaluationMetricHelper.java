@@ -32,7 +32,7 @@ import java.util.Map;
  * evaluation metrics.
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision: 10890 $
+ * @version $Revision: 10919 $
  */
 public class EvaluationMetricHelper {
 
@@ -107,10 +107,12 @@ public class EvaluationMetricHelper {
     List<AbstractEvaluationMetric> pluginMetrics =
       AbstractEvaluationMetric.getPluginMetrics();
 
-    for (AbstractEvaluationMetric m : pluginMetrics) {
-      List<String> statNames = m.getStatisticNames();
-      for (String s : statNames) {
-        pluginNames.add(s.toLowerCase());
+    if (pluginMetrics != null) {
+      for (AbstractEvaluationMetric m : pluginMetrics) {
+        List<String> statNames = m.getStatisticNames();
+        for (String s : statNames) {
+          pluginNames.add(s.toLowerCase());
+        }
       }
     }
 
@@ -123,7 +125,10 @@ public class EvaluationMetricHelper {
    * @return a list of all available evaluation metric names
    */
   public static List<String> getAllMetricNames() {
-    return Evaluation.getAllEvaluationMetricNames();
+    List<String> metrics = getBuiltInMetricNames();
+    metrics.addAll(getPluginMetricNames());
+
+    return metrics;
   }
 
   /**
