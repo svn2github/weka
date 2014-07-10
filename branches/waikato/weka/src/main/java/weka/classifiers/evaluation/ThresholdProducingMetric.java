@@ -14,33 +14,27 @@
  */
 
 /*
- *    LogHandler.java
- *    Copyright (C) 2011-2013 University of Waikato, Hamilton, New Zealand
+ *    ThresholdProducingMetric.java
+ *    Copyright (C) 2014 University of Waikato, Hamilton, New Zealand
+ *
  */
 
-package weka.core;
-
-import weka.gui.Logger;
+package weka.classifiers.evaluation;
 
 /**
- * Interface to something that can output messages to a log
- * 
- * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision$
+ * Some evaluation measures may optimize thresholds on the
+ * class probabilities. These measures should implement this interface.
+ *
+ * @author Eibe Frank (eibe@cs.waikato.ac.nz)
+ * @version $Revision: 8034 $
  */
-public interface LogHandler {
+public interface ThresholdProducingMetric {
 
   /**
-   * Set the log to use
+   * Returns the threshold values, one for each class value,  associated with the value
+   * of the measure that is returned.
    * 
-   * @param log the log to use
+   * @return thresholds
    */
-  void setLog(Logger log);
-
-  /**
-   * Get the log in use
-   * 
-   * @return the log in use
-   */
-  Logger getLog();
+  public double[] getThresholds();
 }

@@ -32,7 +32,7 @@ import java.util.Map;
  * evaluation metrics.
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
- * @version $Revision: 10919 $
+ * @version $Revision: 10934 $
  */
 public class EvaluationMetricHelper {
 
@@ -362,6 +362,33 @@ public class EvaluationMetricHelper {
         throw new Exception("Unknown evaluation metric: " + statName);
       }
       return getPluginMetricValue(m, statName, classValIndex);
+    }
+  }
+
+  /**
+   * Gets the thresholds produced by the metric, if the metric implements
+   * ThresholdProducingMetric.
+   * 
+   * @param statName the name of the metric/statistic to get
+   * @return the thresholds, null if metric does not produce any
+   * @throws Exception if the metric/stat is unknown or a problem occurs
+   */
+  public double[] getNamedMetricThresholds(String statName)
+    throws Exception {
+
+    Integer builtinIndex = m_builtin.get(statName.toLowerCase());
+    if (builtinIndex != null) {
+      return null; // built-in metrics don not produce thresholds
+    } else {
+      AbstractEvaluationMetric m = m_pluginMetrics.get(statName.toLowerCase());
+      if (m == null) {
+        throw new Exception("Unknown evaluation metric: " + statName);
+      }
+      if (m instanceof ThresholdProducingMetric) {
+        return ((ThresholdProducingMetric)m).getThresholds();
+      } else {
+        return null;
+      }
     }
   }
 
