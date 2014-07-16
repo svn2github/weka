@@ -26,6 +26,12 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.Vector;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
@@ -35,6 +41,7 @@ import weka.classifiers.Sourcable;
 import weka.classifiers.IterativeClassifier;
 
 import weka.core.Attribute;
+import weka.core.BatchPredictor;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
@@ -96,6 +103,13 @@ import weka.core.UnassignedClassException;
  *  Z max threshold for responses.
  *  (default 3)</pre>
  * 
+ * <pre> -O &lt;int&gt;
+ *  The size of the thread pool, for example, the number of cores in the CPU. (default 1)</pre>
+ * 
+ * <pre> -E &lt;int&gt;
+ *  The number of threads to use for batch prediction, which should be &gt;= size of thread pool.
+ *  (default 1)</pre>
+ * 
  * <pre> -S &lt;num&gt;
  *  Random number seed.
  *  (default 1)</pre>
@@ -139,7 +153,7 @@ import weka.core.UnassignedClassException;
 public class LogitBoost 
   extends RandomizableIteratedSingleClassifierEnhancer
   implements Sourcable, WeightedInstancesHandler, TechnicalInformationHandler,
-             IterativeClassifier {
+             IterativeClassifier, BatchPredictor {
 
   /** for serialization */
   static final long serialVersionUID = -1105660358715833753L;
@@ -205,6 +219,12 @@ public class LogitBoost
 
   /** The training data. */
   protected Instances m_data;
+
+  /** The number of threads to use at prediction time in batch prediction. */
+  protected int m_numThreads = 1;
+
+  /** The size of the thread pool. */
+  protected int m_poolSize = 1;
 
   /**
    * Returns a string describing classifier
@@ -327,7 +347,11 @@ public class LogitBoost
 	      +"\t(default 1)",
 	      "H", 1, "-H <num>"));
     newVector.addElement(new Option("\tZ max threshold for responses." +
-    		"\n\t(default 3)", "Z", 1, "-Z <num>"));    
+    	       "\n\t(default 3)", "Z", 1, "-Z <num>"));    
+    newVector.addElement(new Option(
+              "\t" + poolSizeTipText() + " (default 1)", "O", 1, "-O <int>"));
+    newVector.addElement(new Option("\t" + numThreadsTipText() + "\n"
+              + "\t(default 1)", "E", 1, "-E <int>"));
 
     newVector.addAll(Collections.list(super.listOptions()));
     
@@ -359,6 +383,13 @@ public class LogitBoost
    * <pre> -Z &lt;num&gt;
    *  Z max threshold for responses.
    *  (default 3)</pre>
+   * 
+   * <pre> -O &lt;int&gt;
+   *  The size of the thread pool, for example, the number of cores in the CPU. (default 1)</pre>
+   * 
+   * <pre> -E &lt;int&gt;
+   *  The number of threads to use for batch prediction, which should be &gt;= size of thread pool.
+   *  (default 1)</pre>
    * 
    * <pre> -S &lt;num&gt;
    *  Random number seed.
@@ -434,6 +465,18 @@ public class LogitBoost
       throw new Exception("Weight pruning with resampling"+
 			  "not allowed.");
     }
+    String PoolSize = Utils.getOption('O', options);
+    if (PoolSize.length() != 0) {
+      setPoolSize(Integer.parseInt(PoolSize));
+    } else {
+      setPoolSize(1);
+    }
+    String NumThreads = Utils.getOption('E', options);
+    if (NumThreads.length() != 0) {
+      setNumThreads(Integer.parseInt(NumThreads));
+    } else {
+      setNumThreads(1);
+    }
 
     super.setOptions(options);
     
@@ -458,6 +501,12 @@ public class LogitBoost
     options.add("-L"); options.add("" + getLikelihoodThreshold());
     options.add("-H"); options.add("" + getShrinkage());
     options.add("-Z"); options.add("" + getZMax());
+
+    options.add("-O");
+    options.add("" + getPoolSize());
+
+    options.add("-E");
+    options.add("" + getNumThreads());
 
     Collections.addAll(options, super.getOptions());
     
@@ -611,6 +660,54 @@ public class LogitBoost
   }
 
   /**
+   * @return a string to describe the option
+   */
+  public String numThreadsTipText() {
+
+    return "The number of threads to use for batch prediction, which should be >= size of thread pool.";
+  }
+
+  /**
+   * Gets the number of threads.
+   */
+  public int getNumThreads() {
+
+    return m_numThreads;
+  }
+
+  /**
+   * Sets the number of threads
+   */
+  public void setNumThreads(int nT) {
+
+    m_numThreads = nT;
+  }
+
+  /**
+   * @return a string to describe the option
+   */
+  public String poolSizeTipText() {
+
+    return "The size of the thread pool, for example, the number of cores in the CPU.";
+  }
+
+  /**
+   * Gets the number of threads.
+   */
+  public int getPoolSize() {
+
+    return m_poolSize;
+  }
+
+  /**
+   * Sets the number of threads
+   */
+  public void setPoolSize(int nT) {
+
+    m_poolSize = nT;
+  }
+
+  /**
    * Returns default capabilities of the classifier.
    *
    * @return      the capabilities of this classifier
@@ -635,11 +732,7 @@ public class LogitBoost
     initializeClassifier(data);
 
     // For the given number of iterations
-    for (int i = 0; i < m_NumIterations; i++) {
-      if (!next()) {
-        break;
-      }
-    }
+    while (next()) {};
 
     // Clean up
     done();
@@ -730,6 +823,10 @@ public class LogitBoost
    * Perform another iteration of boosting.
    */
   public boolean next() throws Exception {
+
+    if (m_NumGenerated >= m_NumIterations) {
+      return false;
+    }
 
     // Do we only have a ZeroR model
     if (m_ZeroR != null) {
@@ -953,6 +1050,15 @@ public class LogitBoost
   }
     
   /**
+   * Dummy methods to satisfy BatchPredictor interface.
+   */
+  public void setBatchSize(String i) {
+  }
+  public String getBatchSize() {
+    return "";
+  }
+
+  /**
    * Calculates the class membership probabilities for the given test instance.
    *
    * @param instance the instance to be classified
@@ -960,22 +1066,21 @@ public class LogitBoost
    * @throws Exception if instance could not be classified
    * successfully
    */
-  public double [] distributionForInstance(Instance instance) 
-    throws Exception {
+  public double[] distributionForInstance(Instance inst) throws Exception {
 
     // default model?
     if (m_ZeroR != null) {
-      return m_ZeroR.distributionForInstance(instance);
+      return m_ZeroR.distributionForInstance(inst);
     }
-    
-    instance = (Instance)instance.copy();
-    instance.setDataset(m_NumericClassData);
+
+    double[] Fs = new double [m_NumClasses]; 
     double [] pred = new double [m_NumClasses];
-    double [] Fs = new double [m_NumClasses]; 
+    Instance instance = (Instance)inst.copy();
+    instance.setDataset(m_NumericClassData);
     for (int i = 0; i < m_NumGenerated; i++) {
       double predSum = 0;
       for (int j = 0; j < m_NumClasses; j++) {
-	double tempPred = m_Shrinkage * m_Classifiers.get(i)[j].classifyInstance(instance);
+        double tempPred = m_Shrinkage * m_Classifiers.get(i)[j].classifyInstance(instance);
         if (Utils.isMissingValue(tempPred)) {
           throw new UnassignedClassException("LogitBoost: base learner predicted missing value.");
         }
@@ -984,16 +1089,116 @@ public class LogitBoost
           pred[1] = -tempPred; // Can treat 2 classes as special case
           break;
         }
-	predSum += pred[j];
+        predSum += pred[j];
       }
       predSum /= m_NumClasses;
       for (int j = 0; j < m_NumClasses; j++) {
-	Fs[j] += (pred[j] - predSum) * (m_NumClasses - 1) 
-	  / m_NumClasses;
+        Fs[j] += (pred[j] - predSum) * (m_NumClasses - 1) / m_NumClasses;
       }
     }
 
     return probs(Fs);
+  }
+
+  /**
+   * Calculates the class membership probabilities for the given test instances.
+   * Uses multi-threading if requested.
+   *
+   * @param insts the instances to be classified
+   * @return predicted class probability distributions
+   * @throws Exception if instances could not be classified
+   * successfully
+   */
+  public double[][] distributionsForInstances(Instances insts) 
+    throws Exception {
+
+    // default model?
+    if (m_ZeroR != null) {
+      double[][] preds = new double[insts.numInstances()][];
+      for (int i = 0; i < preds.length; i++) {
+        preds[i] = m_ZeroR.distributionForInstance(insts.instance(i));
+      }
+      return preds;
+    }
+
+    final Instances numericClassInsts = new Instances(m_NumericClassData);
+    for (int i = 0; i < insts.numInstances(); i++) {
+      numericClassInsts.add(insts.instance(i));
+    }
+
+    // Start thread pool
+    ExecutorService pool = Executors.newFixedThreadPool(m_poolSize);
+
+    double[][] Fs = new double [insts.numInstances()][m_NumClasses]; 
+        
+    // Set up result set, and chunk size
+    final int chunksize = m_NumGenerated / m_numThreads;
+    Set<Future<double[][]>> results = new HashSet<Future<double[][]>>();
+    
+    // For each thread
+    for (int j = 0; j < m_numThreads; j++) {
+      
+      // Determine batch to be processed
+      final int lo = j * chunksize;
+      final int hi = (j < m_numThreads - 1) ? (lo + chunksize) : m_NumGenerated;
+      
+      // Create and submit new job, where each instance in batch is processed
+      Future<double[][]> futureT = pool.submit(new Callable<double[][]>() {
+          @Override
+          public double[][] call() throws Exception {
+            double[][] localFs = new double[numericClassInsts.numInstances()][m_NumClasses];
+            for (int k = 0; k < numericClassInsts.numInstances(); k++) {
+              Instance instance = numericClassInsts.instance(k);
+              for (int i = lo; i < hi; i++) {
+                double predSum = 0;
+                double [] pred = new double [m_NumClasses];
+                for (int j = 0; j < m_NumClasses; j++) {
+                  double tempPred = m_Shrinkage * m_Classifiers.get(i)[j].classifyInstance(instance);
+                  if (Utils.isMissingValue(tempPred)) {
+                    throw new UnassignedClassException("LogitBoost: base learner predicted missing value.");
+                  }
+                  pred[j] = tempPred;
+                  if (m_NumClasses == 2) {
+                    pred[1] = -tempPred; // Can treat 2 classes as special case
+                    break;
+                  }
+                  predSum += pred[j];
+                }
+                predSum /= m_NumClasses;
+                for (int j = 0; j < m_NumClasses; j++) {
+                  localFs[k][j] += (pred[j] - predSum) * (m_NumClasses - 1) 
+                    / m_NumClasses;
+                }
+              }
+            }
+            return localFs;
+          }
+        });
+      results.add(futureT);
+    }
+    
+    // Incorporate predictions
+    try {
+      for (Future<double[][]> futureT : results) {
+        double[][] f = futureT.get();
+        for (int j = 0; j < Fs.length; j++) {
+          for (int i = 0; i < Fs[j].length; i++) {
+            Fs[j][i] += f[j][i];
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("Predictions could not be generated.");
+      e.printStackTrace();
+    }
+    
+    pool.shutdown();
+
+    double[][] preds = new double[insts.numInstances()][];
+    for (int i = 0; i < preds.length; i++) {
+      preds[i] = probs(Fs[i]);
+    }
+    return preds;
   }
 
   /**
