@@ -964,7 +964,7 @@ public class Evaluation implements Summarizable, RevisionHandler {
         if (preserveOrder) {
           if (splitPercentage == -1) {
             throw new Exception(
-              "Percentage split ('-percentage-split') is missing.");
+              "Percentage split ('-split-percentage') is missing.");
           }
         }
         // create new train/test sources
@@ -2397,8 +2397,8 @@ public class Evaluation implements Summarizable, RevisionHandler {
 
     StringBuffer text = new StringBuffer();
     char[] IDChars =
-      { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+    { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
     int IDWidth;
     boolean fractional = false;
 
@@ -3261,7 +3261,7 @@ public class Evaluation implements Summarizable, RevisionHandler {
   protected static String predictionText(Classifier classifier, Instance inst,
     int instNum, Range attributesToOutput, boolean printDistribution)
 
-  throws Exception {
+    throws Exception {
 
     StringBuffer result = new StringBuffer();
     int width = 10;
