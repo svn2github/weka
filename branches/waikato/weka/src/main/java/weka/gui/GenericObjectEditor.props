@@ -542,3 +542,11 @@ weka.core.PartitionGenerator=\
 # org.tartarus.snowball.ext.russianStemmer,\
 # org.tartarus.snowball.ext.spanishStemmer,\
 # org.tartarus.snowball.ext.swedishStemmer
+
+# stopword algorithms
+weka.core.stopwords.StopwordsHandler=\
+  weka.core.stopwords.MultiStopwords,\
+  weka.core.stopwords.Null,\
+  weka.core.stopwords.Rainbow,\
+  weka.core.stopwords.RegExpFromFile,\
+  weka.core.stopwords.WordsFromFile
