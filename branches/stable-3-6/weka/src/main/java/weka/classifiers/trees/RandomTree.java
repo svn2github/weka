@@ -58,8 +58,8 @@ import weka.core.WeightedInstancesHandler;
  * 
  * <pre>
  * -K &lt;number of attributes&gt;
- *  Number of attributes to randomly investigate
- *  (&lt;0 = int(log_2(#attributes)+1)).
+ *  Number of attributes to randomly investigate. (default 0)
+ *  (&lt;0 = int(log_2(#predictors)+1)).
  * </pre>
  * 
  * <pre>
@@ -340,8 +340,8 @@ public class RandomTree extends Classifier implements OptionHandler,
     Vector newVector = new Vector();
 
     newVector.addElement(new Option(
-        "\tNumber of attributes to randomly investigate\n"
-            + "\t(<0 = int(log_2(#attributes)+1)).", "K", 1,
+        "\tNumber of attributes to randomly investigate. (default 0)\n"
+            + "\t(<0 = int(log_2(#predictors)+1)).", "K", 1,
         "-K <number of attributes>"));
 
     newVector.addElement(new Option(
@@ -545,7 +545,7 @@ public class RandomTree extends Classifier implements OptionHandler,
     if (m_KValue > data.numAttributes() - 1)
       m_KValue = data.numAttributes() - 1;
     if (m_KValue < 1)
-      m_KValue = (int) Utils.log2(data.numAttributes()) + 1;
+      m_KValue = (int) Utils.log2(data.numAttributes() - 1) + 1;
 
     // can classifier handle the data?
     getCapabilities().testWithFail(data);

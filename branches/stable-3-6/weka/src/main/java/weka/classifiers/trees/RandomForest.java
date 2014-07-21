@@ -80,7 +80,7 @@ import weka.core.WeightedInstancesHandler;
  * 
  * <pre>
  * -K &lt;number of features&gt;
- *  Number of features to consider (&lt;1=int(logM+1)).
+ *  Number of features to consider (&lt;0 = int(log_2(#predictors)+1)).
  * </pre>
  * 
  * <pre>
@@ -114,7 +114,7 @@ public class RandomForest extends Classifier implements OptionHandler,
   private static final long serialVersionUID = -2260823972777004705L;
 
   /** Number of trees in forest. */
-  protected int m_numTrees = 10;
+  protected int m_numTrees = 100;
 
   /**
    * Number of features to consider in random feature selection. If less than 1
@@ -339,12 +339,12 @@ public class RandomForest extends Classifier implements OptionHandler,
 
     Vector newVector = new Vector();
 
-    newVector.addElement(new Option("\tNumber of trees to build.", "I", 1,
+    newVector.addElement(new Option("\tNumber of trees to build.\n\t(default 100)", "I", 1,
         "-I <number of trees>"));
 
     newVector.addElement(new Option(
-        "\tNumber of features to consider (<1=int(logM+1)).", "K", 1,
-        "-K <number of features>"));
+      "\tNumber of features to consider (<1=int(log_2(#predictors)+1)).\n\t(default 0)", "K", 1,
+      "-K <number of features>"));
 
     newVector.addElement(new Option("\tSeed for random number generator.\n"
         + "\t(default 1)", "S", 1, "-S"));
@@ -410,7 +410,7 @@ public class RandomForest extends Classifier implements OptionHandler,
    * 
    * <pre>
    * -K &lt;number of features&gt;
-   *  Number of features to consider (&lt;1=int(logM+1)).
+   *  Number of features to consider (&lt;0 = int(log_2(#predictors)+1)).
    * </pre>
    * 
    * <pre>
@@ -444,7 +444,7 @@ public class RandomForest extends Classifier implements OptionHandler,
     if (tmpStr.length() != 0) {
       m_numTrees = Integer.parseInt(tmpStr);
     } else {
-      m_numTrees = 10;
+      m_numTrees = 100;
     }
 
     tmpStr = Utils.getOption('K', options);
@@ -505,7 +505,7 @@ public class RandomForest extends Classifier implements OptionHandler,
     // set up the random tree options
     m_KValue = m_numFeatures;
     if (m_KValue < 1)
-      m_KValue = (int) Utils.log2(data.numAttributes()) + 1;
+      m_KValue = (int) Utils.log2(data.numAttributes() - 1) + 1;
     rTree.setKValue(m_KValue);
     rTree.setMaxDepth(getMaxDepth());
 
