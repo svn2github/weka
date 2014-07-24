@@ -15,20 +15,21 @@
 
 /*
  *    Associator.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.associations;
 
+import java.io.Serializable;
+
 import weka.core.Capabilities;
 import weka.core.CapabilitiesHandler;
-import weka.core.Instances;
+import weka.core.CapabilitiesIgnorer;
 import weka.core.RevisionHandler;
+import weka.core.RevisionUtils;
 import weka.core.SerializedObject;
 import weka.core.Utils;
-
-import java.io.Serializable;
 
 /** 
  * Abstract scheme for learning associations. All schemes for learning
@@ -38,10 +39,45 @@ import java.io.Serializable;
  * @version $Revision$ 
  */
 public abstract class AbstractAssociator 
-  implements Cloneable, Associator, Serializable, CapabilitiesHandler, RevisionHandler {
+  implements Cloneable, Associator, Serializable, CapabilitiesHandler, 
+             CapabilitiesIgnorer, RevisionHandler {
  
   /** for serialization */
   private static final long serialVersionUID = -3017644543382432070L;
+
+  /** Whether capabilities should not be checked */
+  protected boolean m_DoNotCheckCapabilities = false;
+
+  /**
+   * Returns the tip text for this property
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
+   */
+  public String doNotCheckCapabilitiesTipText() {
+    return "If set, associator capabilities are not checked before associator is built"
+      + " (Use with caution to reduce runtime).";
+  }
+
+  /**
+   * Set whether not to check capabilities.
+   * 
+   * @param doNotCheckCapabilities true if capabilities are not to be checked.
+   */
+  public void setDoNotCheckCapabilities(boolean doNotCheckCapabilities) {
+
+    m_DoNotCheckCapabilities = doNotCheckCapabilities;
+  }
+
+  /**
+   * Get whether capabilities checking is turned off.
+   * 
+   * @return true if capabilities checking is turned off.
+   */
+  public boolean getDoNotCheckCapabilities() {
+
+    return m_DoNotCheckCapabilities;
+  }
   
   /**
    * Creates a new instance of a associator given it's class name and
@@ -101,14 +137,28 @@ public abstract class AbstractAssociator
   }
 
   /** 
-   * Returns the Capabilities of this associator. Derived associators have to
-   * override this method to enable capabilities.
+   * Returns the Capabilities of this associator. Maximally permissive
+   * capabilities are allowed by default. Derived associators should
+   * override this method and first disable all capabilities and then
+   * enable just those capabilities that make sense for the scheme.
    *
    * @return            the capabilities of this object
    * @see               Capabilities
    */
   public Capabilities getCapabilities() {
-    return new Capabilities(this);
+    Capabilities defaultC = new Capabilities(this);
+    defaultC.enableAll();
+    
+    return defaultC;
+  }
+  
+  /**
+   * Returns the revision string.
+   * 
+   * @return            the revision
+   */
+  public String getRevision() {
+    return RevisionUtils.extract("$Revision$");
   }
   
   /**

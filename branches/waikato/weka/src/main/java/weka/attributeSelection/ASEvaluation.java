@@ -15,22 +15,23 @@
 
 /*
  *    ASEvaluation.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 
 package weka.attributeSelection;
 
+import java.io.Serializable;
+
 import weka.core.Capabilities;
 import weka.core.CapabilitiesHandler;
+import weka.core.CapabilitiesIgnorer;
 import weka.core.Instances;
 import weka.core.RevisionHandler;
 import weka.core.RevisionUtils;
 import weka.core.SerializedObject;
 import weka.core.Utils;
-
-import java.io.Serializable;
 
 /** 
  * Abstract attribute selection evaluation class
@@ -39,10 +40,45 @@ import java.io.Serializable;
  * @version $Revision$
  */
 public abstract class ASEvaluation
-  implements Serializable, CapabilitiesHandler, RevisionHandler {
+  implements Serializable, CapabilitiesHandler, 
+             CapabilitiesIgnorer, RevisionHandler {
 
   /** for serialization */
   private static final long serialVersionUID = 2091705669885950849L;
+
+  /** Whether capabilities should not be checked */
+  protected boolean m_DoNotCheckCapabilities = false;
+
+  /**
+   * Returns the tip text for this property
+   * 
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
+   */
+  public String doNotCheckCapabilitiesTipText() {
+    return "If set, evaluator capabilities are not checked before evaluator is built"
+      + " (Use with caution to reduce runtime).";
+  }
+
+  /**
+   * Set whether not to check capabilities.
+   * 
+   * @param doNotCheckCapabilities true if capabilities are not to be checked.
+   */
+  public void setDoNotCheckCapabilities(boolean doNotCheckCapabilities) {
+
+    m_DoNotCheckCapabilities = doNotCheckCapabilities;
+  }
+
+  /**
+   * Get whether capabilities checking is turned off.
+   * 
+   * @return true if capabilities checking is turned off.
+   */
+  public boolean getDoNotCheckCapabilities() {
+
+    return m_DoNotCheckCapabilities;
+  }
   
   // ===============
   // Public methods.
@@ -124,7 +160,10 @@ public abstract class ASEvaluation
    * @see               Capabilities
    */
   public Capabilities getCapabilities() {
-    return new Capabilities(this);
+    Capabilities result = new Capabilities(this);
+    result.enableAll();
+    
+    return result;
   }
   
   /**
