@@ -191,14 +191,13 @@ public class RegressionSplitEvaluator implements SplitEvaluator, OptionHandler,
   public void setOptions(String[] options) throws Exception {
 
     String cName = Utils.getOption('W', options);
-    if (cName.length() == 0) {
-      throw new Exception("A classifier must be specified with"
-        + " the -W option.");
+    if (cName.length() > 0) {
+
+      // Do it first without options, so if an exception is thrown during
+      // the option setting, listOptions will contain options for the actual
+      // Classifier.
+      setClassifier(Classifier.forName(cName, null));
     }
-    // Do it first without options, so if an exception is thrown during
-    // the option setting, listOptions will contain options for the actual
-    // Classifier.
-    setClassifier(Classifier.forName(cName, null));
     if (getClassifier() instanceof OptionHandler) {
       ((OptionHandler) getClassifier()).setOptions(Utils
         .partitionOptions(options));
@@ -555,7 +554,8 @@ public class RegressionSplitEvaluator implements SplitEvaluator, OptionHandler,
     result[current++] = new Double(trainTimeElapsed / 1000.0);
     result[current++] = new Double(testTimeElapsed / 1000.0);
     if (canMeasureCPUTime) {
-      result[current++] = new Double((trainCPUTimeElapsed / 1000000.0) / 1000.0);
+      result[current++] =
+        new Double((trainCPUTimeElapsed / 1000000.0) / 1000.0);
       result[current++] = new Double((testCPUTimeElapsed / 1000000.0) / 1000.0);
     } else {
       result[current++] = new Double(Instance.missingValue());

@@ -21,6 +21,11 @@
  */
 package weka.attributeSelection;
 
+import java.util.BitSet;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.Vector;
+
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.OptionHandler;
@@ -28,89 +33,112 @@ import weka.core.RevisionUtils;
 import weka.core.SelectedTag;
 import weka.core.Tag;
 import weka.core.TechnicalInformation;
-import weka.core.Utils;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
-
-import java.util.BitSet;
-import java.util.Enumeration;
-import java.util.Random;
-import java.util.Vector;
-
+import weka.core.Utils;
 
 /**
- <!-- globalinfo-start -->
- * SubsetSizeForwardSelection:<br/>
+ * <!-- globalinfo-start --> SubsetSizeForwardSelection:<br/>
  * <br/>
- * Extension of LinearForwardSelection. The search performs an interior cross-validation (seed and number of folds can be specified). A LinearForwardSelection is performed on each foldto determine the optimal subset-size (using the given SubsetSizeEvaluator). Finally, a LinearForwardSelection up to the optimal subset-size is performed on the whole data.<br/>
+ * Extension of LinearForwardSelection. The search performs an interior
+ * cross-validation (seed and number of folds can be specified). A
+ * LinearForwardSelection is performed on each foldto determine the optimal
+ * subset-size (using the given SubsetSizeEvaluator). Finally, a
+ * LinearForwardSelection up to the optimal subset-size is performed on the
+ * whole data.<br/>
  * <br/>
  * For more information see:<br/>
  * <br/>
- * Martin Guetlein (2006). Large Scale Attribute Selection Using Wrappers. Freiburg, Germany.
+ * Martin Guetlein (2006). Large Scale Attribute Selection Using Wrappers.
+ * Freiburg, Germany.
  * <p/>
- <!-- globalinfo-end -->
- *
- <!-- options-start -->
- * Valid options are: <p/>
+ * <!-- globalinfo-end -->
  * 
- * <pre> -I
+ * <!-- options-start --> Valid options are:
+ * <p/>
+ * 
+ * <pre>
+ * -I
  *  Perform initial ranking to select the
- *  top-ranked attributes.</pre>
+ *  top-ranked attributes.
+ * </pre>
  * 
- * <pre> -K &lt;num&gt;
+ * <pre>
+ * -K &lt;num&gt;
  *  Number of top-ranked attributes that are 
- *  taken into account by the search.</pre>
+ *  taken into account by the search.
+ * </pre>
  * 
- * <pre> -T &lt;0 = fixed-set | 1 = fixed-width&gt;
- *  Type of Linear Forward Selection (default = 0).</pre>
+ * <pre>
+ * -T &lt;0 = fixed-set | 1 = fixed-width&gt;
+ *  Type of Linear Forward Selection (default = 0).
+ * </pre>
  * 
- * <pre> -S &lt;num&gt;
+ * <pre>
+ * -S &lt;num&gt;
  *  Size of lookup cache for evaluated subsets.
  *  Expressed as a multiple of the number of
- *  attributes in the data set. (default = 1)</pre>
+ *  attributes in the data set. (default = 1)
+ * </pre>
  * 
- * <pre> -E &lt;subset evaluator&gt;
- *  Subset-evaluator used for subset-size determination.-- -M</pre>
+ * <pre>
+ * -E &lt;subset evaluator&gt;
+ *  Subset-evaluator used for subset-size determination.-- -M
+ * </pre>
  * 
- * <pre> -F &lt;num&gt;
+ * <pre>
+ * -F &lt;num&gt;
  *  Number of cross validation folds
- *  for subset size determination (default = 5).</pre>
+ *  for subset size determination (default = 5).
+ * </pre>
  * 
- * <pre> -R &lt;num&gt;
+ * <pre>
+ * -R &lt;num&gt;
  *  Seed for cross validation
- *  subset size determination. (default = 1)</pre>
+ *  subset size determination. (default = 1)
+ * </pre>
  * 
- * <pre> -Z
- *  verbose on/off</pre>
+ * <pre>
+ * -Z
+ *  verbose on/off
+ * </pre>
  * 
- * <pre> 
+ * <pre>
  * Options specific to evaluator weka.attributeSelection.ClassifierSubsetEval:
  * </pre>
  * 
- * <pre> -B &lt;classifier&gt;
+ * <pre>
+ * -B &lt;classifier&gt;
  *  class name of the classifier to use for accuracy estimation.
  *  Place any classifier options LAST on the command line
  *  following a "--". eg.:
  *   -B weka.classifiers.bayes.NaiveBayes ... -- -K
- *  (default: weka.classifiers.rules.ZeroR)</pre>
+ *  (default: weka.classifiers.rules.ZeroR)
+ * </pre>
  * 
- * <pre> -T
- *  Use the training data to estimate accuracy.</pre>
+ * <pre>
+ * -T
+ *  Use the training data to estimate accuracy.
+ * </pre>
  * 
- * <pre> -H &lt;filename&gt;
+ * <pre>
+ * -H &lt;filename&gt;
  *  Name of the hold out/test set to 
- *  estimate accuracy on.</pre>
+ *  estimate accuracy on.
+ * </pre>
  * 
- * <pre> 
+ * <pre>
  * Options specific to scheme weka.classifiers.rules.ZeroR:
  * </pre>
  * 
- * <pre> -D
+ * <pre>
+ * -D
  *  If set, classifier is run in debug mode and
- *  may output additional info to the console</pre>
+ *  may output additional info to the console
+ * </pre>
  * 
- <!-- options-end -->
- *
+ * <!-- options-end -->
+ * 
  * @author Martin Guetlein (martin.guetlein@gmail.com)
  * @version $Revision$
  */
@@ -129,8 +157,7 @@ public class SubsetSizeForwardSelection extends ASSearch
   protected boolean m_performRanking;
 
   /**
-   * number of top-ranked attributes that are taken into account for the
-   * search
+   * number of top-ranked attributes that are taken into account for the search
    */
   protected int m_numUsedAttributes;
 
@@ -173,15 +200,19 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns a string describing this search method
-   *
+   * 
    * @return a description of the search method suitable for displaying in the
    *         explorer/experimenter gui
    */
   public String globalInfo() {
-    return "SubsetSizeForwardSelection:\n\n" +
-      "Extension of LinearForwardSelection. The search performs an interior " +
-      "cross-validation (seed and number of folds can be specified). A " +
-      "LinearForwardSelection is performed on each foldto determine the optimal " +
+    return "SubsetSizeForwardSelection:\n\n"
+      +
+      "Extension of LinearForwardSelection. The search performs an interior "
+      +
+      "cross-validation (seed and number of folds can be specified). A "
+      +
+      "LinearForwardSelection is performed on each foldto determine the optimal "
+      +
       "subset-size (using the given SubsetSizeEvaluator). Finally, a " +
       "LinearForwardSelection up to the optimal subset-size is performed on " +
       "the whole data.\n\n"
@@ -190,68 +221,73 @@ public class SubsetSizeForwardSelection extends ASSearch
   }
 
   /**
-   * Returns an instance of a TechnicalInformation object, containing 
-   * detailed information about the technical background of this class,
-   * e.g., paper reference or book this class is based on.
+   * Returns an instance of a TechnicalInformation object, containing detailed
+   * information about the technical background of this class, e.g., paper
+   * reference or book this class is based on.
    * 
    * @return the technical information about this class
    */
   public TechnicalInformation getTechnicalInformation() {
-    TechnicalInformation        result;
-    TechnicalInformation        additional;
-    
+    TechnicalInformation result;
+    TechnicalInformation additional;
+
     result = new TechnicalInformation(Type.INPROCEEDINGS);
-    result.setValue(Field.AUTHOR, "Martin Guetlein and Eibe Frank and Mark Hall");
+    result.setValue(Field.AUTHOR,
+      "Martin Guetlein and Eibe Frank and Mark Hall");
     result.setValue(Field.YEAR, "2009");
-    result.setValue(Field.TITLE, "Large Scale Attribute Selection Using Wrappers");
-    result.setValue(Field.BOOKTITLE, "Proc IEEE Symposium on Computational Intelligence and Data Mining");
+    result.setValue(Field.TITLE,
+      "Large Scale Attribute Selection Using Wrappers");
+    result.setValue(Field.BOOKTITLE,
+      "Proc IEEE Symposium on Computational Intelligence and Data Mining");
     result.setValue(Field.PAGES, "332-339");
     result.setValue(Field.PUBLISHER, "IEEE");
-    
+
     additional = result.add(Type.MASTERSTHESIS);
     additional.setValue(Field.AUTHOR, "Martin Guetlein");
     additional.setValue(Field.YEAR, "2006");
-    additional.setValue(Field.TITLE, "Large Scale Attribute Selection Using Wrappers");
+    additional.setValue(Field.TITLE,
+      "Large Scale Attribute Selection Using Wrappers");
     additional.setValue(Field.SCHOOL, "Albert-Ludwigs-Universitaet");
     additional.setValue(Field.ADDRESS, "Freiburg, Germany");
-    
+
     return result;
   }
 
   /**
    * Returns an enumeration describing the available options.
-   *
+   * 
    * @return an enumeration of all the available options.
-   *
+   * 
    */
+  @Override
   public Enumeration listOptions() {
     Vector newVector = new Vector(9);
 
     newVector.addElement(new Option("\tPerform initial ranking to select the" +
-                                    "\n\ttop-ranked attributes.", "I", 0, "-I"));
+      "\n\ttop-ranked attributes.", "I", 0, "-I"));
     newVector.addElement(new Option(
-                                    "\tNumber of top-ranked attributes that are " +
-                                    "\n\ttaken into account by the search.", "K", 1, "-K <num>"));
+      "\tNumber of top-ranked attributes that are " +
+        "\n\ttaken into account by the search.", "K", 1, "-K <num>"));
     newVector.addElement(new Option(
-                                    "\tType of Linear Forward Selection (default = 0).", "T", 1,
-                                    "-T <0 = fixed-set | 1 = fixed-width>"));
+      "\tType of Linear Forward Selection (default = 0).", "T", 1,
+      "-T <0 = fixed-set | 1 = fixed-width>"));
     newVector.addElement(new Option(
-                                    "\tSize of lookup cache for evaluated subsets." +
-                                    "\n\tExpressed as a multiple of the number of" +
-                                    "\n\tattributes in the data set. (default = 1)", "S", 1, "-S <num>"));
+      "\tSize of lookup cache for evaluated subsets." +
+        "\n\tExpressed as a multiple of the number of" +
+        "\n\tattributes in the data set. (default = 1)", "S", 1, "-S <num>"));
     newVector.addElement(new Option(
-                                    "\tSubset-evaluator used for subset-size determination." + "-- -M",
-                                    "E", 1, "-E <subset evaluator>"));
+      "\tSubset-evaluator used for subset-size determination." + "-- -M",
+      "E", 1, "-E <subset evaluator>"));
     newVector.addElement(new Option("\tNumber of cross validation folds" +
-                                    "\n\tfor subset size determination (default = 5).", "F", 1, "-F <num>"));
+      "\n\tfor subset size determination (default = 5).", "F", 1, "-F <num>"));
     newVector.addElement(new Option("\tSeed for cross validation" +
-                                    "\n\tsubset size determination. (default = 1)", "R", 1, "-R <num>"));
+      "\n\tsubset size determination. (default = 1)", "R", 1, "-R <num>"));
     newVector.addElement(new Option("\tverbose on/off", "Z", 0, "-Z"));
 
     if ((m_setSizeEval != null) && (m_setSizeEval instanceof OptionHandler)) {
       newVector.addElement(new Option("", "", 0,
-                                      "\nOptions specific to " + "evaluator " +
-                                      m_setSizeEval.getClass().getName() + ":"));
+        "\nOptions specific to " + "evaluator " +
+          m_setSizeEval.getClass().getName() + ":"));
 
       Enumeration enu = ((OptionHandler) m_setSizeEval).listOptions();
 
@@ -265,55 +301,54 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Parses a given list of options.
-   *
+   * 
    * Valid options are:
    * <p>
-   *
+   * 
    * -I <br>
    * Perform initial ranking to select top-ranked attributes.
    * <p>
-   *
+   * 
    * -K <num> <br>
    * Number of top-ranked attributes that are taken into account.
    * <p>
-   *
+   * 
    * -T <0 = fixed-set | 1 = fixed-width> <br>
    * Typ of Linear Forward Selection (default = 0).
    * <p>
-   *
+   * 
    * -S <num> <br>
-   * Size of lookup cache for evaluated subsets. Expressed as a multiple of
-   * the number of attributes in the data set. (default = 1).
+   * Size of lookup cache for evaluated subsets. Expressed as a multiple of the
+   * number of attributes in the data set. (default = 1).
    * <p>
-   *
+   * 
    * -E <string> <br>
    * class name of subset evaluator to use for subset size determination
    * (default = null, same subset evaluator as for ranking and final forward
    * selection is used). Place any evaluator options LAST on the command line
-   * following a "--". eg. -A weka.attributeSelection.ClassifierSubsetEval ... --
-   * -M
-   *
+   * following a "--". eg. -A weka.attributeSelection.ClassifierSubsetEval ...
+   * -- -M
+   * 
    * </pre>
-   *
+   * 
    * -F <num> <br>
    * Number of cross validation folds for subset size determination (default =
    * 5).
    * <p>
-   *
+   * 
    * -R <num> <br>
    * Seed for cross validation subset size determination. (default = 1)
    * <p>
-   *
+   * 
    * -Z <br>
    * verbose on/off.
    * <p>
-   *
-   * @param options
-   *            the list of options as an array of strings
-   * @exception Exception
-   *                if an option is not supported
-   *
+   * 
+   * @param options the list of options as an array of strings
+   * @exception Exception if an option is not supported
+   * 
    */
+  @Override
   public void setOptions(String[] options) throws Exception {
     String optionString;
     resetOptions();
@@ -343,12 +378,13 @@ public class SubsetSizeForwardSelection extends ASSearch
     optionString = Utils.getOption('E', options);
 
     if (optionString.length() == 0) {
-      System.out.println(
-                         "No subset size evaluator given, using evaluator that is used for final search.");
+      System.out
+        .println(
+        "No subset size evaluator given, using evaluator that is used for final search.");
       m_setSizeEval = null;
     } else {
       setSubsetSizeEvaluator(ASEvaluation.forName(optionString,
-                                                  Utils.partitionOptions(options)));
+        Utils.partitionOptions(options)));
     }
 
     optionString = Utils.getOption('F', options);
@@ -370,9 +406,8 @@ public class SubsetSizeForwardSelection extends ASSearch
    * Set the maximum size of the evaluated subset cache (hashtable). This is
    * expressed as a multiplier for the number of attributes in the data set.
    * (default = 1).
-   *
-   * @param size
-   *            the maximum size of the hashtable
+   * 
+   * @param size the maximum size of the hashtable
    */
   public void setLookupCacheSize(int size) {
     if (size >= 0) {
@@ -383,7 +418,7 @@ public class SubsetSizeForwardSelection extends ASSearch
   /**
    * Return the maximum size of the evaluated subset cache (expressed as a
    * multiplier for the number of attributes in a data set.
-   *
+   * 
    * @return the maximum size of the hashtable.
    */
   public int getLookupCacheSize() {
@@ -392,19 +427,21 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
   public String lookupCacheSizeTipText() {
-    return "Set the maximum size of the lookup cache of evaluated subsets. This is " +
-      "expressed as a multiplier of the number of attributes in the data set. " +
+    return "Set the maximum size of the lookup cache of evaluated subsets. This is "
+      +
+      "expressed as a multiplier of the number of attributes in the data set. "
+      +
       "(default = 1).";
   }
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -414,18 +451,17 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Perform initial ranking to select top-ranked attributes.
-   *
-   * @param b
-   *            true if initial ranking should be performed
+   * 
+   * @param b true if initial ranking should be performed
    */
   public void setPerformRanking(boolean b) {
     m_performRanking = b;
   }
 
   /**
-   * Get boolean if initial ranking should be performed to select the
-   * top-ranked attributes
-   *
+   * Get boolean if initial ranking should be performed to select the top-ranked
+   * attributes
+   * 
    * @return true if initial ranking should be performed
    */
   public boolean getPerformRanking() {
@@ -434,7 +470,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -445,11 +481,9 @@ public class SubsetSizeForwardSelection extends ASSearch
   /**
    * Set the number of top-ranked attributes that taken into account by the
    * search process.
-   *
-   * @param k
-   *            the number of attributes
-   * @exception Exception
-   *                if k is less than 2
+   * 
+   * @param k the number of attributes
+   * @exception Exception if k is less than 2
    */
   public void setNumUsedAttributes(int k) throws Exception {
     if (k < 2) {
@@ -462,7 +496,7 @@ public class SubsetSizeForwardSelection extends ASSearch
   /**
    * Get the number of top-ranked attributes that taken into account by the
    * search process.
-   *
+   * 
    * @return the number of top-ranked attributes that taken into account
    */
   public int getNumUsedAttributes() {
@@ -471,7 +505,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -481,9 +515,8 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Set the type
-   *
-   * @param t
-   *            the Linear Forward Selection type
+   * 
+   * @param t the Linear Forward Selection type
    */
   public void setType(SelectedTag t) {
     if (t.getTags() == TAGS_TYPE) {
@@ -493,7 +526,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Get the type
-   *
+   * 
    * @return the Linear Forward Selection type
    */
   public SelectedTag getType() {
@@ -502,7 +535,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -512,15 +545,14 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Set the subset evaluator to use for subset size determination.
-   *
-   * @param eval
-   *            the subset evaluator to use for subset size determination.
+   * 
+   * @param eval the subset evaluator to use for subset size determination.
    */
   public void setSubsetSizeEvaluator(ASEvaluation eval)
     throws Exception {
     if (!(eval instanceof SubsetEvaluator)) {
       throw new Exception(eval.getClass().getName() +
-                          " is no subset evaluator.");
+        " is no subset evaluator.");
     }
 
     m_setSizeEval = eval;
@@ -528,7 +560,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Get the subset evaluator used for subset size determination.
-   *
+   * 
    * @return the evaluator used for subset size determination.
    */
   public ASEvaluation getSubsetSizeEvaluator() {
@@ -537,7 +569,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -548,9 +580,8 @@ public class SubsetSizeForwardSelection extends ASSearch
   /**
    * Set the number of cross validation folds for subset size determination
    * (default = 5).
-   *
-   * @param f
-   *            number of folds
+   * 
+   * @param f number of folds
    */
   public void setNumSubsetSizeCVFolds(int f) {
     m_numFolds = f;
@@ -559,7 +590,7 @@ public class SubsetSizeForwardSelection extends ASSearch
   /**
    * Get the number of cross validation folds for subset size determination
    * (default = 5).
-   *
+   * 
    * @return number of folds
    */
   public int getNumSubsetSizeCVFolds() {
@@ -568,7 +599,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -578,9 +609,8 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Seed for cross validation subset size determination. (default = 1)
-   *
-   * @param s
-   *            seed
+   * 
+   * @param s seed
    */
   public void setSeed(int s) {
     m_seed = s;
@@ -588,7 +618,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Seed for cross validation subset size determination. (default = 1)
-   *
+   * 
    * @return seed
    */
   public int getSeed() {
@@ -597,7 +627,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -607,9 +637,8 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Set whether verbose output should be generated.
-   *
-   * @param d
-   *            true if output is to be verbose.
+   * 
+   * @param d true if output is to be verbose.
    */
   public void setVerbose(boolean b) {
     m_verbose = b;
@@ -617,7 +646,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Get whether output is to be verbose
-   *
+   * 
    * @return true if output will be verbose
    */
   public boolean getVerbose() {
@@ -626,9 +655,10 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * Gets the current settings of LinearForwardSelection.
-   *
+   * 
    * @return an array of strings suitable for passing to setOptions()
    */
+  @Override
   public String[] getOptions() {
     String[] evaluatorOptions = new String[0];
 
@@ -653,8 +683,9 @@ public class SubsetSizeForwardSelection extends ASSearch
     options[current++] = "-S";
     options[current++] = "" + m_seed;
 
-    options[current++] = "-Z";
-    options[current++] = "" + m_verbose;
+    if (getVerbose()) {
+      options[current++] = "-Z";
+    }
 
     if (m_setSizeEval != null) {
       options[current++] = "-E";
@@ -663,7 +694,7 @@ public class SubsetSizeForwardSelection extends ASSearch
 
     options[current++] = "--";
     System.arraycopy(evaluatorOptions, 0, options, current,
-                     evaluatorOptions.length);
+      evaluatorOptions.length);
     current += evaluatorOptions.length;
 
     while (current < options.length) {
@@ -675,9 +706,10 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * returns a description of the search as a String
-   *
+   * 
    * @return a description of the search
    */
+  @Override
   public String toString() {
     StringBuffer LFSString = new StringBuffer();
 
@@ -692,40 +724,38 @@ public class SubsetSizeForwardSelection extends ASSearch
     }
 
     LFSString.append("\tNumber of top-ranked attributes that are used: " +
-                     m_numUsedAttributes + "\n");
+      m_numUsedAttributes + "\n");
 
     LFSString.append(
-                     "\tNumber of cross validation folds for subset size determination: " +
-                     m_numFolds + "\n");
+      "\tNumber of cross validation folds for subset size determination: " +
+        m_numFolds + "\n");
     LFSString.append("\tSeed for cross validation subset size determination: " +
-                     m_seed + "\n");
+      m_seed + "\n");
 
     LFSString.append("\tTotal number of subsets evaluated: " + m_totalEvals +
-                     "\n");
+      "\n");
     LFSString.append("\tMerit of best subset found: " +
-                     Utils.doubleToString(Math.abs(m_bestMerit), 8, 3) + "\n");
+      Utils.doubleToString(Math.abs(m_bestMerit), 8, 3) + "\n");
 
     return LFSString.toString();
   }
 
   /**
    * Searches the attribute subset space by subset size forward selection
-   *
-   * @param ASEvaluator
-   *            the attribute evaluator to guide the search
-   * @param data
-   *            the training instances.
+   * 
+   * @param ASEvaluator the attribute evaluator to guide the search
+   * @param data the training instances.
    * @return an array (not necessarily ordered) of selected attribute indexes
-   * @exception Exception
-   *                if the search can't be completed
+   * @exception Exception if the search can't be completed
    */
+  @Override
   public int[] search(ASEvaluation ASEval, Instances data)
     throws Exception {
     m_totalEvals = 0;
 
     if (!(ASEval instanceof SubsetEvaluator)) {
       throw new Exception(ASEval.getClass().getName() + " is not a " +
-                          "Subset evaluator!");
+        "Subset evaluator!");
     }
 
     if (m_setSizeEval == null) {
@@ -735,9 +765,11 @@ public class SubsetSizeForwardSelection extends ASSearch
     m_numAttribs = data.numAttributes();
 
     if (m_numUsedAttributes > m_numAttribs) {
-      System.out.println(
-                         "Decreasing number of top-ranked attributes to total number of attributes: " +
-                         data.numAttributes());
+      System.out
+        .println(
+        "Decreasing number of top-ranked attributes to total number of attributes: "
+          +
+          data.numAttributes());
       m_numUsedAttributes = m_numAttribs;
     }
 
@@ -778,40 +810,40 @@ public class SubsetSizeForwardSelection extends ASSearch
     for (int f = 0; f < m_numFolds; f++) {
       if (m_verbose) {
         System.out.println("perform search on internal fold: " + (f + 1) + "/" +
-                           m_numFolds);
+          m_numFolds);
       }
 
       m_setSizeEval.buildEvaluator(trainData[f]);
       searchResults[f] = new LFSMethods();
       searchResults[f].forwardSearch(m_cacheSize, new BitSet(m_numAttribs),
-                                     ranking, m_numUsedAttributes,
-                                     m_linearSelectionType == TYPE_FIXED_WIDTH, 1, -1, trainData[f],
-                                     (SubsetEvaluator)m_setSizeEval, m_verbose);
+        ranking, m_numUsedAttributes,
+        m_linearSelectionType == TYPE_FIXED_WIDTH, 1, -1, trainData[f],
+        (SubsetEvaluator) m_setSizeEval, m_verbose);
 
       maxSubsetSize = Math.max(maxSubsetSize,
-                               searchResults[f].getBestGroup().cardinality());
+        searchResults[f].getBestGroup().cardinality());
     }
 
     if (m_verbose) {
       System.out.println(
-                         "continue searches on internal folds to maxSubsetSize (" +
-                         maxSubsetSize + ")");
+        "continue searches on internal folds to maxSubsetSize (" +
+          maxSubsetSize + ")");
     }
 
     for (int f = 0; f < m_numFolds; f++) {
       if (m_verbose) {
         System.out.print("perform search on internal fold: " + (f + 1) + "/" +
-                         m_numFolds + " with starting set ");
+          m_numFolds + " with starting set ");
         LFSMethods.printGroup(searchResults[f].getBestGroup(),
-                              trainData[f].numAttributes());
+          trainData[f].numAttributes());
       }
 
       if (searchResults[f].getBestGroup().cardinality() < maxSubsetSize) {
         m_setSizeEval.buildEvaluator(trainData[f]);
         searchResults[f].forwardSearch(m_cacheSize,
-                                       searchResults[f].getBestGroup(), ranking, m_numUsedAttributes,
-                                       m_linearSelectionType == TYPE_FIXED_WIDTH, 1, maxSubsetSize,
-                                       trainData[f], (SubsetEvaluator)m_setSizeEval, m_verbose);
+          searchResults[f].getBestGroup(), ranking, m_numUsedAttributes,
+          m_linearSelectionType == TYPE_FIXED_WIDTH, 1, maxSubsetSize,
+          trainData[f], (SubsetEvaluator) m_setSizeEval, m_verbose);
       }
     }
 
@@ -821,12 +853,16 @@ public class SubsetSizeForwardSelection extends ASSearch
       for (int s = 1; s <= maxSubsetSize; s++) {
         if (HoldOutSubsetEvaluator.class.isInstance(m_setSizeEval)) {
           m_setSizeEval.buildEvaluator(trainData[f]);
-          testMerit[f][s] = ((HoldOutSubsetEvaluator) m_setSizeEval).evaluateSubset(searchResults[f].getBestGroupOfSize(
-                                                                                                                        s), testData[f]);
+          testMerit[f][s] =
+            ((HoldOutSubsetEvaluator) m_setSizeEval).evaluateSubset(
+              searchResults[f].getBestGroupOfSize(
+                s), testData[f]);
         } else {
           m_setSizeEval.buildEvaluator(testData[f]);
-          testMerit[f][s] = ((SubsetEvaluator)m_setSizeEval).evaluateSubset(searchResults[f].getBestGroupOfSize(
-                                                                                             s));
+          testMerit[f][s] =
+            ((SubsetEvaluator) m_setSizeEval).evaluateSubset(searchResults[f]
+              .getBestGroupOfSize(
+              s));
         }
       }
     }
@@ -836,30 +872,30 @@ public class SubsetSizeForwardSelection extends ASSearch
 
     for (int s = 1; s <= maxSubsetSize; s++) {
       for (int f = 0; f < m_numFolds; f++) {
-        avgTestMerit[s] = ((avgTestMerit[s] * f) + testMerit[f][s]) / (double) (f +
-                                                                                1);
+        avgTestMerit[s] = ((avgTestMerit[s] * f) + testMerit[f][s]) / (f +
+          1);
       }
 
       if ((finalSubsetSize == -1) ||
-          (avgTestMerit[s] > avgTestMerit[finalSubsetSize])) {
+        (avgTestMerit[s] > avgTestMerit[finalSubsetSize])) {
         finalSubsetSize = s;
       }
 
       if (m_verbose) {
         System.out.println("average merit for subset-size " + s + ": " +
-                           avgTestMerit[s]);
+          avgTestMerit[s]);
       }
     }
 
     if (m_verbose) {
       System.out.println("performing final forward selection to subset-size: " +
-                         finalSubsetSize);
+        finalSubsetSize);
     }
 
     ASEval.buildEvaluator(data);
     LSF.forwardSearch(m_cacheSize, new BitSet(m_numAttribs), ranking,
-                      m_numUsedAttributes, m_linearSelectionType == TYPE_FIXED_WIDTH, 1,
-                      finalSubsetSize, data, (SubsetEvaluator) ASEval, m_verbose);
+      m_numUsedAttributes, m_linearSelectionType == TYPE_FIXED_WIDTH, 1,
+      finalSubsetSize, data, (SubsetEvaluator) ASEval, m_verbose);
 
     m_totalEvals = LSF.getNumEvalsTotal();
     m_bestMerit = LSF.getBestMerit();
@@ -884,9 +920,8 @@ public class SubsetSizeForwardSelection extends ASSearch
 
   /**
    * converts a BitSet into a list of attribute indexes
-   *
-   * @param group
-   *            the BitSet to convert
+   * 
+   * @param group the BitSet to convert
    * @return an array of attribute indexes
    */
   protected int[] attributeList(BitSet group) {
@@ -910,14 +945,14 @@ public class SubsetSizeForwardSelection extends ASSearch
 
     return list;
   }
-  
+
   /**
    * Returns the revision string.
    * 
-   * @return		the revision
+   * @return the revision
    */
+  @Override
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
 }
-
