@@ -180,7 +180,10 @@ public class TextDirectoryLoader
     
     setOutputFilename(Utils.getFlag("F", options));
     
-    setDirectory(new File(Utils.getOption("dir", options)));
+    String dir = Utils.getOption("dir", options);
+    if (dir.length() > 0) {
+      setDirectory(new File(dir));
+    }
     
     String charSet = Utils.getOption("charset", options);
     m_charSet = "";

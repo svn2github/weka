@@ -114,7 +114,7 @@ public class DatabaseLoader
   private DatabaseConnection m_DataBaseConnection;
   
   /** The user defined query to load instances. (form: SELECT *|&ltcolumn-list&gt; FROM &lttable&gt; [WHERE &lt;condition&gt;]) */
-  private String m_query = "Select * from Results0";
+  private String m_query = "SELECT * FROM Results0";
   
   /** Flag indicating that pseudo incremental mode is used (all instances load at once into main memeory and then incrementally from main memory instead of the database) */
   private boolean m_pseudoIncremental;
