@@ -469,6 +469,16 @@ public class OneRAttributeEval
   public String getRevision() {
     return RevisionUtils.extract("$Revision$");
   }
+  
+  @Override
+  public int[] postProcess(int[] attributeSet) {
+
+    // save memory
+    m_trainInstances = new Instances(m_trainInstances, 0);
+
+    return attributeSet;
+  }
+
 
   // ============
   // Test method.
