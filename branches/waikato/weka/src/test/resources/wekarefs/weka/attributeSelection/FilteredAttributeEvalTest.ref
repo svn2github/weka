@@ -5,7 +5,7 @@
 Search Method:
 	Attribute ranking.
 
-Attribute Evaluator (supervised, Class (nominal): 5 Class):
+Attribute Evaluator (supervised, Class (nominal): 7 Class):
 Filtered Attribute Evaluator
 Filter: weka.filters.supervised.instance.SpreadSubsample -M 0.0 -X 0.0 -S 1
 Attribute evaluator: weka.attributeSelection.InfoGainAttributeEval 
@@ -16,17 +16,23 @@ Filtered header:
 @attribute Nominal1 {att1val1,att1val2}
 @attribute Nominal2 {att2val1,att2val2}
 @attribute Numeric1 numeric
+@attribute String1 string
 @attribute Date1 date yyyy-mm-dd
+@attribute Relational1 relational
+@attribute Nominal1 {att1val1,att1val2}
+@end Relational1
 @attribute Class {class1,class2}
 
 @data
 
 
 Ranked attributes:
- 0.971  1 Nominal1
- 0.971  3 Numeric1
- 0.361  2 Nominal2
- 0      4 Date1
+ 0.993  6 Relational1
+ 0.993  4 String1
+ 0.993  3 Numeric1
+ 0.525  1 Nominal1
+ 0.525  2 Nominal2
+ 0.365  5 Date1
 
-Selected attributes: 1,3,2,4 : 4
+Selected attributes: 6,4,3,1,2,5 : 6
 
