@@ -317,7 +317,7 @@
     <mkdir dir="public_domain/weka/core/matrix"/>
     <mkdir dir="public_domain/weka/gui"/>
 
-    <!-- Move the public domain classes out of weka -->
+    <!-- Move the public domain classes out of weka
     <move file="${src}/weka/core/matrix/CholeskyDecomposition.java" 
           todir="public_domain/weka/core/matrix" failonerror="false"/>
     <move file="${src}/weka/core/matrix/EigenvalueDecomposition.java" 
@@ -333,7 +333,7 @@
     <move file="${src}/weka/core/Statistics.java" 
           todir="public_domain/weka/core/" failonerror="false"/>
     <move file="${src}/weka/gui/SplashWindow.java" 
-          todir="public_domain/weka/gui/" failonerror="false"/>
+          todir="public_domain/weka/gui/" failonerror="false"/> -->
   </target>
 
   <!-- Compile the java code from ${src}/weka into ${build}/classes -->
