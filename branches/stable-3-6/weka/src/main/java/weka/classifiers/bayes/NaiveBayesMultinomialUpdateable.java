@@ -144,7 +144,7 @@ public class NaiveBayesMultinomialUpdateable
 
     for (int a = 0; a < instance.numValues(); a++) {
       if (instance.index(a) == instance.classIndex() ||
-	  instance.isMissing(a))
+	  instance.isMissingSparse(a))
 	continue;
 
       double numOccurences = instance.valueSparse(a) * instance.weight();
