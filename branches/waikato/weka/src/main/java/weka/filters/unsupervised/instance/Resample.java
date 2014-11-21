@@ -75,10 +75,11 @@ import weka.filters.UnsupervisedFilter;
  * 
  * @author Len Trigg (len@reeltwo.com)
  * @author FracPete (fracpete at waikato dot ac dot nz)
+ * @author Eibe Frank
  * @version $Revision$
  */
 public class Resample extends Filter implements UnsupervisedFilter,
-  OptionHandler {
+OptionHandler {
 
   /** for serialization */
   static final long serialVersionUID = 3119607037607101160L;
@@ -131,9 +132,9 @@ public class Resample extends Filter implements UnsupervisedFilter,
         + "\tthe input dataset (default 100)", "Z", 1, "-Z <num>"));
 
     result
-      .addElement(new Option("\tDisables replacement of instances\n"
-        + "\t(default: with replacement)", "no-replacement", 0,
-        "-no-replacement"));
+    .addElement(new Option("\tDisables replacement of instances\n"
+      + "\t(default: with replacement)", "no-replacement", 0,
+      "-no-replacement"));
 
     result.addElement(new Option(
       "\tInverts the selection - only available with '-no-replacement'.", "V",
@@ -441,83 +442,54 @@ public class Resample extends Filter implements UnsupervisedFilter,
   }
 
   /**
-   * creates the subsample with replacement
-   * 
-   * @param random the random number generator to use
-   * @param origSize the original size of the dataset
-   * @param sampleSize the size to generate
-   */
-  public void createSubsampleWithReplacement(Random random, int origSize,
-    int sampleSize) {
-
-    for (int i = 0; i < sampleSize; i++) {
-      int index = random.nextInt(origSize);
-      push((Instance) getInputFormat().instance(index).copy());
-    }
-  }
-
-  /**
-   * creates the subsample without replacement
-   * 
-   * @param random the random number generator to use
-   * @param origSize the original size of the dataset
-   * @param sampleSize the size to generate
-   */
-  public void createSubsampleWithoutReplacement(Random random, int origSize,
-    int sampleSize) {
-
-    if (sampleSize > origSize) {
-      sampleSize = origSize;
-      System.err
-        .println("Resampling with replacement can only use percentage <=100% - "
-          + "Using full dataset!");
-    }
-
-    Vector<Integer> indices = new Vector<Integer>(origSize);
-    Vector<Integer> indicesNew = new Vector<Integer>(sampleSize);
-
-    // generate list of all indices to draw from
-    for (int i = 0; i < origSize; i++) {
-      indices.add(i);
-    }
-
-    // draw X random indices (selected ones get removed before next draw)
-    for (int i = 0; i < sampleSize; i++) {
-      int index = random.nextInt(indices.size());
-      indicesNew.add(indices.get(index));
-      indices.remove(index);
-    }
-
-    if (getInvertSelection()) {
-      indicesNew = indices;
-    } else {
-      Collections.sort(indicesNew);
-    }
-
-    for (int i = 0; i < indicesNew.size(); i++) {
-      push((Instance) getInputFormat().instance(indicesNew.get(i)).copy());
-    }
-
-    // clean up
-    indices.clear();
-    indicesNew.clear();
-    indices = null;
-    indicesNew = null;
-  }
-
-  /**
    * Creates a subsample of the current set of input instances. The output
    * instances are pushed onto the output queue for collection.
    */
   protected void createSubsample() {
-    int origSize = getInputFormat().numInstances();
-    int sampleSize = (int) (origSize * m_SampleSizePercent / 100);
+
+    Instances data = getInputFormat();
+    int numEligible = data.numInstances();
+    int sampleSize = (int) (numEligible * m_SampleSizePercent / 100);
     Random random = new Random(m_RandomSeed);
 
     if (getNoReplacement()) {
-      createSubsampleWithoutReplacement(random, origSize, sampleSize);
+
+      // Set up array of indices
+      int[] selected = new int[numEligible];
+      for (int j = 0; j < numEligible; j++) {
+        selected[j] = j;
+      }
+      for (int i = 0; i < sampleSize; i++) {
+
+        // Sampling without replacement
+        int chosenLocation = random.nextInt(numEligible);
+        int chosen = selected[chosenLocation];
+        numEligible--;
+        selected[chosenLocation] = selected[numEligible];
+        selected[numEligible] = chosen;
+      }
+
+      // Do we need to invert the selection?
+      if (getInvertSelection()) {
+
+        // Take the first numEligible instances
+        // because they have not been selected
+        for (int j = 0; j < numEligible; j++) {
+          push(data.instance(selected[j]));
+        }
+      } else {
+
+        // Take the elements that have been selected
+        for (int j = numEligible; j < data.numInstances(); j++) {
+          push(data.instance(selected[j]));
+        }
+      }
     } else {
-      createSubsampleWithReplacement(random, origSize, sampleSize);
+
+      // Sampling with replacement
+      for (int i = 0; i < sampleSize; i++) {
+        push(data.instance(random.nextInt(numEligible)));
+      }
     }
   }
 
