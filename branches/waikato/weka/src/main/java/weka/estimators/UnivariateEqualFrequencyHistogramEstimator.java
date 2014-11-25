@@ -21,6 +21,7 @@
 
 package weka.estimators;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import weka.core.RevisionUtils;
 import weka.core.Statistics;
 import weka.core.Utils;
 
@@ -40,7 +42,10 @@ import weka.core.Utils;
  */
 public class UnivariateEqualFrequencyHistogramEstimator implements
   UnivariateDensityEstimator, UnivariateIntervalEstimator,
-  UnivariateQuantileEstimator {
+  UnivariateQuantileEstimator, Serializable {
+
+  /** For serialization */
+  private static final long serialVersionUID = -3180287591539683137L;
 
   /** The collection used to store the weighted values. */
   protected TreeMap<Double, Double> m_TM = new TreeMap<Double, Double>();
@@ -81,6 +86,12 @@ public class UnivariateEqualFrequencyHistogramEstimator implements
   /** Whether boundaries are updated or only weights. */
   protected boolean m_UpdateWeightsOnly = false;
 
+  /**
+   * Returns a string describing the estimator.
+   */
+  public String globalInfo() {
+    return "Provides a univariate histogram estimator based on equal-frequency bins.";
+  }
   /**
    * Gets the number of bins
    * 
@@ -482,6 +493,16 @@ public class UnivariateEqualFrequencyHistogramEstimator implements
       return Math.log(densSmearedOut + m_Weights[index]
         / ((m_SumOfWeights + 2) * width));
     }
+  }
+
+  /**
+   * Returns the revision string.
+   * 
+   * @return the revision
+   */
+  @Override
+  public String getRevision() {
+    return RevisionUtils.extract("$Revision$");
   }
 
   /**

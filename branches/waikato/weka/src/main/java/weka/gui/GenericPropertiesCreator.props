@@ -129,6 +129,11 @@ weka.core.stemmers.Stemmer=\
 # Lists the Estimator-Packages I want to choose from
 weka.estimators.Estimator= \
  weka.estimators
+ 
+# Lists the Univariate Density Estimator packages I want to choose from
+weka.estimators.UnivariateDensityEstimator= \
+ weka.estimators
+ 
 
 # Lists of Kernels I want to choose from
 weka.classifiers.functions.supportVector.Kernel=\

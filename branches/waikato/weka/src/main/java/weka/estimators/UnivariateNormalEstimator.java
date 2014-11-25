@@ -12,16 +12,19 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /*
  *    UnivariateNormalEstimator.java
- *    Copyright (C) 2009 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2009-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.estimators;
 
+import java.io.Serializable;
 import java.util.Random;
 
+import weka.core.RevisionUtils;
 import weka.core.Statistics;
 
 /**
@@ -31,7 +34,12 @@ import weka.core.Statistics;
  * @version $Revision$
  */
 public class UnivariateNormalEstimator implements UnivariateDensityEstimator,
-                                                  UnivariateIntervalEstimator {
+                                                  UnivariateIntervalEstimator,
+                                                  UnivariateQuantileEstimator,
+                                                  Serializable {
+
+  /** For serialization */
+  private static final long serialVersionUID = -1669009817825826548L;
 
   /** The weighted sum of values */
   protected double m_WeightedSum = 0;
@@ -54,6 +62,12 @@ public class UnivariateNormalEstimator implements UnivariateDensityEstimator,
   /** Constant for Gaussian density */
   public static final double CONST = Math.log(2 * Math.PI);
 
+  /**
+   * Returns a string describing the estimator.
+   */
+  public String globalInfo() {
+    return "Estimates a univariate normal density.";
+  }
   /**
    * Adds a value to the density estimator.
    *
@@ -113,6 +127,19 @@ public class UnivariateNormalEstimator implements UnivariateDensityEstimator,
   }
 
   /**
+   * Returns the quantile for the given percentage.
+   * 
+   * @param percentage the percentage
+   * @return the quantile
+   */
+  public double predictQuantile(double percentage) {
+    
+    updateMeanAndVariance();
+
+    return m_Mean + Statistics.normalInverse(percentage) * Math.sqrt(m_Variance);
+  }
+
+  /**
    * Returns the natural logarithm of the density estimate at the given
    * point.
    *
@@ -139,6 +166,16 @@ public class UnivariateNormalEstimator implements UnivariateDensityEstimator,
     updateMeanAndVariance();
 
     return "Mean: " + m_Mean + "\t" + "Variance: " + m_Variance;
+  }
+
+  /**
+   * Returns the revision string.
+   * 
+   * @return the revision
+   */
+  @Override
+  public String getRevision() {
+    return RevisionUtils.extract("$Revision$");
   }
 
   /**
