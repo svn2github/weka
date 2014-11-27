@@ -23,8 +23,10 @@ package weka.clusterers;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Vector;
 
@@ -184,7 +186,9 @@ public class HierarchicalClusterer extends AbstractClusterer implements OptionHa
     double m_fRightLength = 0;
     double m_fHeight = 0;
     public String toString(int attIndex) {
-      DecimalFormat myFormatter = new DecimalFormat("#.#####");
+      NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en","US"));
+      DecimalFormat myFormatter = (DecimalFormat)nf;
+      myFormatter.applyPattern("#.#####");
 
       if (m_left == null) {
         if (m_right == null) {
@@ -204,7 +208,9 @@ public class HierarchicalClusterer extends AbstractClusterer implements OptionHa
       }
     }
     public String toString2(int attIndex) {
-      DecimalFormat myFormatter = new DecimalFormat("#.#####");
+      NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en","US"));
+      DecimalFormat myFormatter = (DecimalFormat)nf;
+      myFormatter.applyPattern("#.#####");
 
       if (m_left == null) {
         if (m_right == null) {
