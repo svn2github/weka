@@ -353,23 +353,17 @@ public class GenericObjectEditor implements PropertyEditor, CustomPanelSupplier 
         if (m_Capabilities != null) {
           if (m_Capabilities.supportsMaybe(m_CapabilitiesFilter)
             && !m_Capabilities.supports(m_CapabilitiesFilter)) {
-            result = Messages.getInstance().getString(
-              "GenericObjectEditor_GOETreeNode_ToString_Result_Text_First")
+            result = "<html><font color=\"" 
               + MAYBE_SUPPORT
-              + Messages.getInstance().getString(
-                "GenericObjectEditor_GOETreeNode_ToString_Result_Text_Second")
+	      + "\">"
               + result
-              + Messages.getInstance().getString(
-                "GenericObjectEditor_GOETreeNode_ToString_Result_Text_Third");
+		+ "</font><html>";
           } else if (!m_Capabilities.supports(m_CapabilitiesFilter)) {
-            result = Messages.getInstance().getString(
-              "GenericObjectEditor_GOETreeNode_ToString_Result_Text_Fourth")
+            result = "<html><font color=\"" 
               + NO_SUPPORT
-              + Messages.getInstance().getString(
-                "GenericObjectEditor_GOETreeNode_ToString_Result_Text_Fifth")
+              + "\">"
               + result
-              + Messages.getInstance().getString(
-                "GenericObjectEditor_GOETreeNode_ToString_Result_Text_Sixth");
+              + "</font><html>";
           }
         }
       }
