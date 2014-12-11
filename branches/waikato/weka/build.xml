@@ -390,7 +390,7 @@
              packagenames="weka.*"
              Author="yes" 
              Public="yes" 
-             maxmemory="256m"/>
+             maxmemory="500m"/>
     
     <!-- insert the links to our homepage and documentation.html -->
     <replace dir="${doc}" 
