@@ -308,6 +308,10 @@
     <antcall target="${packageCommand}_internal">
       <param name="packageName" value="kernelLogisticRegression"/>
     </antcall>
+
+    <antcall target="${packageCommand}_internal">
+      <param name="packageName" value="discriminantAnalysis"/>
+    </antcall>
   </target>
 
   <target name="init_compile" depends="init_all">
