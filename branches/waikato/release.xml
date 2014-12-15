@@ -21,6 +21,7 @@
   <property name="dist"  value="dist"/>
   <property name="os"  value="osx"/>
   <property name="makensis"  value="makensis"/>
+  <property environment="env" />
 
   <!-- load the last release date -->
   <property file="last-release.props"/>
@@ -252,6 +253,7 @@
         identifier="nz.ac.waikato.cms.Weka"
         shortversion="${version}"
         mainclassname="weka.gui.GUIChooser">
+        <runtime dir="${env.JAVA_HOME}" />
         <classpath file="${temp}/weka-${release}/weka.jar"/>
         <option value="-Xmx1024M"/>
     </bundleapp>
