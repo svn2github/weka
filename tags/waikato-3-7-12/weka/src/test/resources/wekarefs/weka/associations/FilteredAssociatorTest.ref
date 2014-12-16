@@ -1,0 +1,36 @@
+FilteredAssociator using weka.associations.FPGrowth -P 2 -I -1 -N 10 -T 0 -C 0.9 -D 0.05 -U 1.0 -M 0.1 on data filtered through weka.filters.MultiFilter -F "weka.filters.unsupervised.attribute.ReplaceMissingValues "
+
+Filtered Header
+@relation Testdata-weka.filters.unsupervised.attribute.ReplaceMissingValues-weka.filters.MultiFilter-Fweka.filters.unsupervised.attribute.ReplaceMissingValues
+
+@attribute Nominal1 {att1val1,att1val2}
+@attribute Nominal2 {att2val1,att2val2}
+@attribute Class {class1,class2}
+
+@data
+
+
+Associator Model
+FPGrowth found 7 rules (displaying top 7)
+
+1. [Nominal1=att1val2]: 12 ==> [Class=class2]: 12   <conf:(1)> lift:(1.54) lev:(0.21) conv:(4.2) 
+2. [Nominal2=att2val2]: 11 ==> [Class=class2]: 11   <conf:(1)> lift:(1.54) lev:(0.19) conv:(3.85) 
+3. [Nominal1=att1val2, Nominal2=att2val2]: 10 ==> [Class=class2]: 10   <conf:(1)> lift:(1.54) lev:(0.18) conv:(3.5) 
+4. [Class=class2]: 13 ==> [Nominal1=att1val2]: 12   <conf:(0.92)> lift:(1.54) lev:(0.21) conv:(2.6) 
+5. [Nominal2=att2val2]: 11 ==> [Nominal1=att1val2]: 10   <conf:(0.91)> lift:(1.52) lev:(0.17) conv:(2.2) 
+6. [Nominal2=att2val2]: 11 ==> [Class=class2, Nominal1=att1val2]: 10   <conf:(0.91)> lift:(1.52) lev:(0.17) conv:(2.2) 
+7. [Class=class2, Nominal2=att2val2]: 11 ==> [Nominal1=att1val2]: 10   <conf:(0.91)> lift:(1.52) lev:(0.17) conv:(2.2) 
+
+FilteredAssociator using weka.associations.FPGrowth -P 2 -I -1 -N 10 -T 0 -C 0.9 -D 0.05 -U 1.0 -M 0.1 on data filtered through weka.filters.MultiFilter -F "weka.filters.unsupervised.attribute.ReplaceMissingValues "
+
+Filtered Header
+@relation Testdata-weka.filters.unsupervised.attribute.ReplaceMissingValues-weka.filters.MultiFilter-Fweka.filters.unsupervised.attribute.ReplaceMissingValues
+
+@attribute Nominal1 {att1val1,att1val2}
+@attribute Nominal2 {att2val1,att2val2}
+
+@data
+
+
+Associator Model
+No rules found!
