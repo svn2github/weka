@@ -497,7 +497,7 @@ public class Bagging extends RandomizableIteratedSingleClassifierEnhancer
           + "out-of-bag error is to be calculated!");
     }
 
-    int bagSize = data.numInstances() * m_BagSizePercent / 100;
+    int bagSize = (int) (data.numInstances() * (m_BagSizePercent / 100.0));
     Random random = new Random(m_Seed);
 
     boolean[][] inBag = null;
