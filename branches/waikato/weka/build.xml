@@ -388,6 +388,11 @@
     </copy>
     <rmic base="${build}/classes"
        classname="weka.experiment.RemoteEngine"/>
+    <unzip src="${lib}/java-cup.jar" dest="${build}/classes">
+      <patternset>
+        <include name="java_cup/runtime/**/*"/>
+      </patternset>
+    </unzip>
     <unzip src="${lib}/packageManager.jar" dest="${build}/classes">
       <patternset>
         <include name="org/**/*"/>
