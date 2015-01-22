@@ -32,8 +32,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.text.BreakIterator;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -45,7 +48,7 @@ import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.
- * 
+ *
  * @author Eibe Frank
  * @author Yong Wang
  * @author Len Trigg
@@ -54,11 +57,32 @@ import weka.gui.PropertySheetPanel;
  */
 public final class Utils implements RevisionHandler {
 
-  /** The natural logarithm of 2. */
+  /**
+   * The natural logarithm of 2.
+   */
   public static double log2 = Math.log(2);
 
-  /** The small deviation allowed in double comparisons. */
+  /**
+   * The small deviation allowed in double comparisons.
+   */
   public static double SMALL = 1e-6;
+
+  /** Decimal format */
+  private static final ThreadLocal<DecimalFormat> DF = new ThreadLocal<DecimalFormat>() {
+
+    @Override
+    protected DecimalFormat initialValue() {
+
+      DecimalFormat df = new DecimalFormat();
+      DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
+      dfs.setNaN("NaN");
+      dfs.setInfinity("Infinity");
+      df.setGroupingUsed(false);
+      df.setRoundingMode(RoundingMode.HALF_UP);
+      df.setDecimalFormatSymbols(dfs);
+      return df;
+    }
+  };
 
   /**
    * Tests if the given value codes "missing".
@@ -317,50 +341,8 @@ public final class Utils implements RevisionHandler {
   public static/* @pure@ */String doubleToString(double value,
     int afterDecimalPoint) {
 
-    StringBuffer stringBuffer;
-    double temp;
-    int dotPosition;
-    long precisionValue;
-
-    temp = value * Math.pow(10.0, afterDecimalPoint);
-    if (Math.abs(temp) < Long.MAX_VALUE) {
-      precisionValue = (temp > 0) ? (long) (temp + 0.5) : -(long) (Math
-        .abs(temp) + 0.5);
-      if (precisionValue == 0) {
-        stringBuffer = new StringBuffer(String.valueOf(0));
-      } else {
-        stringBuffer = new StringBuffer(String.valueOf(precisionValue));
-      }
-      if (afterDecimalPoint == 0) {
-        return stringBuffer.toString();
-      }
-      dotPosition = stringBuffer.length() - afterDecimalPoint;
-      while (((precisionValue < 0) && (dotPosition < 1)) || (dotPosition < 0)) {
-        if (precisionValue < 0) {
-          stringBuffer.insert(1, '0');
-        } else {
-          stringBuffer.insert(0, '0');
-        }
-        dotPosition++;
-      }
-      stringBuffer.insert(dotPosition, '.');
-      if ((precisionValue < 0) && (stringBuffer.charAt(1) == '.')) {
-        stringBuffer.insert(1, '0');
-      } else if (stringBuffer.charAt(0) == '.') {
-        stringBuffer.insert(0, '0');
-      }
-      int currentPos = stringBuffer.length() - 1;
-      while ((currentPos > dotPosition)
-        && (stringBuffer.charAt(currentPos) == '0')) {
-        stringBuffer.setCharAt(currentPos--, ' ');
-      }
-      if (stringBuffer.charAt(currentPos) == '.') {
-        stringBuffer.setCharAt(currentPos, ' ');
-      }
-
-      return stringBuffer.toString().trim();
-    }
-    return new String("" + value);
+    DF.get().setMaximumFractionDigits(afterDecimalPoint);
+    return DF.get().format(value);
   }
 
   /**
@@ -379,9 +361,7 @@ public final class Utils implements RevisionHandler {
     char[] result;
     int dotPosition;
 
-    if ((afterDecimalPoint >= width) || (tempString.indexOf('E') != -1)) { // Protects
-                                                                           // sci
-                                                                           // notation
+    if (afterDecimalPoint >= width) {
       return tempString;
     }
 
